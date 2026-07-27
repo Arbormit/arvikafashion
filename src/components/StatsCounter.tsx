@@ -19,8 +19,8 @@ export const StatsCounter: React.FC = () => {
 
       setBuyers(Math.floor(25000 * Math.min(1, progress)));
       setPartners(Math.floor(150 * Math.min(1, progress)));
-      setCountries(Math.floor(38 * Math.min(1, progress)));
-      setYears(Math.floor(18 * Math.min(1, progress)));
+      setCountries(Math.floor(10 * Math.min(1, progress)));
+      setYears(Math.floor(10 * Math.min(1, progress)));
 
       if (currentStep >= steps) clearInterval(timer);
     }, interval);
@@ -45,7 +45,7 @@ export const StatsCounter: React.FC = () => {
       icon: <Globe className="w-8 h-8 text-[#D8C6A5]" />,
       value: `${countries}+`,
       label: 'Export Countries',
-      subtext: 'Worldwide BlueDart & DHL Logistics'
+      subtext: ''
     },
     {
       icon: <Award className="w-8 h-8 text-[#D8C6A5]" />,
@@ -63,7 +63,6 @@ export const StatsCounter: React.FC = () => {
       <div className="max-w-7xl mx-auto relative z-10">
         <div className="text-center max-w-xl mx-auto mb-12">
           <span className="text-xs font-montserrat uppercase tracking-[0.25em] text-[#D8C6A5] font-bold flex items-center justify-center gap-1.5">
-            <Sparkles className="w-3.5 h-3.5 text-[#C5A059]" />
             EXCELLENCE IN NUMBERS
           </span>
           <h2 className="font-serif text-3xl sm:text-4xl font-bold mt-2 text-[#FAF8F4]">

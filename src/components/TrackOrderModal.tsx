@@ -105,23 +105,6 @@ export const TrackOrderModal: React.FC<TrackOrderModalProps> = ({
               Track Order
             </button>
           </div>
-
-          {/* Quick Demo Tracking ID Helper */}
-          <div className="text-[11px] text-[#8C7A6B] flex items-center gap-1.5">
-            <span>Try demo tracking ID:</span>
-            <button
-              type="button"
-              onClick={() => {
-                setInputQuery('ARV-20260720-9X2M4K');
-                setFoundOrder(db.getOrderByTrackingId('ARV-20260720-9X2M4K'));
-                setHasSearched(true);
-                setErrorMsg(null);
-              }}
-              className="font-mono text-[#214C3A] font-bold underline hover:text-[#4A5D4E]"
-            >
-              ARV-20260720-9X2M4K
-            </button>
-          </div>
         </form>
 
         {/* Error Notification */}

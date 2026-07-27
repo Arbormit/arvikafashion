@@ -12,7 +12,8 @@ import {
   Share2, 
   ChevronRight,
   Star,
-  Leaf
+  Leaf,
+  ArrowLeft
 } from 'lucide-react';
 import { Product, Currency } from '../types';
 import { SizeGuideModal } from './SizeGuideModal';
@@ -26,6 +27,7 @@ interface ProductDetailModalProps {
   onBuyNow: (product: Product, color: string, size: string, quantity: number) => void;
   onToggleWishlist: (product: Product) => void;
   isWishlisted: boolean;
+  isAddedToCart?: boolean;
 }
 
 export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
@@ -36,7 +38,8 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
   onAddToCart,
   onBuyNow,
   onToggleWishlist,
-  isWishlisted
+  isWishlisted,
+  isAddedToCart = false
 }) => {
   if (!isOpen || !product) return null;
 
@@ -71,46 +74,72 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
 
   return (
     <>
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-md p-3 sm:p-6 animate-fade-in overflow-y-auto">
-        <div className="bg-[#FAF8F4] border border-[#EFE6D8] rounded-3xl max-w-5xl w-full p-6 sm:p-8 relative shadow-2xl my-auto max-h-[92vh] overflow-y-auto">
-          
-          {/* Close Button */}
+      {/* Universal Full Page Product Detail Showcase Container */}
+      <div className="fixed inset-0 z-50 bg-[#FAF8F4] overflow-y-auto w-full h-full min-h-screen animate-fade-in font-sans">
+        
+        {/* Universal Top Header Bar (Compact & Elegant on Mobile/Tablet) */}
+        <header className="sticky top-0 z-40 bg-[#FAF8F4]/95 backdrop-blur-md border-b border-[#EFE6D8] px-3 sm:px-6 lg:px-8 py-3 flex items-center justify-between shadow-xs">
           <button
             onClick={onClose}
-            className="absolute top-5 right-5 z-20 p-2.5 text-[#1C1C1C]/70 hover:text-[#214C3A] bg-[#EFE6D8]/60 hover:bg-[#EFE6D8] rounded-full transition-colors"
+            className="p-2.5 md:px-4 md:py-2 rounded-full bg-[#EFE6D8]/70 hover:bg-[#EFE6D8] text-[#214C3A] transition-colors shadow-xs flex items-center space-x-2 cursor-pointer shrink-0 active:scale-95"
+            aria-label="Back to Store"
+            title="Back to Store"
           >
-            <X className="w-5 h-5" />
+            <ArrowLeft className="w-5 h-5 md:w-4 md:h-4 text-[#214C3A]" />
+            <span className="hidden md:inline text-xs font-montserrat font-bold">Back to Store Collections</span>
           </button>
 
-          {/* Toast Notification */}
-          {toastMessage && (
-            <div className="absolute top-5 left-1/2 -translate-x-1/2 z-30 bg-[#214C3A] text-[#D8C6A5] px-5 py-2.5 rounded-full text-xs font-montserrat font-bold shadow-xl border border-[#C5A059] flex items-center gap-2 animate-fade-in">
-              <Check className="w-4 h-4 text-emerald-400" />
-              <span>{toastMessage}</span>
-            </div>
-          )}
+          <div className="flex flex-col items-center text-center px-2 min-w-0">
+            <span className="font-serif text-sm sm:text-base lg:text-xl font-bold text-[#214C3A] tracking-wider uppercase truncate max-w-[150px] sm:max-w-none">
+              ARVIKA FASHION
+            </span>
+            <span className="text-[8px] sm:text-[9px] font-montserrat uppercase tracking-widest text-[#8C7A6B] font-semibold -mt-0.5 truncate max-w-[150px] sm:max-w-none">
+              {product.categoryName} • EXPORT EDITION
+            </span>
+          </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+          <div className="flex items-center space-x-2">
+            <button
+              onClick={() => onToggleWishlist(product)}
+              className={`p-2.5 rounded-full transition-all cursor-pointer ${
+                isWishlisted ? 'bg-[#214C3A] text-[#FAF8F4] shadow-md' : 'bg-[#EFE6D8]/70 hover:bg-[#EFE6D8] text-[#1C1C1C]'
+              }`}
+              title="Wishlist Product"
+            >
+              <Heart className={`w-5 h-5 ${isWishlisted ? 'fill-[#D8C6A5] text-[#D8C6A5]' : ''}`} />
+            </button>
+
+            <button
+              onClick={onClose}
+              className="p-2.5 text-[#1C1C1C]/70 hover:text-[#214C3A] bg-[#EFE6D8]/60 hover:bg-[#EFE6D8] rounded-full transition-colors cursor-pointer"
+              title="Close Full View"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+        </header>
+
+        {/* Toast Notification */}
+        {toastMessage && (
+          <div className="fixed top-16 left-1/2 -translate-x-1/2 z-50 bg-[#214C3A] text-[#D8C6A5] px-6 py-3 rounded-full text-xs font-montserrat font-bold shadow-2xl border border-[#C5A059] flex items-center gap-2 animate-fade-in">
+            <Check className="w-4 h-4 text-emerald-400" />
+            <span>{toastMessage}</span>
+          </div>
+        )}
+
+        {/* Main Full Page Body */}
+        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10 pb-28 lg:pb-12">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-start">
             
             {/* Gallery Section */}
             <div className="space-y-4">
-              <div className="relative aspect-[3/4] w-full bg-[#EFE6D8]/40 rounded-2xl overflow-hidden border border-[#EFE6D8]">
+              <div className="relative w-full h-[320px] sm:h-[460px] lg:h-[600px] bg-[#EFE6D8]/40 rounded-3xl overflow-hidden border border-[#EFE6D8] shadow-sm">
                 <img
                   src={selectedImage || product.images[0]}
                   alt={product.name}
-                  className="w-full h-full object-cover object-center"
+                  className="w-full h-full object-cover object-top"
                   referrerPolicy="no-referrer"
                 />
-                
-                {/* Wishlist Button */}
-                <button
-                  onClick={() => onToggleWishlist(product)}
-                  className={`absolute top-4 right-4 p-3 rounded-full transition-all z-10 ${
-                    isWishlisted ? 'bg-[#214C3A] text-[#FAF8F4] shadow-lg' : 'bg-white/80 hover:bg-white text-[#1C1C1C]'
-                  }`}
-                >
-                  <Heart className={`w-5 h-5 ${isWishlisted ? 'fill-[#D8C6A5] text-[#D8C6A5]' : ''}`} />
-                </button>
               </div>
 
               {/* Thumbnails */}
@@ -119,13 +148,13 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
                   <button
                     key={idx}
                     onClick={() => setSelectedImage(img)}
-                    className={`w-20 h-24 rounded-xl overflow-hidden border-2 flex-shrink-0 transition-all ${
+                    className={`w-18 h-22 sm:w-24 sm:h-28 rounded-2xl overflow-hidden border-2 flex-shrink-0 transition-all cursor-pointer ${
                       (selectedImage === img || (!selectedImage && idx === 0))
-                        ? 'border-[#214C3A] ring-2 ring-[#214C3A]/20 scale-105'
+                        ? 'border-[#214C3A] ring-2 ring-[#214C3A]/20 scale-105 shadow-md'
                         : 'border-[#EFE6D8] opacity-70 hover:opacity-100'
                     }`}
                   >
-                    <img src={img} alt="Thumbnail" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                    <img src={img} alt="Thumbnail" className="w-full h-full object-cover object-top" referrerPolicy="no-referrer" />
                   </button>
                 ))}
               </div>
@@ -248,23 +277,36 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
                 </div>
               </div>
 
-              {/* Action CTAs */}
-              <div className="pt-4 border-t border-[#EFE6D8] space-y-3">
+              {/* In-Line Action CTAs (Fixed in document flow on all screens - No Floating / No Overlapping) */}
+              <div className="pt-6 border-t border-[#EFE6D8] space-y-3">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <button
                     onClick={handleAddToCart}
-                    className="bg-[#EFE6D8] hover:bg-[#D8C6A5] text-[#214C3A] py-3.5 rounded-2xl font-montserrat text-xs font-bold uppercase tracking-wider transition-colors flex items-center justify-center gap-2"
+                    className={`py-4 rounded-2xl font-montserrat text-xs font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-98 shadow-xs ${
+                      isAddedToCart
+                        ? 'bg-emerald-800 text-[#FAF8F4] border-2 border-emerald-600'
+                        : 'bg-[#EFE6D8] hover:bg-[#D8C6A5] text-[#214C3A]'
+                    }`}
                   >
-                    <ShoppingBag className="w-4 h-4" />
-                    <span>Add to Cart</span>
+                    {isAddedToCart ? (
+                      <>
+                        <Check className="w-4 h-4 text-emerald-300" />
+                        <span>Item Added to Cart ✓</span>
+                      </>
+                    ) : (
+                      <>
+                        <ShoppingBag className="w-4 h-4" />
+                        <span>Add to Cart</span>
+                      </>
+                    )}
                   </button>
 
                   <button
                     onClick={handleBuyNow}
-                    className="bg-[#214C3A] hover:bg-[#4A5D4E] text-[#FAF8F4] py-3.5 rounded-2xl font-montserrat text-xs font-bold uppercase tracking-wider transition-all shadow-md flex items-center justify-center gap-2"
+                    className="bg-[#214C3A] hover:bg-[#1A3D2F] text-[#FAF8F4] py-4 rounded-2xl font-montserrat text-xs font-bold uppercase tracking-wider transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer active:scale-98"
                   >
                     <Sparkles className="w-4 h-4 text-[#D8C6A5]" />
-                    <span>Buy Now</span>
+                    <span>Buy Now ({price})</span>
                   </button>
                 </div>
 
@@ -280,9 +322,9 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
                     msg += `💰 *Price:* ${priceFormatted}\n`;
                     msg += `\nCould you please assist me with custom sizing and dispatch time?`;
                     
-                    window.open(`https://wa.me/919876543210?text=${encodeURIComponent(msg)}`, '_blank');
+                    window.open(`https://wa.me/919891179374?text=${encodeURIComponent(msg)}`, '_blank');
                   }}
-                  className="w-full bg-[#25D366] hover:bg-[#20ba5a] text-white py-3 rounded-2xl font-montserrat text-xs font-bold uppercase tracking-wider transition-all shadow-sm flex items-center justify-center gap-2"
+                  className="w-full bg-[#25D366] hover:bg-[#20ba5a] text-white py-3.5 rounded-2xl font-montserrat text-xs font-bold uppercase tracking-wider transition-all shadow-xs flex items-center justify-center gap-2 cursor-pointer active:scale-98"
                 >
                   <Share2 className="w-4 h-4" />
                   <span>Enquire / Custom Order via WhatsApp</span>
@@ -355,7 +397,10 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
 
             </div>
           </div>
-        </div>
+        </main>
+
+
+
       </div>
 
       <SizeGuideModal isOpen={isSizeGuideOpen} onClose={() => setIsSizeGuideOpen(false)} />

@@ -1,13 +1,23 @@
-import React, { useState } from 'react';
-import { Star, CheckCircle, ThumbsUp, Plus, Filter, MessageSquare, Sparkles } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Star, CheckCircle, ThumbsUp, Plus, Filter, MessageSquare, Sparkles, Check, X, Trash2, AlertCircle } from 'lucide-react';
 import { Review } from '../types';
-import { INITIAL_REVIEWS } from '../data/reviews';
+import { db } from '../services/db';
 
 export const ReviewsSection: React.FC = () => {
-  const [reviews, setReviews] = useState<Review[]>(INITIAL_REVIEWS);
+  const [reviews, setReviews] = useState<Review[]>(() => db.getReviews());
   const [filterRating, setFilterRating] = useState<number | null>(null);
   const [isVerifiedOnly, setIsVerifiedOnly] = useState(false);
   const [isSubmitModalOpen, setIsSubmitModalOpen] = useState(false);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  // Sync with real-time review updates across components
+  useEffect(() => {
+    const handleUpdate = () => {
+      setReviews(db.getReviews());
+    };
+    window.addEventListener('arvika_reviews_updated', handleUpdate);
+    return () => window.removeEventListener('arvika_reviews_updated', handleUpdate);
+  }, []);
 
   // New review form state
   const [newName, setNewName] = useState('');
@@ -16,33 +26,55 @@ export const ReviewsSection: React.FC = () => {
   const [newTitle, setNewTitle] = useState('');
   const [newComment, setNewComment] = useState('');
 
+  const showToast = (msg: string) => {
+    setToastMessage(msg);
+    setTimeout(() => setToastMessage(null), 3000);
+  };
+
   const handleHelpful = (id: string) => {
-    setReviews((prev) =>
-      prev.map((r) => (r.id === id ? { ...r, helpfulCount: r.helpfulCount + 1 } : r))
-    );
+    db.voteHelpfulReview(id);
+    setReviews(db.getReviews());
+  };
+
+  const [reviewToDelete, setReviewToDelete] = useState<Review | null>(null);
+
+  const confirmDeleteReview = () => {
+    if (!reviewToDelete) return;
+    db.deleteReview(reviewToDelete.id);
+    setReviews(db.getReviews());
+    showToast('Review permanently deleted from store & Neon DB. 🗑️');
+    setReviewToDelete(null);
+  };
+
+  const openReviewModal = () => {
+    const user = db.getCurrentUser();
+    if (user && user.isLoggedIn && user.name && !newName) {
+      setNewName(user.name);
+    }
+    setIsSubmitModalOpen(true);
   };
 
   const handleAddReview = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newName || !newTitle || !newComment) return;
+    if (!newName.trim() || !newTitle.trim() || !newComment.trim()) return;
 
-    const created: Review = {
-      id: `rev-${Date.now()}`,
-      userName: newName,
+    const currentUser = db.getCurrentUser();
+
+    db.addReview({
+      userName: newName.trim(),
+      userAvatar: currentUser?.isLoggedIn && currentUser.avatar ? currentUser.avatar : undefined,
       country: newCountry,
       rating: newRating,
-      title: newTitle,
-      comment: newComment,
-      date: 'Just now',
-      isVerifiedBuyer: true,
-      helpfulCount: 0
-    };
+      title: newTitle.trim(),
+      comment: newComment.trim(),
+      isVerifiedBuyer: true
+    });
 
-    setReviews([created, ...reviews]);
+    setReviews(db.getReviews());
     setIsSubmitModalOpen(false);
-    setNewName('');
     setNewTitle('');
     setNewComment('');
+    showToast('Thank you! Your client review has been published live across the store! 🌟');
   };
 
   const filteredReviews = reviews.filter((r) => {
@@ -51,9 +83,28 @@ export const ReviewsSection: React.FC = () => {
     return true;
   });
 
+  const totalReviewsCount = reviews.length;
+  const avgRating = totalReviewsCount > 0
+    ? (reviews.reduce((sum, r) => sum + r.rating, 0) / totalReviewsCount).toFixed(1)
+    : '0.0';
+
+  const starBreakdown = [5, 4, 3, 2, 1].map((stars) => {
+    const count = reviews.filter((r) => r.rating === stars).length;
+    const pctNum = totalReviewsCount > 0 ? Math.round((count / totalReviewsCount) * 100) : 0;
+    return { stars, pct: `${pctNum}%`, count };
+  });
+
   return (
-    <section className="py-20 bg-[#FAF8F4] border-t border-[#EFE6D8] px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-12">
+    <section className="py-20 bg-[#FAF8F4] border-t border-[#EFE6D8] px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-12 relative">
       
+      {/* Toast Notification */}
+      {toastMessage && (
+        <div className="fixed bottom-20 left-1/2 -translate-x-1/2 z-50 bg-[#214C3A] text-[#D8C6A5] px-6 py-3 rounded-full text-xs font-montserrat font-bold shadow-2xl border border-[#C5A059] flex items-center gap-2 animate-fade-in">
+          <Check className="w-4 h-4 text-emerald-400" />
+          <span>{toastMessage}</span>
+        </div>
+      )}
+
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div>
@@ -67,8 +118,8 @@ export const ReviewsSection: React.FC = () => {
         </div>
 
         <button
-          onClick={() => setIsSubmitModalOpen(true)}
-          className="bg-[#214C3A] text-[#FAF8F4] hover:bg-[#4A5D4E] px-6 py-3.5 rounded-full font-montserrat text-xs font-bold uppercase tracking-wider transition-all shadow-md flex items-center space-x-2"
+          onClick={openReviewModal}
+          className="bg-[#214C3A] text-[#FAF8F4] hover:bg-[#4A5D4E] px-6 py-3.5 rounded-full font-montserrat text-xs font-bold uppercase tracking-wider transition-all shadow-md flex items-center space-x-2 cursor-pointer active:scale-98"
         >
           <Plus className="w-4 h-4 text-[#D8C6A5]" />
           <span>Write a Client Review</span>
@@ -80,30 +131,24 @@ export const ReviewsSection: React.FC = () => {
         
         {/* Rating Score */}
         <div className="text-center lg:border-r border-[#D8C6A5] lg:pr-8 space-y-2">
-          <div className="font-serif text-6xl font-bold text-[#214C3A]">4.9</div>
+          <div className="font-serif text-6xl font-bold text-[#214C3A]">{avgRating}</div>
           <div className="flex justify-center space-x-1 text-[#C5A059]">
             {[1, 2, 3, 4, 5].map((s) => (
-              <Star key={s} className="w-5 h-5 fill-[#C5A059]" />
+              <Star key={s} className={`w-5 h-5 ${s <= Math.round(Number(avgRating)) ? 'fill-[#C5A059] text-[#C5A059]' : 'text-[#D8C6A5]'}`} />
             ))}
           </div>
           <p className="text-xs font-montserrat font-bold text-[#8C7A6B] uppercase tracking-wider">
-            Based on 480+ Verified Buyer Reviews
+            {totalReviewsCount === 0 ? 'No Client Reviews Submitted Yet' : `Based on ${totalReviewsCount} Verified Client ${totalReviewsCount === 1 ? 'Review' : 'Reviews'}`}
           </p>
         </div>
 
         {/* Progress Breakdown */}
         <div className="space-y-2 text-xs font-sans text-[#1C1C1C]/80 lg:col-span-2">
-          {[
-            { stars: 5, pct: '94%', count: 452 },
-            { stars: 4, pct: '5%', count: 24 },
-            { stars: 3, pct: '1%', count: 4 },
-            { stars: 2, pct: '0%', count: 0 },
-            { stars: 1, pct: '0%', count: 0 },
-          ].map((item) => (
+          {starBreakdown.map((item) => (
             <div key={item.stars} className="flex items-center gap-3">
               <span className="w-12 font-montserrat font-bold text-[#214C3A]">{item.stars} Stars</span>
               <div className="flex-1 h-2 bg-[#EFE6D8] rounded-full overflow-hidden">
-                <div className="h-full bg-[#214C3A] rounded-full" style={{ width: item.pct }} />
+                <div className="h-full bg-[#214C3A] rounded-full transition-all duration-500" style={{ width: item.pct }} />
               </div>
               <span className="w-10 text-right text-[#8C7A6B] font-mono">{item.pct}</span>
             </div>
@@ -150,9 +195,29 @@ export const ReviewsSection: React.FC = () => {
         </div>
       </div>
 
-      {/* Reviews Cards List */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {filteredReviews.map((rev) => (
+      {/* Reviews Cards List or Empty State */}
+      {filteredReviews.length === 0 ? (
+        <div className="bg-[#EFE6D8]/30 border border-[#D8C6A5] rounded-3xl p-10 sm:p-14 text-center space-y-4 animate-fade-in">
+          <div className="w-16 h-16 rounded-full bg-[#EFE6D8] text-[#214C3A] flex items-center justify-center mx-auto shadow-xs">
+            <MessageSquare className="w-8 h-8 text-[#C5A059]" />
+          </div>
+          <h3 className="font-serif text-2xl font-bold text-[#214C3A]">
+            No Client Reviews Yet
+          </h3>
+          <p className="text-xs text-[#8C7A6B] max-w-md mx-auto leading-relaxed font-sans">
+            Be the very first client to share your experience with Arvika Fashion's European organic linen and hand-loom collections!
+          </p>
+          <button
+            onClick={openReviewModal}
+            className="bg-[#214C3A] text-[#FAF8F4] hover:bg-[#1A3D2F] px-6 py-3.5 rounded-full font-montserrat text-xs font-bold uppercase tracking-wider transition-all shadow-md inline-flex items-center space-x-2 cursor-pointer active:scale-98"
+          >
+            <Plus className="w-4 h-4 text-[#D8C6A5]" />
+            <span>Be the First to Write a Review</span>
+          </button>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {filteredReviews.map((rev) => (
           <div
             key={rev.id}
             className="bg-white border border-[#EFE6D8] p-6 rounded-2xl space-y-4 shadow-sm hover:shadow-md transition-shadow"
@@ -205,17 +270,30 @@ export const ReviewsSection: React.FC = () => {
 
             <div className="pt-2 flex items-center justify-between text-[11px] font-sans text-[#8C7A6B] border-t border-[#EFE6D8]">
               <span>{rev.date}</span>
-              <button
-                onClick={() => handleHelpful(rev.id)}
-                className="flex items-center space-x-1 text-[#214C3A] hover:underline font-montserrat font-semibold"
-              >
-                <ThumbsUp className="w-3.5 h-3.5" />
-                <span>Helpful ({rev.helpfulCount})</span>
-              </button>
+              <div className="flex items-center space-x-3">
+                {db.getCurrentUser()?.role === 'admin' && (
+                  <button
+                    onClick={() => setReviewToDelete(rev)}
+                    className="text-red-500 hover:text-red-700 hover:bg-red-50 px-2 py-1 rounded-md transition-colors flex items-center gap-1 font-montserrat font-bold cursor-pointer"
+                    title="Delete Review (Admin Moderation)"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                    <span>Delete</span>
+                  </button>
+                )}
+                <button
+                  onClick={() => handleHelpful(rev.id)}
+                  className="flex items-center space-x-1 text-[#214C3A] hover:underline font-montserrat font-semibold"
+                >
+                  <ThumbsUp className="w-3.5 h-3.5" />
+                  <span>Helpful ({rev.helpfulCount})</span>
+                </button>
+              </div>
             </div>
           </div>
         ))}
       </div>
+    )}
 
       {/* New Review Submit Modal */}
       {isSubmitModalOpen && (
@@ -313,6 +391,60 @@ export const ReviewsSection: React.FC = () => {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* DEDICATED DELETE REVIEW CONFIRMATION POPUP MODAL */}
+      {reviewToDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-fade-in font-sans">
+          <div className="bg-[#FAF8F4] border-2 border-red-200 rounded-3xl max-w-md w-full p-6 sm:p-8 relative shadow-2xl space-y-5">
+            
+            <div className="w-14 h-14 rounded-full bg-red-100 border-2 border-red-300 text-red-700 flex items-center justify-center mx-auto shadow-md">
+              <Trash2 className="w-7 h-7" />
+            </div>
+
+            <div className="text-center space-y-2">
+              <span className="bg-red-100 text-red-800 text-[10px] font-montserrat font-bold uppercase px-3 py-0.5 rounded-full">
+                Admin Action Required
+              </span>
+              <h3 className="font-serif text-2xl font-bold text-[#214C3A]">
+                Delete Client Review?
+              </h3>
+              <p className="text-xs text-[#8C7A6B] leading-relaxed">
+                Are you sure you want to permanently delete the review <strong className="font-serif text-[#214C3A] font-bold">"{reviewToDelete.title}"</strong> submitted by <strong className="text-[#214C3A]">{reviewToDelete.userName}</strong>?
+              </p>
+            </div>
+
+            <div className="bg-red-50 border border-red-200 p-3 rounded-2xl text-[11px] text-red-800 space-y-1">
+              <div className="font-montserrat font-bold flex items-center gap-1.5 text-red-900">
+                <AlertCircle className="w-4 h-4 shrink-0" />
+                <span>Irreversible Database Action</span>
+              </div>
+              <p className="text-[10px] text-red-700 leading-normal">
+                This review will be permanently purged from your Neon PostgreSQL database and store metrics.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => setReviewToDelete(null)}
+                className="w-full bg-white hover:bg-[#EFE6D8] border border-[#D8C6A5] text-[#214C3A] py-3 rounded-2xl text-xs font-montserrat font-bold transition-all shadow-xs cursor-pointer"
+              >
+                Cancel
+              </button>
+
+              <button
+                type="button"
+                onClick={confirmDeleteReview}
+                className="w-full bg-red-700 hover:bg-red-800 text-white py-3 rounded-2xl text-xs font-montserrat font-bold uppercase tracking-wider transition-all shadow-md flex items-center justify-center space-x-1.5 cursor-pointer"
+              >
+                <Trash2 className="w-4 h-4" />
+                <span>Delete Review</span>
+              </button>
+            </div>
+
           </div>
         </div>
       )}

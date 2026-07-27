@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { X, User as UserIcon, Lock, Mail, Sparkles, Check, ArrowRight } from 'lucide-react';
+import { X, User as UserIcon, Lock, Mail, ArrowRight, AlertCircle, Eye, EyeOff } from 'lucide-react';
 import { User } from '../types';
 import { db } from '../services/db';
+import { AuthService } from '../services/authService';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -15,38 +16,83 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, setUser }
   const [mode, setMode] = useState<'login' | 'signup'>('login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [name, setName] = useState('');
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Evaluate password strength live for signup mode
+  const passwordEvaluation = AuthService.evaluatePasswordStrength(password);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const loggedUser = db.login(email || 'freja.lindqvist@copenhagen.dk', 'customer');
-    setUser(loggedUser);
-    onClose();
-  };
+    setErrorMessage(null);
+    setIsSubmitting(true);
 
-  const handleDemoLogin = () => {
-    const loggedUser = db.login('freja.lindqvist@copenhagen.dk', 'customer');
-    setUser(loggedUser);
-    onClose();
+    const cleanEmail = AuthService.sanitize(email, 120).toLowerCase();
+    const cleanPassword = password.trim();
+
+    if (!AuthService.isValidEmail(cleanEmail)) {
+      setErrorMessage('Please enter a valid email address.');
+      setIsSubmitting(false);
+      return;
+    }
+
+    if (mode === 'signup') {
+      const cleanName = AuthService.sanitize(name, 100);
+      if (!cleanName || cleanName.length < 2) {
+        setErrorMessage('Full Name must be at least 2 characters long.');
+        setIsSubmitting(false);
+        return;
+      }
+
+      if (!passwordEvaluation.isValid) {
+        setErrorMessage('Password does not meet security requirements. Must be at least 8 characters with letters & numbers.');
+        setIsSubmitting(false);
+        return;
+      }
+
+      // Execute Signup (Strictly assigns role: 'customer')
+      try {
+        const newUser = db.signup(cleanName, cleanEmail, cleanPassword);
+        setUser(newUser);
+        onClose();
+      } catch (err: any) {
+        setErrorMessage(err.message || 'Error creating account. Please try again.');
+      } finally {
+        setIsSubmitting(false);
+      }
+    } else {
+      // Execute Login
+      try {
+        const loggedUser = db.login(cleanEmail);
+        setUser(loggedUser);
+        onClose();
+      } catch (err: any) {
+        setErrorMessage(err.message || 'Authentication failed. Please check credentials.');
+      } finally {
+        setIsSubmitting(false);
+      }
+    }
   };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fade-in">
-      <div className="bg-[#FAF8F4] border border-[#EFE6D8] rounded-3xl max-w-md w-full p-6 sm:p-8 relative shadow-2xl space-y-6">
+      <div className="bg-[#FAF8F4] border border-[#EFE6D8] rounded-3xl max-w-md w-full p-6 sm:p-8 relative shadow-2xl space-y-5">
         
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-5 right-5 p-2 text-[#1C1C1C]/70 hover:text-[#214C3A] rounded-full hover:bg-[#EFE6D8]"
+          className="absolute top-5 right-5 p-2 text-[#1C1C1C]/70 hover:text-[#214C3A] rounded-full hover:bg-[#EFE6D8] transition-colors"
         >
           <X className="w-5 h-5" />
         </button>
 
         <div className="text-center space-y-2">
-          <div className="w-12 h-12 rounded-full bg-[#214C3A] text-[#D8C6A5] font-serif font-bold text-xl flex items-center justify-center mx-auto shadow-md">
+          <div className="w-12 h-12 rounded-full bg-[#214C3A] text-[#D8C6A5] font-serif font-bold text-xl flex items-center justify-center mx-auto shadow-md border border-[#C5A059]/40">
             AR
           </div>
-          <h2 className="font-serif text-3xl font-bold text-[#214C3A]">
+          <h2 className="font-serif text-2xl sm:text-3xl font-bold text-[#214C3A]">
             {mode === 'login' ? 'Client Sign In' : 'Create Arvika Account'}
           </h2>
           <p className="text-xs text-[#8C7A6B] font-sans">
@@ -54,34 +100,13 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, setUser }
           </p>
         </div>
 
-        {/* Demo Fast Login Triggers */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-          <button
-            onClick={handleDemoLogin}
-            className="w-full bg-[#EFE6D8] border border-[#D8C6A5] text-[#214C3A] p-2.5 rounded-2xl text-[11px] font-montserrat font-bold hover:bg-[#D8C6A5] transition-all flex items-center justify-center space-x-1.5"
-          >
-            <Sparkles className="w-3.5 h-3.5 text-[#C5A059]" />
-            <span>Demo Customer Login</span>
-          </button>
-
-          <button
-            onClick={() => {
-              const adminUser = db.login('admin@arvikafashion.com', 'admin');
-              setUser(adminUser);
-              onClose();
-            }}
-            className="w-full bg-[#214C3A] text-[#FAF8F4] p-2.5 rounded-2xl text-[11px] font-montserrat font-bold hover:bg-[#4A5D4E] transition-all flex items-center justify-center space-x-1.5 shadow-sm"
-          >
-            <Lock className="w-3.5 h-3.5 text-[#D8C6A5]" />
-            <span>Demo Store Admin Login</span>
-          </button>
-        </div>
-
-        <div className="relative flex py-1 items-center">
-          <div className="flex-grow border-t border-[#EFE6D8]"></div>
-          <span className="flex-shrink mx-3 text-[10px] font-montserrat uppercase text-[#8C7A6B] font-bold">Or Email</span>
-          <div className="flex-grow border-t border-[#EFE6D8]"></div>
-        </div>
+        {/* Security Error Banner */}
+        {errorMessage && (
+          <div className="bg-[#FFF2F0] border border-[#FAD2CE] text-[#A84332] p-3 rounded-2xl text-xs flex items-start space-x-2 animate-fade-in">
+            <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+            <span>{errorMessage}</span>
+          </div>
+        )}
 
         <form onSubmit={handleSubmit} className="space-y-4 text-xs font-sans">
           {mode === 'signup' && (
@@ -92,10 +117,11 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, setUser }
                 <input
                   type="text"
                   required
+                  maxLength={100}
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="e.g. Freja Lindqvist"
-                  className="w-full bg-white pl-9 pr-3 py-2.5 rounded-xl border border-[#D8C6A5] focus:outline-none"
+                  className="w-full bg-white pl-9 pr-3 py-2.5 rounded-xl border border-[#D8C6A5] focus:outline-none focus:ring-2 focus:ring-[#214C3A]/30 text-xs"
                 />
               </div>
             </div>
@@ -108,10 +134,11 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, setUser }
               <input
                 type="email"
                 required
+                maxLength={120}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="freja@copenhagen.dk"
-                className="w-full bg-white pl-9 pr-3 py-2.5 rounded-xl border border-[#D8C6A5] focus:outline-none"
+                className="w-full bg-white pl-9 pr-3 py-2.5 rounded-xl border border-[#D8C6A5] focus:outline-none focus:ring-2 focus:ring-[#214C3A]/30 text-xs"
               />
             </div>
           </div>
@@ -121,29 +148,65 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, setUser }
             <div className="relative">
               <Lock className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-[#8C7A6B]" />
               <input
-                type="password"
+                type={showPassword ? 'text' : 'password'}
                 required
+                maxLength={64}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
-                className="w-full bg-white pl-9 pr-3 py-2.5 rounded-xl border border-[#D8C6A5] focus:outline-none"
+                className="w-full bg-white pl-9 pr-10 py-2.5 rounded-xl border border-[#D8C6A5] focus:outline-none focus:ring-2 focus:ring-[#214C3A]/30 text-xs"
               />
+              {/* Show/Hide Password Eye Toggle */}
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-[#8C7A6B] hover:text-[#214C3A] transition-colors p-1"
+                title={showPassword ? 'Hide Password' : 'Show Password'}
+              >
+                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              </button>
             </div>
+
+            {/* Live OWASP Password Strength Meter for Signup */}
+            {mode === 'signup' && password.length > 0 && (
+              <div className="mt-2 space-y-1">
+                <div className="flex justify-between items-center text-[10px] font-montserrat font-semibold">
+                  <span className="text-[#8C7A6B]">Password Security Level:</span>
+                  <span className={passwordEvaluation.isValid ? 'text-[#214C3A] font-bold' : 'text-[#A84332]'}>
+                    {passwordEvaluation.feedback}
+                  </span>
+                </div>
+                <div className="w-full h-1.5 bg-[#EFE6D8] rounded-full overflow-hidden flex">
+                  <div 
+                    className={`h-full transition-all duration-300 ${
+                      passwordEvaluation.score <= 1 ? 'bg-[#A84332] w-1/4' :
+                      passwordEvaluation.score === 2 ? 'bg-[#C5A059] w-2/4' :
+                      passwordEvaluation.score === 3 ? 'bg-[#214C3A] w-3/4' : 'bg-[#1A3D2F] w-full'
+                    }`}
+                  />
+                </div>
+              </div>
+            )}
           </div>
 
           <button
             type="submit"
-            className="w-full bg-[#214C3A] hover:bg-[#4A5D4E] text-[#FAF8F4] py-3.5 rounded-2xl font-montserrat text-xs font-bold uppercase tracking-wider transition-all shadow-md flex items-center justify-center space-x-2"
+            disabled={isSubmitting}
+            className="w-full bg-[#214C3A] hover:bg-[#4A5D4E] disabled:opacity-50 text-[#FAF8F4] py-3 rounded-2xl font-montserrat text-xs font-bold uppercase tracking-wider transition-all shadow-md flex items-center justify-center space-x-2 mt-2"
           >
-            <span>{mode === 'login' ? 'Sign In' : 'Create Account'}</span>
+            <span>{isSubmitting ? 'Processing...' : mode === 'login' ? 'Sign In' : 'Create Account'}</span>
             <ArrowRight className="w-4 h-4" />
           </button>
         </form>
 
         <div className="text-center pt-2 border-t border-[#EFE6D8]">
           <button
-            onClick={() => setMode(mode === 'login' ? 'signup' : 'login')}
-            className="text-xs text-[#214C3A] underline font-montserrat font-semibold"
+            type="button"
+            onClick={() => {
+              setErrorMessage(null);
+              setMode(mode === 'login' ? 'signup' : 'login');
+            }}
+            className="text-xs text-[#214C3A] underline font-montserrat font-semibold hover:text-[#4A5D4E]"
           >
             {mode === 'login' ? "Don't have an account? Sign Up" : 'Already registered? Sign In'}
           </button>

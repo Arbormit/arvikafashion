@@ -1,5 +1,7 @@
 export type Currency = 'INR' | 'EUR';
 
+export type Language = 'en' | 'de' | 'fr' | 'es' | 'it';
+
 export type UserRole = 'customer' | 'admin';
 
 export type OrderStatus = 
@@ -187,5 +189,16 @@ export interface WhatsAppProductContext {
   appliedCoupon?: Coupon | null;
 }
 
-export type ActiveTab = 'home' | 'about' | 'collections' | 'reviews' | 'offers' | 'buynow';
+export interface Inquiry {
+  id: string;
+  name: string;
+  email: string;
+  phone?: string;
+  subject: string;
+  message: string;
+  status?: 'New' | 'Replied' | 'Resolved';
+  createdAt: string;
+}
+
+export type ActiveTab = 'home' | 'about' | 'collections' | 'reviews' | 'offers' | 'buynow' | 'contact';
 

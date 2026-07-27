@@ -20,7 +20,8 @@ import {
   ExternalLink,
   MessageSquare,
   Copy,
-  Check
+  Check,
+  SlidersHorizontal
 } from 'lucide-react';
 import { User, Order, Currency, Address, UserPreferences } from '../types';
 import { db, SHOP_PHONE } from '../services/db';
@@ -446,6 +447,29 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
                   </div>
                 </div>
 
+                {/* HQ Admin Console Shortcut: Only shown if user is ALREADY an admin */}
+                {user.role === 'admin' && (
+                  <div className="bg-[#FAF8F4] p-4 rounded-2xl border border-[#C5A059] space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="font-montserrat font-bold text-xs text-[#214C3A]">HQ Administrator Privilege Active</span>
+                      <span className="bg-[#C5A059] text-white px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase">
+                        Admin
+                      </span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        onClose();
+                        window.location.hash = 'admin';
+                      }}
+                      className="w-full bg-[#214C3A] hover:bg-[#4A5D4E] text-[#FAF8F4] p-3 rounded-xl font-montserrat font-bold text-xs flex items-center justify-center space-x-2 shadow-md transition-all"
+                    >
+                      <SlidersHorizontal className="w-4 h-4 text-[#D8C6A5]" />
+                      <span>Open HQ Admin Control Console</span>
+                    </button>
+                  </div>
+                )}
+
               </div>
 
             </div>
@@ -792,9 +816,14 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
                 ))}
               </div>
             ) : (
-              <div className="bg-white p-8 rounded-2xl border border-[#EFE6D8] text-center text-xs text-[#8C7A6B] space-y-2">
-                <p className="font-serif text-lg font-bold text-[#214C3A]">No Order Records Yet</p>
-                <p>When you complete a purchase, your unique Tracking ID and tax invoices will appear here.</p>
+              <div className="bg-white p-8 rounded-2xl border border-[#EFE6D8] text-center space-y-3 shadow-xs animate-fade-in">
+                <div className="w-12 h-12 rounded-full bg-[#FAF8F4] text-[#214C3A] flex items-center justify-center mx-auto border border-[#D8C6A5]">
+                  <PackageCheck className="w-6 h-6 text-[#C5A059]" />
+                </div>
+                <h4 className="font-serif text-lg font-bold text-[#214C3A]">No Orders Placed Yet</h4>
+                <p className="text-xs text-[#8C7A6B] max-w-sm mx-auto">
+                  You haven't placed any orders yet. When you complete a purchase, your tracking ID and tax invoices will appear here in real-time.
+                </p>
               </div>
             )}
           </div>

@@ -40,11 +40,10 @@ export const Footer: React.FC<FooterProps> = ({ setActiveTab, setSelectedCategor
         <div className="bg-[#214C3A] rounded-3xl p-8 sm:p-10 border border-[#C5A059]/40 flex flex-col lg:flex-row items-center justify-between gap-8 shadow-2xl">
           <div className="space-y-2 max-w-xl text-center lg:text-left">
             <span className="text-[11px] font-montserrat uppercase tracking-widest text-[#D8C6A5] font-bold flex items-center justify-center lg:justify-start gap-1.5">
-              <Sparkles className="w-3.5 h-3.5 text-[#C5A059]" />
-              THE EUROPEAN EDIT NEWSLETTER
+              THE NEWSLETTER
             </span>
             <h3 className="font-serif text-2xl sm:text-3xl font-bold text-[#FAF8F4]">
-              Subscribe for VIP Early Access & Private Sales
+              Subscribe for Offers, Sales, etc.
             </h3>
             <p className="text-xs text-[#EFE6D8]/80 font-sans">
               Receive seasonal lookbooks, fabric care guides, and exclusive 15% promotional codes.
@@ -93,29 +92,35 @@ export const Footer: React.FC<FooterProps> = ({ setActiveTab, setSelectedCategor
                   ARVIKA
                 </span>
                 <span className="text-[9px] font-montserrat uppercase tracking-[0.35em] text-[#D8C6A5] font-semibold">
-                  FASHION • EUROPE
+                  FASHION
                 </span>
               </div>
             </div>
 
             <p className="text-[#EFE6D8]/80 leading-relaxed max-w-sm">
-              Arvika Fashion stands for premium Indian handloom craftsmanship tailored for modern European fashion. Delivering 100% pure organic Normandy linen and GOTS cotton garments globally.
+              We are counted amongst topmost company in India being engaged in manufacturing and exporting of Silk & Cotton Scarves, Embroidered Shawls, Ladies Garments, and bags, Canvas, Jute, Leather bags, tie, Linen Garments & Accessories, Handcrafted Garments at competitive price.
             </p>
 
             <div className="text-[11px] text-[#D8C6A5] space-y-1 pt-2 font-mono">
-              <p>GSTIN: 06AABCA1234F1Z8</p>
-              <p>IE EXPORT CODE: 0508012399</p>
+              <p>GSTIN: 06CBJPK9654C1ZI</p>
+              <p>Since : 2019</p>
             </div>
 
             {/* Social Icons */}
             <div className="flex space-x-3 pt-2 text-[#D8C6A5]">
-              <a href="#" className="p-2 bg-[#214C3A] rounded-full hover:bg-[#D8C6A5] hover:text-[#214C3A] transition-colors" title="Instagram">
+              <a 
+                href="https://www.instagram.com/arvikafashion?igsh=OGcyaGk5dzZmZTU2" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="p-2 bg-[#214C3A] rounded-full hover:bg-[#D8C6A5] hover:text-[#214C3A] transition-colors" 
+                title="Instagram @arvikafashion"
+              >
                 <Instagram className="w-4 h-4" />
               </a>
-              <a href="#" className="p-2 bg-[#214C3A] rounded-full hover:bg-[#D8C6A5] hover:text-[#214C3A] transition-colors" title="Facebook">
+              <a href="javascript:void(0)" onClick={(e) => e.preventDefault()} className="p-2 bg-[#214C3A] rounded-full hover:bg-[#D8C6A5] hover:text-[#214C3A] transition-colors" title="Facebook">
                 <Facebook className="w-4 h-4" />
               </a>
-              <a href="#" className="p-2 bg-[#214C3A] rounded-full hover:bg-[#D8C6A5] hover:text-[#214C3A] transition-colors" title="LinkedIn">
+              <a href="javascript:void(0)" onClick={(e) => e.preventDefault()} className="p-2 bg-[#214C3A] rounded-full hover:bg-[#D8C6A5] hover:text-[#214C3A] transition-colors" title="LinkedIn">
                 <Linkedin className="w-4 h-4" />
               </a>
             </div>
@@ -158,37 +163,37 @@ export const Footer: React.FC<FooterProps> = ({ setActiveTab, setSelectedCategor
           {/* Locations & Contact */}
           <div className="space-y-3 lg:col-span-2">
             <h4 className="font-serif font-bold text-base text-[#D8C6A5] uppercase tracking-wider">
-              Global Locations & Ateliers
+              Head Office Location
             </h4>
 
             <div className="space-y-3 text-[#EFE6D8]/80">
               <div className="flex items-start space-x-2">
                 <MapPin className="w-4 h-4 text-[#D8C6A5] flex-shrink-0 mt-0.5" />
                 <div>
-                  <strong className="text-[#FAF8F4] block font-serif">European Showroom:</strong>
-                  <span>Grønnegade 14, 1107 Copenhagen, Denmark</span>
+                  <strong className="text-[#FAF8F4] block font-serif">Head Office:</strong>
+                  <span>H23, G4 Krishna Nagar, Faridabad, near Krishna Public School - 121003 India</span>
                 </div>
               </div>
 
               <div className="flex items-start space-x-2">
                 <MapPin className="w-4 h-4 text-[#D8C6A5] flex-shrink-0 mt-0.5" />
                 <div>
-                  <strong className="text-[#FAF8F4] block font-serif">Faridabad Export Unit:</strong>
-                  <span>Plot 88, Krishna Nagar Industrial Belt, Faridabad, Haryana 121002, India</span>
+                  <strong className="text-[#FAF8F4] block font-serif">Factory Address:</strong>
+                  <span>H.No. 76, Sector 91, Surya Nagar Phase 2, Near IT Computer Center Faridabad - 121003 India</span>
                 </div>
               </div>
 
-              <div className="flex items-start space-x-2">
-                <MapPin className="w-4 h-4 text-[#D8C6A5] flex-shrink-0 mt-0.5" />
-                <div>
-                  <strong className="text-[#FAF8F4] block font-serif">Jaipur Weaving Atelier:</strong>
-                  <span>G-14 Sitapura Industrial Area, Jaipur, Rajasthan 302022, India</span>
+              <div className="flex flex-col sm:flex-row sm:items-center space-y-1 sm:space-y-0 sm:space-x-4 pt-1 text-[#D8C6A5]">
+                <div className="flex items-center space-x-1.5">
+                  <Mail className="w-4 h-4" />
+                  <a href="mailto:export@arvikafashion.com" className="hover:underline">export@arvikafashion.com</a>
                 </div>
-              </div>
-
-              <div className="flex items-center space-x-2 pt-1 text-[#D8C6A5]">
-                <Mail className="w-4 h-4" />
-                <span>export@arvikafashion.com | info@arvika.eu</span>
+                <div className="flex items-center space-x-1.5">
+                  <Phone className="w-4 h-4" />
+                  <a href="tel:+919891179374" className="hover:underline">+91 9891179374</a>
+                  <span>/</span>
+                  <a href="tel:+919716505898" className="hover:underline">+91 9716505898</a>
+                </div>
               </div>
             </div>
           </div>
@@ -198,7 +203,7 @@ export const Footer: React.FC<FooterProps> = ({ setActiveTab, setSelectedCategor
         {/* Google Map Embedded Map Frame */}
         <div className="rounded-2xl overflow-hidden border border-[#4A5D4E] shadow-xl h-48 w-full">
           <iframe
-            title="Arvika Showroom Location"
+            title="Arvika Fashion Map"
             src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2249.728876228392!2d12.5815!3d55.6811!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zNTXCsDQwJzUyLjAiTiAxMsKwMzQnNTMuNCJF!5e0!3m2!1sen!2sdk!4v1650000000000!5m2!1sen!2sdk"
             width="100%"
             height="100%"
@@ -212,14 +217,12 @@ export const Footer: React.FC<FooterProps> = ({ setActiveTab, setSelectedCategor
         {/* Bottom Bar */}
         <div className="border-t border-[#4A5D4E] pt-8 flex flex-col sm:flex-row items-center justify-between text-xs text-[#EFE6D8]/60 space-y-4 sm:space-y-0">
           <div>
-            © 2026 Arvika Fashion. All Rights Reserved. European & Global Export Division.
+            © 2026 Arvika Fashion. All Rights Reserved. | Design and Developed by: <a href="https://www.arbormit.com">Arbormit</a>
           </div>
           <div className="flex space-x-4">
-            <a href="#" className="hover:text-[#D8C6A5]">Privacy Policy</a>
+            <a href="javascript:void(0)" onClick={(e) => e.preventDefault()} className="hover:text-[#D8C6A5]">Privacy Policy</a>
             <span>•</span>
-            <a href="#" className="hover:text-[#D8C6A5]">Terms of Export Service</a>
-            <span>•</span>
-            <a href="#" className="hover:text-[#D8C6A5]">OEKO-TEX® Compliance</a>
+            <a href="javascript:void(0)" onClick={(e) => e.preventDefault()} className="hover:text-[#D8C6A5]">Terms of Export Service</a>
           </div>
         </div>
 

@@ -104,19 +104,19 @@ export const Hero: React.FC<HeroProps> = ({ setActiveTab, setSelectedCategory })
             {slide.subtitle}
           </p>
 
-          {/* CTA Buttons */}
-          <div className="pt-4 flex flex-wrap items-center gap-4">
+          {/* CTA Buttons (Symmetrical, Equal Sizing on Mobile & Tablet) */}
+          <div className="pt-4 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4 w-full max-w-md sm:max-w-none">
             <button
               onClick={() => handleCtaClick(slide.targetCategory, 'collections')}
-              className="bg-[#D8C6A5] text-[#214C3A] hover:bg-[#FAF8F4] px-8 py-4 rounded-full font-montserrat text-xs font-bold uppercase tracking-wider transition-all transform hover:-translate-y-0.5 shadow-lg flex items-center space-x-2"
+              className="w-full sm:w-auto bg-[#D8C6A5] text-[#214C3A] hover:bg-[#FAF8F4] px-6 sm:px-8 py-3.5 sm:py-4 rounded-full font-montserrat text-xs font-bold uppercase tracking-wider transition-all transform hover:-translate-y-0.5 shadow-lg flex items-center justify-center space-x-2 cursor-pointer active:scale-95"
             >
               <span>{slide.ctaPrimary}</span>
-              <ArrowRight className="w-4 h-4" />
+              <ArrowRight className="w-4 h-4 text-[#214C3A]" />
             </button>
 
             <button
               onClick={() => handleCtaClick(null, 'about')}
-              className="bg-white/10 hover:bg-white/20 text-[#FAF8F4] border border-[#FAF8F4]/30 px-8 py-4 rounded-full font-montserrat text-xs font-bold uppercase tracking-wider backdrop-blur-sm transition-all"
+              className="w-full sm:w-auto bg-white/10 hover:bg-white/20 text-[#FAF8F4] border border-[#FAF8F4]/30 px-6 sm:px-8 py-3.5 sm:py-4 rounded-full font-montserrat text-xs font-bold uppercase tracking-wider backdrop-blur-sm transition-all flex items-center justify-center space-x-2 cursor-pointer active:scale-95"
             >
               <span>{slide.ctaSecondary}</span>
             </button>
@@ -140,33 +140,35 @@ export const Hero: React.FC<HeroProps> = ({ setActiveTab, setSelectedCategory })
         </div>
       </div>
 
-      {/* Slide Navigation Controls */}
-      <div className="absolute bottom-8 right-8 z-20 flex items-center space-x-3">
-        <button
-          onClick={() => setCurrentSlide((prev) => (prev - 1 + SLIDES.length) % SLIDES.length)}
-          className="p-3 rounded-full bg-black/40 hover:bg-[#214C3A] text-white border border-white/20 transition-all backdrop-blur-sm"
-          aria-label="Previous Slide"
-        >
-          <ChevronLeft className="w-5 h-5" />
-        </button>
-        <div className="flex space-x-1.5">
-          {SLIDES.map((_, idx) => (
-            <button
-              key={idx}
-              onClick={() => setCurrentSlide(idx)}
-              className={`h-1.5 rounded-full transition-all ${
-                idx === currentSlide ? 'w-8 bg-[#D8C6A5]' : 'w-2 bg-white/40'
-              }`}
-            />
-          ))}
-        </div>
-        <button
-          onClick={() => setCurrentSlide((prev) => (prev + 1) % SLIDES.length)}
-          className="p-3 rounded-full bg-black/40 hover:bg-[#214C3A] text-white border border-white/20 transition-all backdrop-blur-sm"
-          aria-label="Next Slide"
-        >
-          <ChevronRight className="w-5 h-5" />
-        </button>
+      {/* Slide Navigation Edge Controls (Precise fit without overlapping text) */}
+      <button
+        onClick={() => setCurrentSlide((prev) => (prev - 1 + SLIDES.length) % SLIDES.length)}
+        className="absolute left-3 sm:left-6 top-1/2 -translate-y-1/2 z-20 p-2.5 sm:p-3 rounded-full bg-black/50 hover:bg-[#214C3A] text-[#FAF8F4] border border-white/30 backdrop-blur-md transition-all active:scale-95 shadow-xl cursor-pointer"
+        aria-label="Previous Slide"
+      >
+        <ChevronLeft className="w-5 h-5" />
+      </button>
+
+      <button
+        onClick={() => setCurrentSlide((prev) => (prev + 1) % SLIDES.length)}
+        className="absolute right-3 sm:right-6 top-1/2 -translate-y-1/2 z-20 p-2.5 sm:p-3 rounded-full bg-black/50 hover:bg-[#214C3A] text-[#FAF8F4] border border-white/30 backdrop-blur-md transition-all active:scale-95 shadow-xl cursor-pointer"
+        aria-label="Next Slide"
+      >
+        <ChevronRight className="w-5 h-5" />
+      </button>
+
+      {/* Slide Dots Indicator (Centered at Bottom across All Devices) */}
+      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 flex items-center space-x-2.5 bg-black/50 backdrop-blur-md px-4 py-2 rounded-full border border-white/25 shadow-xl">
+        {SLIDES.map((_, idx) => (
+          <button
+            key={idx}
+            onClick={() => setCurrentSlide(idx)}
+            className={`h-2 rounded-full transition-all duration-300 cursor-pointer ${
+              idx === currentSlide ? 'w-8 bg-[#D8C6A5]' : 'w-2 bg-white/50 hover:bg-white'
+            }`}
+            aria-label={`Go to slide ${idx + 1}`}
+          />
+        ))}
       </div>
     </section>
   );

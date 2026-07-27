@@ -204,7 +204,7 @@ export const TaxInvoiceModal: React.FC<TaxInvoiceModalProps> = ({
           {/* Footer Terms */}
           <div className="text-[10px] text-[#8C7A6B] border-t border-[#EFE6D8] pt-4 text-center leading-relaxed">
             This is a computer-generated tax invoice issued by ARVIKA FASHION PVT LTD under European & Indian e-commerce trade directives.<br />
-            For any billing queries or return authorizations, contact concierge@arvikafashion.com.
+            For any billing queries or return authorizations, contact export@arvikafashion.com or call +91 9891179374.
           </div>
 
         </div>

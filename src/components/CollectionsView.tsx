@@ -24,6 +24,7 @@ interface CollectionsViewProps {
   onBuyNow: (product: Product, color: string, size: string) => void;
   onToggleWishlist: (product: Product) => void;
   wishlistIds: Set<string>;
+  cartItemIds?: Set<string>;
 }
 
 export const CollectionsView: React.FC<CollectionsViewProps> = ({
@@ -35,7 +36,8 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
   onAddToCart,
   onBuyNow,
   onToggleWishlist,
-  wishlistIds
+  wishlistIds,
+  cartItemIds = new Set()
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
@@ -264,6 +266,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
               onBuyNow={onBuyNow}
               onToggleWishlist={onToggleWishlist}
               isWishlisted={wishlistIds.has(product.id)}
+              isInCart={cartItemIds.has(product.id)}
             />
           ))}
         </div>

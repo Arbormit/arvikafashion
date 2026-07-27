@@ -79,7 +79,9 @@ export const WishlistDrawer: React.FC<WishlistDrawerProps> = ({
                         </h4>
                         <button
                           onClick={() => onRemoveFromWishlist(item.product.id)}
-                          className="text-[#8C7A6B] hover:text-red-700 p-1"
+                          className="text-red-600 hover:text-red-800 hover:bg-red-50 p-1.5 rounded-lg transition-colors cursor-pointer"
+                          title="Remove item from Wishlist"
+                          aria-label="Remove wishlist item"
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>

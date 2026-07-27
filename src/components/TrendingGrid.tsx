@@ -11,6 +11,7 @@ interface TrendingGridProps {
   onBuyNow: (product: Product, color: string, size: string) => void;
   onToggleWishlist: (product: Product) => void;
   wishlistIds: Set<string>;
+  cartItemIds?: Set<string>;
   onExploreAll: () => void;
 }
 
@@ -22,6 +23,7 @@ export const TrendingGrid: React.FC<TrendingGridProps> = ({
   onBuyNow,
   onToggleWishlist,
   wishlistIds,
+  cartItemIds = new Set(),
   onExploreAll
 }) => {
   const [filter, setFilter] = useState<string>('all');
@@ -82,6 +84,7 @@ export const TrendingGrid: React.FC<TrendingGridProps> = ({
             onBuyNow={onBuyNow}
             onToggleWishlist={onToggleWishlist}
             isWishlisted={wishlistIds.has(product.id)}
+            isInCart={cartItemIds.has(product.id)}
           />
         ))}
       </div>

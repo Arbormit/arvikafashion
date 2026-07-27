@@ -8,9 +8,10 @@ import {
   ArrowRight, 
   Truck, 
   Sparkles,
-  ShieldCheck
+  ShieldCheck,
+  Share2
 } from 'lucide-react';
-import { CartItem, Currency, Coupon } from '../types';
+import { CartItem, Currency, Coupon, User } from '../types';
 import { COUPONS } from '../data/offers';
 
 interface CartDrawerProps {
@@ -23,6 +24,8 @@ interface CartDrawerProps {
   appliedCoupon: Coupon | null;
   setAppliedCoupon: (coupon: Coupon | null) => void;
   onProceedToCheckout: () => void;
+  user: User;
+  onOpenAuth: () => void;
 }
 
 export const CartDrawer: React.FC<CartDrawerProps> = ({
@@ -34,7 +37,9 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
   onRemoveItem,
   appliedCoupon,
   setAppliedCoupon,
-  onProceedToCheckout
+  onProceedToCheckout,
+  user,
+  onOpenAuth
 }) => {
   if (!isOpen) return null;
 
@@ -152,7 +157,9 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                         </h4>
                         <button
                           onClick={() => onRemoveItem(item.id)}
-                          className="text-[#8C7A6B] hover:text-red-700 p-1"
+                          className="text-red-600 hover:text-red-800 hover:bg-red-50 p-1.5 rounded-lg transition-colors cursor-pointer"
+                          title="Remove item from Cart"
+                          aria-label="Remove item"
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
@@ -263,15 +270,58 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                 </div>
               </div>
 
-              {/* Proceed Button */}
-              <button
-                onClick={onProceedToCheckout}
-                className="w-full bg-[#214C3A] hover:bg-[#4A5D4E] text-[#FAF8F4] py-4 rounded-2xl font-montserrat text-xs font-bold uppercase tracking-wider transition-all shadow-md flex items-center justify-center space-x-2"
-              >
-                <Sparkles className="w-4 h-4 text-[#D8C6A5]" />
-                <span>Proceed to Checkout</span>
-                <ArrowRight className="w-4 h-4" />
-              </button>
+              {/* Proceed Options for Logged In User vs Guest Visitor */}
+              {!user.isLoggedIn ? (
+                <div className="space-y-2.5 pt-1">
+                  <div className="bg-[#EFE6D8]/50 p-2.5 rounded-xl border border-[#D8C6A5] text-[11px] font-sans text-[#214C3A]">
+                    <span>💡 Shopping as a <strong>Guest Visitor</strong>. Sign in to place an order online with tracking, or order directly via WhatsApp.</span>
+                  </div>
+
+                  {/* 1. Login to Complete Purchase */}
+                  <button
+                    onClick={() => {
+                      onClose();
+                      onOpenAuth();
+                    }}
+                    className="w-full bg-[#214C3A] hover:bg-[#1A3D2F] text-[#FAF8F4] py-3.5 rounded-2xl font-montserrat text-xs font-bold uppercase tracking-wider transition-all shadow-md flex items-center justify-center space-x-2 cursor-pointer active:scale-98"
+                  >
+                    <Sparkles className="w-4 h-4 text-[#D8C6A5]" />
+                    <span>Sign In / Register to Checkout</span>
+                  </button>
+
+                  {/* 2. Direct WhatsApp Order with Cart String */}
+                  <button
+                    onClick={() => {
+                      let msg = `Hello Arvika Fashion! 👋 I am a guest customer inquiring about placing an export order for my cart:\n\n`;
+                      msg += `🛍️ *SELECTED CART ITEMS:*\n`;
+                      cart.forEach((item, idx) => {
+                        const itemPrice = currency === 'INR' ? `₹${(item.product.priceINR * item.quantity).toLocaleString('en-IN')}` : `€${(item.product.priceEUR * item.quantity).toFixed(2)}`;
+                        msg += `${idx + 1}. *${item.product.name}* (${item.color}, Size: ${item.size}) x${item.quantity} - ${itemPrice}\n`;
+                      });
+                      msg += `\n💰 *Cart Total:* ${currency === 'INR' ? `₹${grandTotal.toLocaleString('en-IN')}` : `€${grandTotal.toFixed(2)}`}`;
+                      if (appliedCoupon) {
+                        msg += `\n🏷️ *Applied Promo:* ${appliedCoupon.code}`;
+                      }
+                      msg += `\n\nCould you please assist me with guest checkout & dispatch details?`;
+
+                      window.open(`https://wa.me/919891179374?text=${encodeURIComponent(msg)}`, '_blank');
+                    }}
+                    className="w-full bg-[#25D366] hover:bg-[#20ba5a] text-white py-3.5 rounded-2xl font-montserrat text-xs font-bold uppercase tracking-wider transition-all shadow-xs flex items-center justify-center space-x-2 cursor-pointer active:scale-98"
+                  >
+                    <Share2 className="w-4 h-4" />
+                    <span>Direct WhatsApp Order with Selected Items</span>
+                  </button>
+                </div>
+              ) : (
+                <button
+                  onClick={onProceedToCheckout}
+                  className="w-full bg-[#214C3A] hover:bg-[#1A3D2F] text-[#FAF8F4] py-4 rounded-2xl font-montserrat text-xs font-bold uppercase tracking-wider transition-all shadow-md flex items-center justify-center space-x-2 cursor-pointer active:scale-98"
+                >
+                  <Sparkles className="w-4 h-4 text-[#D8C6A5]" />
+                  <span>Proceed to Checkout</span>
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+              )}
             </div>
           )}
 

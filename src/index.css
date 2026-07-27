@@ -13,10 +13,16 @@
     --color-walnut: #3D2B1F;
   }
 
+  html {
+    background-color: #1C1C1C !important;
+  }
+
   body {
     font-family: 'Manrope', -apple-system, BlinkMacSystemFont, sans-serif;
     background-color: #FAF8F4;
     color: #1C1C1C;
+    top: 0px !important;
+    position: static !important;
   }
 
   h1, h2, h3, h4, .font-serif-brand {
@@ -26,6 +32,16 @@
   button, .font-btn {
     font-family: 'Montserrat', sans-serif;
   }
+}
+
+/* Hide Google Translate frames and clean bottom margins */
+.goog-te-banner-frame,
+iframe.goog-te-banner-frame,
+.goog-te-balloon-frame,
+#goog-gt-tt,
+.goog-te-spinner-pos {
+  display: none !important;
+  visibility: hidden !important;
 }
 
 /* Custom Utilities */
@@ -58,4 +74,20 @@
 
 .animate-fade-in {
   animation: fadeIn 0.4s ease-out forwards;
+}
+
+/* Continuous Slow Marquee for Mobile/Tablet Announcement Bar */
+@keyframes marqueeSlow {
+  0% { transform: translateX(0%); }
+  100% { transform: translateX(-50%); }
+}
+
+.animate-marquee-slow {
+  display: flex;
+  width: max-content;
+  animation: marqueeSlow 28s linear infinite;
+}
+
+.animate-marquee-slow:hover, .animate-marquee-slow:active {
+  animation-play-state: paused;
 }

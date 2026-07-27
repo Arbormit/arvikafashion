@@ -531,7 +531,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                             type="text"
                             value={customerUpiId}
                             onChange={(e) => setCustomerUpiId(e.target.value)}
-                            placeholder="e.g. yourname@upi / 9876543210@paytm"
+                            placeholder="e.g. yourname@upi / 9891179374@paytm"
                             className="w-full bg-[#FAF8F4] p-2.5 rounded-xl border border-[#D8C6A5] text-xs font-mono focus:outline-none"
                           />
                         </div>

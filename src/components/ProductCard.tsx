@@ -10,6 +10,7 @@ interface ProductCardProps {
   onBuyNow: (product: Product, color: string, size: string) => void;
   onToggleWishlist: (product: Product) => void;
   isWishlisted: boolean;
+  isInCart?: boolean;
 }
 
 export const ProductCard: React.FC<ProductCardProps> = ({
@@ -19,7 +20,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   onAddToCart,
   onBuyNow,
   onToggleWishlist,
-  isWishlisted
+  isWishlisted,
+  isInCart = false
 }) => {
   const [selectedColor, setSelectedColor] = useState(product.colors[0]?.name || 'Natural');
   const [selectedSize, setSelectedSize] = useState(product.sizes[0] || 'M');
@@ -192,10 +194,21 @@ export const ProductCard: React.FC<ProductCardProps> = ({
           <div className="flex items-center gap-1.5">
             <button
               onClick={handleAddToCartClick}
-              className="bg-[#EFE6D8] hover:bg-[#D8C6A5] text-[#214C3A] p-2.5 rounded-xl transition-all font-montserrat text-xs font-bold flex items-center gap-1"
-              title="Add to Cart"
+              className={`p-2.5 rounded-xl transition-all font-montserrat text-xs font-bold flex items-center gap-1.5 cursor-pointer ${
+                isInCart || addedToast
+                  ? 'bg-emerald-800 text-white shadow-sm'
+                  : 'bg-[#EFE6D8] hover:bg-[#D8C6A5] text-[#214C3A]'
+              }`}
+              title={isInCart ? 'Item Added to Cart ✓' : 'Add to Cart'}
             >
-              {addedToast ? <Check className="w-4 h-4 text-emerald-700" /> : <ShoppingBag className="w-4 h-4" />}
+              {isInCart || addedToast ? (
+                <>
+                  <Check className="w-4 h-4 text-emerald-300" />
+                  <span className="text-[10px] font-bold">Added</span>
+                </>
+              ) : (
+                <ShoppingBag className="w-4 h-4" />
+              )}
             </button>
             
             <button
