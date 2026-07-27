@@ -2,7 +2,7 @@
   "rewrites": [
     {
       "source": "/api/:path*",
-      "destination": "https://arvika-fashion-api.onrender.com/api/:path*"
+      "destination": "https://arvikafashion-cxh5.onrender.com/api/:path*"
     },
     {
       "source": "/(.*)",
