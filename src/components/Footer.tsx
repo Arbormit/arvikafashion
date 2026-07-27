@@ -204,7 +204,7 @@ export const Footer: React.FC<FooterProps> = ({ setActiveTab, setSelectedCategor
         <div className="rounded-2xl overflow-hidden border border-[#4A5D4E] shadow-xl h-48 w-full">
           <iframe
             title="Arvika Fashion Map"
-            src="https://www.google.com/maps/place/Krishna+public+school/@28.4789403,77.3194654,17z/data=!3m1!4b1!4m6!3m5!1s0x390ce70e1209181b:0xe3c8555095ff708d!8m2!3d28.4789403!4d77.3220403!16s%2Fg%2F11bx43h2hj?entry=ttu&g_ep=EgoyMDI2MDcyMi4wIKXMDSoASAFQAw%3D%3D"
+            src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d14014.970482025355!2d77.3220403!3d28.4789402!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x390ce70e1209181b%3A0xe3c8555095ff708d!2sKrishna%20public%20school!5e0!3m2!1sen!2sin!4v1753857321672!5m2!1sen!2sin"
             width="100%"
             height="100%"
             style={{ border: 0, filter: 'grayscale(0.6) contrast(1.1)' }}
