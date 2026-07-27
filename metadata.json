@@ -1,0 +1,6 @@
+{
+  "name": "Arvika Fashion",
+  "description": "Arvika Fashion - Premium European-inspired garment & fashion brand representing Indian Craftsmanship, ethical organic linen, scandinavian minimalism, and export excellence.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
