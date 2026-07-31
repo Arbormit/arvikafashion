@@ -13,9 +13,9 @@ export const PRODUCTS: Product[] = [
     originalPriceINR: 6990,
     originalPriceEUR: 85,
     images: [
-      'https://images.unsplash.com/photo-1598033129183-c4f50c736f10?q=80&w=1000&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?q=80&w=1000&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1602810318383-e386cc2a3ccf?q=80&w=1000&auto=format&fit=crop'
+      'https://res.cloudinary.com/nwpiveo3/image/upload/v1785491637/WhatsApp_Image_2026-07-31_at_12.44.53_PM_ojweow.jpg?q=80&w=1000&auto=format&fit=crop',
+      'https://res.cloudinary.com/nwpiveo3/image/upload/v1785491637/WhatsApp_Image_2026-07-31_at_12.44.53_PM_1_ezvz7z.jpg?q=80&w=1000&auto=format&fit=crop',
+      'https://res.cloudinary.com/nwpiveo3/image/upload/v1785491630/WhatsApp_Image_2026-07-27_at_6.18.22_PM_qjoznw.jpg?q=80&w=1000&auto=format&fit=crop'
     ],
     colors: [
       { name: 'Warm Sand', hex: '#D8C6A5' },
@@ -47,9 +47,8 @@ export const PRODUCTS: Product[] = [
     originalPriceINR: 7500,
     originalPriceEUR: 92,
     images: [
-      'https://images.unsplash.com/photo-1509631179647-0177331693ae?q=80&w=1000&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=1000&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1584273143981-41c073dfe8f8?q=80&w=1000&auto=format&fit=crop'
+      'https://res.cloudinary.com/nwpiveo3/image/upload/v1785491637/WhatsApp_Image_2026-07-31_at_12.44.52_PM_rm6hix.jpg?q=80&w=1000&auto=format&fit=crop',
+      'https://res.cloudinary.com/nwpiveo3/image/upload/v1785491636/WhatsApp_Image_2026-07-31_at_12.44.51_PM_2_c8iawk.jpg?q=80&w=1000&auto=format&fit=crop',
     ],
     colors: [
       { name: 'Forest Green', hex: '#214C3A' },
@@ -79,8 +78,8 @@ export const PRODUCTS: Product[] = [
     originalPriceINR: 7200,
     originalPriceEUR: 89,
     images: [
-      'https://images.unsplash.com/photo-1509631179647-0177331693ae?q=80&w=1000&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1598033129183-c4f50c736f10?q=80&w=1000&auto=format&fit=crop'
+      'https://res.cloudinary.com/nwpiveo3/image/upload/v1785491637/WhatsApp_Image_2026-07-31_at_12.44.53_PM_2_lhvagv.jpg?q=80&w=1000&auto=format&fit=crop',
+      'https://res.cloudinary.com/nwpiveo3/image/upload/v1785491637/WhatsApp_Image_2026-07-31_at_12.44.53_PM_1_ezvz7z.jpg?q=80&w=1000&auto=format&fit=crop'
     ],
     colors: [
       { name: 'Stone Beige', hex: '#EFE6D8' },
@@ -108,8 +107,11 @@ export const PRODUCTS: Product[] = [
     priceINR: 4990,
     priceEUR: 62,
     images: [
-      'https://images.unsplash.com/photo-1539109136881-3be0616acf4b?q=80&w=1000&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1598033129183-c4f50c736f10?q=80&w=1000&auto=format&fit=crop'
+      'https://res.cloudinary.com/nwpiveo3/image/upload/v1785491637/WhatsApp_Image_2026-07-31_at_12.44.52_PM_1_uaqsyp.jpg?q=80&w=1000&auto=format&fit=crop',
+      'https://res.cloudinary.com/nwpiveo3/image/upload/v1785491637/WhatsApp_Image_2026-07-31_at_12.44.52_PM_2_aikioh.jpg?q=80&w=1000&auto=format&fit=crop',
+      'https://res.cloudinary.com/nwpiveo3/image/upload/v1785491637/WhatsApp_Image_2026-07-31_at_12.44.51_PM_fzroji.jpg?q=80&w=1000&auto=format&fit=crop',
+      'https://res.cloudinary.com/nwpiveo3/image/upload/v1785491636/WhatsApp_Image_2026-07-31_at_12.44.51_PM_3_lytj5u.jpg?q=80&w=1000&auto=format&fit=crop',
+      'https://res.cloudinary.com/nwpiveo3/image/upload/v1785491636/WhatsApp_Image_2026-07-31_at_12.44.51_PM_1_z02wka.jpg?q=80&w=1000&auto=format&fit=crop'
     ],
     colors: [
       { name: 'Ivory White', hex: '#FAF8F4' },
@@ -139,8 +141,7 @@ export const PRODUCTS: Product[] = [
     originalPriceINR: 2990,
     originalPriceEUR: 38,
     images: [
-      'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?q=80&w=1000&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?q=80&w=1000&auto=format&fit=crop'
+      'https://res.cloudinary.com/nwpiveo3/image/upload/v1785491636/WhatsApp_Image_2026-07-31_at_12.25.11_PM_wya4me.jpg?q=80&w=1000&auto=format&fit=crop',
     ],
     colors: [
       { name: 'Ivory White', hex: '#FAF8F4' },
@@ -170,8 +171,17 @@ export const PRODUCTS: Product[] = [
     priceINR: 4290,
     priceEUR: 54,
     images: [
-      'https://images.unsplash.com/photo-1602810318383-e386cc2a3ccf?q=80&w=1000&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?q=80&w=1000&auto=format&fit=crop'
+      'https://res.cloudinary.com/nwpiveo3/image/upload/v1785491636/WhatsApp_Image_2026-07-29_at_3.54.20_PM_rphk4q.jpg?q=80&w=1000&auto=format&fit=crop',
+      'https://res.cloudinary.com/nwpiveo3/image/upload/v1785491636/WhatsApp_Image_2026-07-29_at_3.54.20_PM_2_nwr8dw.jpg?q=80&w=1000&auto=format&fit=crop',
+      'https://res.cloudinary.com/nwpiveo3/image/upload/v1785491636/WhatsApp_Image_2026-07-29_at_3.54.20_PM_1_k2gsyj.jpg?q=80&w=1000&auto=format&fit=crop',
+      'https://res.cloudinary.com/nwpiveo3/image/upload/v1785491635/WhatsApp_Image_2026-07-29_at_3.54.19_PM_rglf2c.jpg?q=80&w=1000&auto=format&fit=crop',
+      'https://res.cloudinary.com/nwpiveo3/image/upload/v1785491635/WhatsApp_Image_2026-07-29_at_3.54.19_PM_3_vgh6vq.jpg?q=80&w=1000&auto=format&fit=crop',
+      'https://res.cloudinary.com/nwpiveo3/image/upload/v1785491635/WhatsApp_Image_2026-07-29_at_3.54.19_PM_2_cpfola.jpg?q=80&w=1000&auto=format&fit=crop',
+      'https://res.cloudinary.com/nwpiveo3/image/upload/v1785491635/WhatsApp_Image_2026-07-29_at_3.54.19_PM_1_h5zzlh.jpg?q=80&w=1000&auto=format&fit=crop',
+      'https://res.cloudinary.com/nwpiveo3/image/upload/v1785491635/WhatsApp_Image_2026-07-29_at_3.54.18_PM_iu7cxv.jpg?q=80&w=1000&auto=format&fit=crop',
+      'https://res.cloudinary.com/nwpiveo3/image/upload/v1785491635/WhatsApp_Image_2026-07-29_at_3.54.18_PM_3_u6qozs.jpg?q=80&w=1000&auto=format&fit=crop',
+      'https://res.cloudinary.com/nwpiveo3/image/upload/v1785491635/WhatsApp_Image_2026-07-29_at_3.54.18_PM_1_rlgmln.jpg?q=80&w=1000&auto=format&fit=crop',
+      'https://res.cloudinary.com/nwpiveo3/image/upload/v1785491635/WhatsApp_Image_2026-07-29_at_3.54.18_PM_2_gjvscw.jpg?q=80&w=1000&auto=format&fit=crop',
     ],
     colors: [
       { name: 'Ivory White', hex: '#FAF8F4' },
@@ -197,8 +207,8 @@ export const PRODUCTS: Product[] = [
     priceINR: 3490,
     priceEUR: 44,
     images: [
-      'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=1000&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?q=80&w=1000&auto=format&fit=crop'
+      'https://res.cloudinary.com/nwpiveo3/image/upload/v1785491635/WhatsApp_Image_2026-07-29_at_3.54.17_PM_3_umcq0i.jpg?q=80&w=1000&auto=format&fit=crop',
+      'https://res.cloudinary.com/nwpiveo3/image/upload/v1785491634/WhatsApp_Image_2026-07-29_at_3.54.17_PM_2_j6ow2r.jpg?q=80&w=1000&auto=format&fit=crop'
     ],
     colors: [
       { name: 'Warm Sand', hex: '#D8C6A5' },
@@ -228,9 +238,8 @@ export const PRODUCTS: Product[] = [
     originalPriceINR: 15990,
     originalPriceEUR: 190,
     images: [
-      'https://images.unsplash.com/photo-1544441893-675973e31985?q=80&w=1000&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1539109136881-3be0616acf4b?q=80&w=1000&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1584273143981-41c073dfe8f8?q=80&w=1000&auto=format&fit=crop'
+      'https://res.cloudinary.com/nwpiveo3/image/upload/v1785491635/WhatsApp_Image_2026-07-29_at_3.54.17_PM_ymvjo7.jpg?q=80&w=1000&auto=format&fit=crop',
+      'https://res.cloudinary.com/nwpiveo3/image/upload/v1785491634/WhatsApp_Image_2026-07-29_at_3.54.17_PM_1_qh3qt5.jpg?q=80&w=1000&auto=format&fit=crop',
     ],
     colors: [
       { name: 'Forest Green', hex: '#214C3A' },
@@ -259,8 +268,8 @@ export const PRODUCTS: Product[] = [
     priceINR: 8990,
     priceEUR: 112,
     images: [
-      'https://images.unsplash.com/photo-1591047139829-d91aecb6caea?q=80&w=1000&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1544441893-675973e31985?q=80&w=1000&auto=format&fit=crop'
+      'https://res.cloudinary.com/nwpiveo3/image/upload/v1785491634/WhatsApp_Image_2026-07-29_at_3.54.16_PM_2_hx4llu.jpg?q=80&w=1000&auto=format&fit=crop',
+      'https://res.cloudinary.com/nwpiveo3/image/upload/v1785491634/WhatsApp_Image_2026-07-29_at_3.54.16_PM_1_obybr7.jpg?q=80&w=1000&auto=format&fit=crop'
     ],
     colors: [
       { name: 'Stone Beige', hex: '#EFE6D8' },
@@ -318,9 +327,9 @@ export const PRODUCTS: Product[] = [
     originalPriceINR: 8990,
     originalPriceEUR: 110,
     images: [
-      'https://images.unsplash.com/photo-1496747611176-843222e1e57c?q=80&w=1000&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=1000&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1539109136881-3be0616acf4b?q=80&w=1000&auto=format&fit=crop'
+      'https://res.cloudinary.com/nwpiveo3/image/upload/v1785491634/WhatsApp_Image_2026-07-29_at_3.54.16_PM_umomth.jpg?q=80&w=1000&auto=format&fit=crop',
+      'https://res.cloudinary.com/nwpiveo3/image/upload/v1785491634/WhatsApp_Image_2026-07-29_at_3.54.15_PM_3_oazfqd.jpg?q=80&w=1000&auto=format&fit=crop',
+      'https://res.cloudinary.com/nwpiveo3/image/upload/v1785491634/WhatsApp_Image_2026-07-29_at_3.54.15_PM_2_qd4ry7.jpg?q=80&w=1000&auto=format&fit=crop'
     ],
     colors: [
       { name: 'Forest Green', hex: '#214C3A' },
@@ -349,8 +358,10 @@ export const PRODUCTS: Product[] = [
     priceINR: 6990,
     priceEUR: 86,
     images: [
-      'https://images.unsplash.com/photo-1572804013309-59a88b7e92f1?q=80&w=1000&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1496747611176-843222e1e57c?q=80&w=1000&auto=format&fit=crop'
+      'https://res.cloudinary.com/nwpiveo3/image/upload/v1785491634/WhatsApp_Image_2026-07-29_at_3.54.15_PM_nudvz9.jpg?q=80&w=1000&auto=format&fit=crop',
+      'https://res.cloudinary.com/nwpiveo3/image/upload/v1785491633/WhatsApp_Image_2026-07-29_at_3.54.14_PM_2_qdtmsx.jpg?q=80&w=1000&auto=format&fit=crop',
+      'https://res.cloudinary.com/nwpiveo3/image/upload/v1785491633/WhatsApp_Image_2026-07-29_at_3.54.14_PM_3_gtguvy.jpg?q=80&w=1000&auto=format&fit=crop',
+      'https://res.cloudinary.com/nwpiveo3/image/upload/v1785491633/WhatsApp_Image_2026-07-29_at_3.54.13_PM_3_fzx0ws.jpg?q=80&w=1000&auto=format&fit=crop'
     ],
     colors: [
       { name: 'Stone Beige', hex: '#EFE6D8' },
@@ -369,15 +380,17 @@ export const PRODUCTS: Product[] = [
   },
   {
     id: 'arv-403',
-    name: 'Lund Sleeveless Column Dress',
+    name: 'Sleeveless Column Dress',
     subtitle: 'High-Neck Straight Linen Dress',
     categoryId: 'scandi-dresses',
     categoryName: 'Scandinavian Minimal Dresses',
     priceINR: 5990,
     priceEUR: 75,
     images: [
-      'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=1000&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1496747611176-843222e1e57c?q=80&w=1000&auto=format&fit=crop'
+      'https://res.cloudinary.com/nwpiveo3/image/upload/v1785491633/WhatsApp_Image_2026-07-29_at_3.54.13_PM_rhxpfs.jpg?q=80&w=1000&auto=format&fit=crop',
+      'https://res.cloudinary.com/nwpiveo3/image/upload/v1785491633/WhatsApp_Image_2026-07-29_at_3.54.13_PM_2_zvchae.jpg?q=80&w=1000&auto=format&fit=crop',
+      'https://res.cloudinary.com/nwpiveo3/image/upload/v1785491633/WhatsApp_Image_2026-07-29_at_3.54.13_PM_1_yskdxh.jpg?q=80&w=1000&auto=format&fit=crop',
+      'https://res.cloudinary.com/nwpiveo3/image/upload/v1785491632/WhatsApp_Image_2026-07-29_at_3.54.12_PM_3_sz4vrm.jpg?q=80&w=1000&auto=format&fit=crop'
     ],
     colors: [
       { name: 'Charcoal Black', hex: '#1C1C1C' },
@@ -405,8 +418,8 @@ export const PRODUCTS: Product[] = [
     priceINR: 5290,
     priceEUR: 66,
     images: [
-      'https://images.unsplash.com/photo-1509631179647-0177331693ae?q=80&w=1000&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?q=80&w=1000&auto=format&fit=crop'
+      'https://res.cloudinary.com/nwpiveo3/image/upload/v1785491632/WhatsApp_Image_2026-07-29_at_3.54.12_PM_2_evonye.jpg?q=80&w=1000&auto=format&fit=crop',
+      'https://res.cloudinary.com/nwpiveo3/image/upload/v1785491632/WhatsApp_Image_2026-07-29_at_3.54.12_PM_1_ukjb5w.jpg?q=80&w=1000&auto=format&fit=crop'
     ],
     colors: [
       { name: 'Warm Sand', hex: '#D8C6A5' },
@@ -434,8 +447,8 @@ export const PRODUCTS: Product[] = [
     priceINR: 4890,
     priceEUR: 60,
     images: [
-      'https://images.unsplash.com/photo-1509631179647-0177331693ae?q=80&w=1000&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1539109136881-3be0616acf4b?q=80&w=1000&auto=format&fit=crop'
+      'https://res.cloudinary.com/nwpiveo3/image/upload/v1785491632/WhatsApp_Image_2026-07-29_at_3.54.11_PM_cwbwcy.jpg?q=80&w=1000&auto=format&fit=crop',
+      'https://res.cloudinary.com/nwpiveo3/image/upload/v1785491632/WhatsApp_Image_2026-07-29_at_3.54.11_PM_2_h5zwl5.jpg?q=80&w=1000&auto=format&fit=crop'
     ],
     colors: [
       { name: 'Stone Beige', hex: '#EFE6D8' },
@@ -463,8 +476,9 @@ export const PRODUCTS: Product[] = [
     priceINR: 7990,
     priceEUR: 98,
     images: [
-      'https://images.unsplash.com/photo-1620799140408-edc6dcb6d633?q=80&w=1000&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1584273143981-41c073dfe8f8?q=80&w=1000&auto=format&fit=crop'
+      'https://res.cloudinary.com/nwpiveo3/image/upload/v1785491632/WhatsApp_Image_2026-07-28_at_1.25.13_AM_kfxi52.jpg?q=80&w=1000&auto=format&fit=crop',
+      'https://res.cloudinary.com/nwpiveo3/image/upload/v1785491631/WhatsApp_Image_2026-07-28_at_1.25.13_AM_1_dvindw.jpg?q=80&w=1000&auto=format&fit=crop',
+      'https://res.cloudinary.com/nwpiveo3/image/upload/v1785491631/WhatsApp_Image_2026-07-28_at_1.25.12_AM_2_ih4s07.jpg?q=80&w=1000&auto=format&fit=crop'
     ],
     colors: [
       { name: 'Ivory White', hex: '#FAF8F4' },
@@ -492,8 +506,10 @@ export const PRODUCTS: Product[] = [
     priceINR: 8990,
     priceEUR: 110,
     images: [
-      'https://images.unsplash.com/photo-1620799140408-edc6dcb6d633?q=80&w=1000&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1544441893-675973e31985?q=80&w=1000&auto=format&fit=crop'
+      'https://res.cloudinary.com/nwpiveo3/image/upload/v1785491632/WhatsApp_Image_2026-07-29_at_3.54.12_PM_renz2i.jpg?q=80&w=1000&auto=format&fit=crop',
+      'https://res.cloudinary.com/nwpiveo3/image/upload/v1785491631/WhatsApp_Image_2026-07-29_at_3.54.11_PM_1_x28y4d.jpg?q=80&w=1000&auto=format&fit=crop',
+      'https://res.cloudinary.com/nwpiveo3/image/upload/v1785491631/WhatsApp_Image_2026-07-29_at_3.54.10_PM_znd7ci.jpg?q=80&w=1000&auto=format&fit=crop',
+      'https://res.cloudinary.com/nwpiveo3/image/upload/v1785491631/WhatsApp_Image_2026-07-29_at_3.54.10_PM_znd7ci.jpg?q=80&w=1000&auto=format&fit=crop'
     ],
     colors: [
       { name: 'Warm Sand', hex: '#D8C6A5' },
@@ -523,8 +539,7 @@ export const PRODUCTS: Product[] = [
     originalPriceINR: 8200,
     originalPriceEUR: 100,
     images: [
-      'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=1000&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1496747611176-843222e1e57c?q=80&w=1000&auto=format&fit=crop'
+      'https://res.cloudinary.com/nwpiveo3/image/upload/v1785491631/WhatsApp_Image_2026-07-28_at_1.25.12_AM_nolqop.jpg?q=80&w=1000&auto=format&fit=crop',
     ],
     colors: [
       { name: 'Ivory White', hex: '#FAF8F4' },
@@ -552,8 +567,8 @@ export const PRODUCTS: Product[] = [
     priceINR: 5490,
     priceEUR: 68,
     images: [
-      'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=1000&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1572804013309-59a88b7e92f1?q=80&w=1000&auto=format&fit=crop'
+      'https://res.cloudinary.com/nwpiveo3/image/upload/v1785491631/WhatsApp_Image_2026-07-28_at_1.25.12_AM_1_vfwgoe.jpg?q=80&w=1000&auto=format&fit=crop',
+      'https://res.cloudinary.com/nwpiveo3/image/upload/v1785491630/WhatsApp_Image_2026-07-28_at_1.25.11_AM_pmkc0j.jpg?q=80&w=1000&auto=format&fit=crop'
     ],
     colors: [
       { name: 'Stone Beige', hex: '#EFE6D8' },
@@ -581,8 +596,8 @@ export const PRODUCTS: Product[] = [
     priceINR: 2990,
     priceEUR: 38,
     images: [
-      'https://images.unsplash.com/photo-1584917865442-de89df76afd3?q=80&w=1000&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1584273143981-41c073dfe8f8?q=80&w=1000&auto=format&fit=crop'
+      'https://res.cloudinary.com/nwpiveo3/image/upload/v1785491631/WhatsApp_Image_2026-07-29_at_3.54.10_PM_2_naqvqb.jpg?q=80&w=1000&auto=format&fit=crop',
+      'https://res.cloudinary.com/nwpiveo3/image/upload/v1785491630/WhatsApp_Image_2026-07-29_at_3.54.10_PM_1_qp0pt7.jpg?q=80&w=1000&auto=format&fit=crop'
     ],
     colors: [
       { name: 'Forest Green', hex: '#214C3A' },
@@ -610,8 +625,9 @@ export const PRODUCTS: Product[] = [
     priceINR: 3490,
     priceEUR: 44,
     images: [
-      'https://images.unsplash.com/photo-1584917865442-de89df76afd3?q=80&w=1000&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1590874103328-eac38a683ce7?q=80&w=1000&auto=format&fit=crop'
+      'https://res.cloudinary.com/nwpiveo3/image/upload/v1785491630/WhatsApp_Image_2026-07-27_at_6.18.23_PM_xdzf3m.jpg?q=80&w=1000&auto=format&fit=crop',
+      'https://res.cloudinary.com/nwpiveo3/image/upload/v1785491630/WhatsApp_Image_2026-07-27_at_5.53.57_PM_ohdrtl.jpg?q=80&w=1000&auto=format&fit=crop',
+      'https://res.cloudinary.com/nwpiveo3/image/upload/v1785491629/WhatsApp_Image_2026-07-27_at_5.53.58_PM_pjrrhz.jpg?q=80&w=1000&auto=format&fit=crop'
     ],
     colors: [
       { name: 'Stone Beige', hex: '#EFE6D8' },
@@ -639,8 +655,8 @@ export const PRODUCTS: Product[] = [
     priceINR: 6790,
     priceEUR: 84,
     images: [
-      'https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?q=80&w=1000&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1509631179647-0177331693ae?q=80&w=1000&auto=format&fit=crop'
+      'https://res.cloudinary.com/nwpiveo3/image/upload/v1785491630/WhatsApp_Image_2026-07-29_at_3.54.10_PM_1_qp0pt7.jpg?q=80&w=1000&auto=format&fit=crop',
+      'https://res.cloudinary.com/nwpiveo3/image/upload/v1785491630/WhatsApp_Image_2026-07-29_at_3.54.09_PM_izoyzl.jpg?q=80&w=1000&auto=format&fit=crop'
     ],
     colors: [
       { name: 'Olive Green', hex: '#4A5D4E' },

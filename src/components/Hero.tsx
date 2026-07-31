@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowRight, ChevronLeft, ChevronRight, Sparkles, ShieldCheck, Award, Globe } from 'lucide-react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { ActiveTab } from '../types';
 
 interface HeroProps {
@@ -10,166 +10,100 @@ interface HeroProps {
 const SLIDES = [
   {
     id: 'slide-1',
-    badge: 'ESTABLISHED IN INDIA • CURATED FOR EUROPE',
-    title: 'Timeless Indian Craftsmanship for Modern European Fashion',
-    subtitle: 'Where Scandinavian minimalism meets centuries-old hand-loom heritage. Premium Normandy organic linen and GOTS-certified cotton garments crafted for quiet luxury.',
-    image: 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=80&w=2000&auto=format&fit=crop',
-    ctaPrimary: 'Explore Collections',
-    ctaSecondary: 'Our Craft Legacy',
-    targetCategory: 'pure-linen'
+    title: 'Arvika Fashion Collection 1',
+    image: 'https://res.cloudinary.com/nwpiveo3/image/upload/v1785491637/WhatsApp_Image_2026-07-31_at_12.44.53_PM_2_lhvagv.jpg?q=80&w=2000&auto=format&fit=crop',
+    aspectRatio: 1448 / 1086,
   },
   {
-    id: 'slide-[#2]',
-    badge: 'NEW SEASON 2026 • SCANDINAVIAN EDITION',
-    title: 'Normandy Organic Linen Couture Collection',
-    subtitle: 'Pre-washed for vintage softness with hand-finished French seam bindings. Designed for conscious living, airy breathability, and effortless elegance.',
-    image: 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=2000&auto=format&fit=crop',
-    ctaPrimary: 'Shop Pure Linen',
-    ctaSecondary: 'View Sustainability Certs',
-    targetCategory: 'pure-linen'
+    id: 'slide-2',
+    title: 'Arvika Fashion Collection 2',
+    image: 'https://res.cloudinary.com/nwpiveo3/image/upload/v1785491636/WhatsApp_Image_2026-07-31_at_12.25.11_PM_wya4me.jpg?q=80&w=2000&auto=format&fit=crop',
+    aspectRatio: 1536 / 1024,
   },
   {
     id: 'slide-3',
-    badge: 'DIRECT EXPORT QUALITY • FARIDABAD & JAIPUR ATELIERS',
-    title: 'Artisanal Trench Coats & Tailored Outerwear',
-    subtitle: 'Structural elegance crafted from heavy linen-wool twills and organic cotton voile. Built for European transitional weather and timeless wardrobe longevity.',
-    image: 'https://images.unsplash.com/photo-1544441893-675973e31985?q=80&w=2000&auto=format&fit=crop',
-    ctaPrimary: 'Explore Trench Coats',
-    ctaSecondary: 'Wholesale & Export Desk',
-    targetCategory: 'coats-jackets'
+    title: 'Arvika Fashion Collection 3',
+    image: 'https://res.cloudinary.com/nwpiveo3/image/upload/v1785491636/WhatsApp_Image_2026-07-31_at_12.44.51_PM_1_z02wka.jpg?q=80&w=2000&auto=format&fit=crop',
+    aspectRatio: 1254 / 1254,
+  },
+  {
+    id: 'slide-4',
+    title: 'Arvika Fashion Collection 4',
+    image: 'https://res.cloudinary.com/nwpiveo3/image/upload/v1785491635/WhatsApp_Image_2026-07-29_at_3.54.17_PM_ymvjo7.jpg?q=80&w=2000&auto=format&fit=crop',
+    aspectRatio: 1402 / 1122,
   }
 ];
 
-export const Hero: React.FC<HeroProps> = ({ setActiveTab, setSelectedCategory }) => {
+export const Hero: React.FC<HeroProps> = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
 
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % SLIDES.length);
-    }, 6000);
+    }, 5000);
     return () => clearInterval(timer);
   }, []);
 
-  const handleCtaClick = (category: string | null = null, tab: ActiveTab = 'collections') => {
-    setActiveTab(tab);
-    if (category) {
-      setSelectedCategory(category);
-    }
-    window.scrollTo({ top: 600, behavior: 'smooth' });
-  };
-
-  const slide = SLIDES[currentSlide];
-
   return (
-    <section className="relative w-full min-h-[85vh] lg:min-h-[88vh] bg-[#1C1C1C] overflow-hidden flex items-center justify-center">
-      
-      {/* Background Image Slider with Parallax / Smooth Transition */}
-      {SLIDES.map((s, idx) => (
-        <div
-          key={s.id}
-          className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
-            idx === currentSlide ? 'opacity-100 scale-105' : 'opacity-0 scale-100'
-          }`}
-          style={{ transitionProperty: 'opacity, transform', transitionDuration: '1000ms' }}
-        >
-          <img
-            src={s.image}
-            alt={s.title}
-            className="w-full h-full object-cover object-center filter brightness-[0.72] contrast-[1.05]"
-            referrerPolicy="no-referrer"
-          />
-          {/* Subtle vignette gradient overlays */}
-          <div className="absolute inset-0 bg-gradient-to-r from-[#1C1C1C]/90 via-[#1C1C1C]/50 to-transparent" />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#1C1C1C] via-transparent to-black/30" />
-        </div>
-      ))}
-
-      {/* Content Container */}
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 w-full">
-        <div className="max-w-2xl text-[#FAF8F4] space-y-6 animate-fade-in">
-          
-          {/* Badge */}
-          <div className="inline-flex items-center space-x-2 bg-[#214C3A]/90 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-[#D8C6A5]/40 text-[#D8C6A5] text-[11px] font-montserrat tracking-widest uppercase font-semibold">
-            <Sparkles className="w-3.5 h-3.5 text-[#C5A059]" />
-            <span>{slide.badge}</span>
-          </div>
-
-          {/* Title */}
-          <h1 className="font-serif text-4xl sm:text-5xl lg:text-6xl font-normal leading-[1.1] tracking-wide text-[#FAF8F4]">
-            {slide.title}
-          </h1>
-
-          {/* Subtitle */}
-          <p className="font-sans text-base sm:text-lg text-[#EFE6D8]/90 font-light leading-relaxed max-w-xl">
-            {slide.subtitle}
-          </p>
-
-          {/* CTA Buttons (Symmetrical, Equal Sizing on Mobile & Tablet) */}
-          <div className="pt-4 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4 w-full max-w-md sm:max-w-none">
-            <button
-              onClick={() => handleCtaClick(slide.targetCategory, 'collections')}
-              className="w-full sm:w-auto bg-[#D8C6A5] text-[#214C3A] hover:bg-[#FAF8F4] px-6 sm:px-8 py-3.5 sm:py-4 rounded-full font-montserrat text-xs font-bold uppercase tracking-wider transition-all transform hover:-translate-y-0.5 shadow-lg flex items-center justify-center space-x-2 cursor-pointer active:scale-95"
-            >
-              <span>{slide.ctaPrimary}</span>
-              <ArrowRight className="w-4 h-4 text-[#214C3A]" />
-            </button>
-
-            <button
-              onClick={() => handleCtaClick(null, 'about')}
-              className="w-full sm:w-auto bg-white/10 hover:bg-white/20 text-[#FAF8F4] border border-[#FAF8F4]/30 px-6 sm:px-8 py-3.5 sm:py-4 rounded-full font-montserrat text-xs font-bold uppercase tracking-wider backdrop-blur-sm transition-all flex items-center justify-center space-x-2 cursor-pointer active:scale-95"
-            >
-              <span>{slide.ctaSecondary}</span>
-            </button>
-          </div>
-
-          {/* Trust Highlights */}
-          <div className="pt-8 grid grid-cols-3 gap-4 border-t border-white/15 max-w-lg text-xs font-sans text-[#EFE6D8]/80">
-            <div className="flex items-center space-x-2">
-              <ShieldCheck className="w-4 h-4 text-[#D8C6A5]" />
-              <span>OEKO-TEX® Certified</span>
-            </div>
-            <div className="flex items-center space-x-2">
-              <Award className="w-4 h-4 text-[#D8C6A5]" />
-              <span>GOTS Organic Cotton</span>
-            </div>
-            <div className="flex items-center space-x-2">
-              <Globe className="w-4 h-4 text-[#D8C6A5]" />
-              <span>Direct Global Export</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Slide Navigation Edge Controls (Precise fit without overlapping text) */}
-      <button
-        onClick={() => setCurrentSlide((prev) => (prev - 1 + SLIDES.length) % SLIDES.length)}
-        className="absolute left-3 sm:left-6 top-1/2 -translate-y-1/2 z-20 p-2.5 sm:p-3 rounded-full bg-black/50 hover:bg-[#214C3A] text-[#FAF8F4] border border-white/30 backdrop-blur-md transition-all active:scale-95 shadow-xl cursor-pointer"
-        aria-label="Previous Slide"
+    <section className="relative w-full bg-[#1C1C1C] overflow-hidden">
+      {/* Dynamic Aspect Ratio Hero Container - Fits image 100% full width and full height on all devices */}
+      <div 
+        className="w-full relative transition-all duration-700 ease-in-out max-h-[88vh]"
+        style={{ aspectRatio: `${SLIDES[currentSlide].aspectRatio}` }}
       >
-        <ChevronLeft className="w-5 h-5" />
-      </button>
-
-      <button
-        onClick={() => setCurrentSlide((prev) => (prev + 1) % SLIDES.length)}
-        className="absolute right-3 sm:right-6 top-1/2 -translate-y-1/2 z-20 p-2.5 sm:p-3 rounded-full bg-black/50 hover:bg-[#214C3A] text-[#FAF8F4] border border-white/30 backdrop-blur-md transition-all active:scale-95 shadow-xl cursor-pointer"
-        aria-label="Next Slide"
-      >
-        <ChevronRight className="w-5 h-5" />
-      </button>
-
-      {/* Slide Dots Indicator (Centered at Bottom across All Devices) */}
-      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 flex items-center space-x-2.5 bg-black/50 backdrop-blur-md px-4 py-2 rounded-full border border-white/25 shadow-xl">
-        {SLIDES.map((_, idx) => (
-          <button
-            key={idx}
-            onClick={() => setCurrentSlide(idx)}
-            className={`h-2 rounded-full transition-all duration-300 cursor-pointer ${
-              idx === currentSlide ? 'w-8 bg-[#D8C6A5]' : 'w-2 bg-white/50 hover:bg-white'
+        {SLIDES.map((s, idx) => (
+          <div
+            key={s.id}
+            className={`absolute inset-0 w-full h-full transition-opacity duration-1000 ease-in-out ${
+              idx === currentSlide ? 'opacity-100 z-10' : 'opacity-0 pointer-events-none z-0'
             }`}
-            aria-label={`Go to slide ${idx + 1}`}
-          />
+            style={{ transitionProperty: 'opacity', transitionDuration: '1000ms' }}
+          >
+            <img
+              src={s.image}
+              alt={s.title}
+              className="w-full h-full object-fill object-center select-none"
+              referrerPolicy="no-referrer"
+            />
+          </div>
         ))}
+
+        {/* Slide Navigation Left Arrow */}
+        <button
+          onClick={() => setCurrentSlide((prev) => (prev - 1 + SLIDES.length) % SLIDES.length)}
+          className="absolute left-3 sm:left-6 top-1/2 -translate-y-1/2 z-20 p-2.5 sm:p-3.5 rounded-full bg-black/40 hover:bg-[#214C3A] text-white border border-white/20 backdrop-blur-md transition-all active:scale-95 shadow-xl cursor-pointer"
+          aria-label="Previous Slide"
+        >
+          <ChevronLeft className="w-5 h-5 sm:w-6 sm:h-6" />
+        </button>
+
+        {/* Slide Navigation Right Arrow */}
+        <button
+          onClick={() => setCurrentSlide((prev) => (prev + 1) % SLIDES.length)}
+          className="absolute right-3 sm:right-6 top-1/2 -translate-y-1/2 z-20 p-2.5 sm:p-3.5 rounded-full bg-black/40 hover:bg-[#214C3A] text-white border border-white/20 backdrop-blur-md transition-all active:scale-95 shadow-xl cursor-pointer"
+          aria-label="Next Slide"
+        >
+          <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6" />
+        </button>
+
+        {/* Slide Dots Indicator */}
+        <div className="absolute bottom-4 sm:bottom-6 left-1/2 -translate-x-1/2 z-20 flex items-center space-x-2 sm:space-x-2.5 bg-black/40 backdrop-blur-md px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-full border border-white/20 shadow-xl">
+          {SLIDES.map((_, idx) => (
+            <button
+              key={idx}
+              onClick={() => setCurrentSlide(idx)}
+              className={`h-2 sm:h-2.5 rounded-full transition-all duration-300 cursor-pointer ${
+                idx === currentSlide ? 'w-6 sm:w-8 bg-[#D8C6A5]' : 'w-2 sm:w-2.5 bg-white/50 hover:bg-white'
+              }`}
+              aria-label={`Go to slide ${idx + 1}`}
+            />
+          ))}
+        </div>
       </div>
     </section>
   );
 };
+
+
+
+

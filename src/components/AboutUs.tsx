@@ -159,13 +159,13 @@ export const AboutUs: React.FC = () => {
           <div className="grid grid-cols-2 gap-4 relative">
             <div className="space-y-4">
               <img
-                src="https://images.unsplash.com/photo-1598033129183-c4f50c736f10?q=80&w=800&auto=format&fit=crop"
+                src="https://res.cloudinary.com/nwpiveo3/image/upload/v1785491636/WhatsApp_Image_2026-07-29_at_3.54.20_PM_rphk4q.jpg?q=80&w=800&auto=format&fit=crop"
                 alt="Jaipur Atelier Weaving"
                 className="rounded-2xl object-cover h-64 w-full border border-[#D8C6A5] shadow-md"
                 referrerPolicy="no-referrer"
               />
               <img
-                src="https://images.unsplash.com/photo-1544441893-675973e31985?q=80&w=800&auto=format&fit=crop"
+                src="https://res.cloudinary.com/nwpiveo3/image/upload/v1785491636/WhatsApp_Image_2026-07-29_at_3.54.20_PM_1_k2gsyj.jpg?q=80&w=800&auto=format&fit=crop"
                 alt="European Fashion Drape"
                 className="rounded-2xl object-cover h-48 w-full border border-[#D8C6A5] shadow-md"
                 referrerPolicy="no-referrer"
@@ -173,7 +173,7 @@ export const AboutUs: React.FC = () => {
             </div>
             <div className="space-y-4 pt-8">
               <img
-                src="https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?q=80&w=800&auto=format&fit=crop"
+                src="https://res.cloudinary.com/nwpiveo3/image/upload/v1785491632/WhatsApp_Image_2026-07-29_at_3.54.11_PM_2_h5zwl5.jpg?q=80&w=800&auto=format&fit=crop"
                 alt="Faridabad Garment Unit"
                 className="rounded-2xl object-cover h-48 w-full border border-[#D8C6A5] shadow-md"
                 referrerPolicy="no-referrer"
