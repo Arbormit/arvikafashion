@@ -10,25 +10,25 @@ interface HeroProps {
 const SLIDES = [
   {
     id: 'slide-1',
-    title: 'Arvika Fashion Collection 1',
+    title: 'Arvika Fashion - Premium Normandy Organic Linen European Collection',
     image: 'https://res.cloudinary.com/nwpiveo3/image/upload/v1785491637/WhatsApp_Image_2026-07-31_at_12.44.53_PM_2_lhvagv.jpg?q=80&w=2000&auto=format&fit=crop',
     aspectRatio: 1448 / 1086,
   },
   {
     id: 'slide-2',
-    title: 'Arvika Fashion Collection 2',
+    title: 'Arvika Fashion - Scandinavian Minimalist Linen Apparel & Couture',
     image: 'https://res.cloudinary.com/nwpiveo3/image/upload/v1785491636/WhatsApp_Image_2026-07-31_at_12.25.11_PM_wya4me.jpg?q=80&w=2000&auto=format&fit=crop',
     aspectRatio: 1536 / 1024,
   },
   {
     id: 'slide-3',
-    title: 'Arvika Fashion Collection 3',
+    title: 'Arvika Fashion - Artisanal Handloom Cotton & Quiet Luxury Wear',
     image: 'https://res.cloudinary.com/nwpiveo3/image/upload/v1785491636/WhatsApp_Image_2026-07-31_at_12.44.51_PM_1_z02wka.jpg?q=80&w=2000&auto=format&fit=crop',
     aspectRatio: 1254 / 1254,
   },
   {
     id: 'slide-4',
-    title: 'Arvika Fashion Collection 4',
+    title: 'Arvika Fashion - Tailored Outerwear, Linen Dresses & Trench Coats',
     image: 'https://res.cloudinary.com/nwpiveo3/image/upload/v1785491635/WhatsApp_Image_2026-07-29_at_3.54.17_PM_ymvjo7.jpg?q=80&w=2000&auto=format&fit=crop',
     aspectRatio: 1402 / 1122,
   }
@@ -46,7 +46,12 @@ export const Hero: React.FC<HeroProps> = () => {
 
   return (
     <section className="relative w-full bg-[#1C1C1C] overflow-hidden">
-      {/* Dynamic Aspect Ratio Hero Container - Fits image 100% full width and full height on all devices */}
+      {/* Hidden H1 for SEO Search Engine Crawlers & Accessibility */}
+      <h1 className="sr-only">
+        Arvika Fashion | Premium Indian Craftsmanship & Organic Linen European Couture
+      </h1>
+
+      {/* Dynamic Aspect Ratio Hero Container */}
       <div 
         className="w-full relative transition-all duration-700 ease-in-out max-h-[88vh]"
         style={{ aspectRatio: `${SLIDES[currentSlide].aspectRatio}` }}
@@ -103,6 +108,7 @@ export const Hero: React.FC<HeroProps> = () => {
     </section>
   );
 };
+
 
 
 
