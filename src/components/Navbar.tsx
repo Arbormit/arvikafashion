@@ -208,12 +208,12 @@ export const Navbar: React.FC<NavbarProps> = ({
       <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20 sm:h-24 gap-2">
           
-          {/* 1. Brand Logo */}
-          <div className="flex items-center cursor-pointer group shrink-0 py-1" onClick={() => handleNavClick('home')}>
+          {/* 1. Brand Logo (Mobile: Takes 50% navbar space & prominent height) */}
+          <div className="flex items-center cursor-pointer group w-1/2 sm:w-auto shrink-0 py-1" onClick={() => handleNavClick('home')}>
             <img
               src="/logo.png"
               alt="Arvika Fashion Logo"
-              className="h-14 sm:h-18 lg:h-20 max-w-[240px] sm:max-w-[340px] lg:max-w-[400px] w-auto object-contain transition-transform group-hover:scale-[1.02]"
+              className="w-full max-w-[280px] xs:max-w-[340px] sm:max-w-[400px] h-20 sm:h-24 object-contain object-left transition-transform hover:scale-[1.02]"
             />
           </div>
 

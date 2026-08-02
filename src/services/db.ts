@@ -1003,30 +1003,6 @@ class DatabaseService {
       message: `Offer code ${cleanCode} has been permanently deleted from database & site.` 
     };
   }
-
-  async addNewsletterSubscriber(email: string): Promise<{ success: boolean; message: string }> {
-    const cleanEmail = email.trim().toLowerCase();
-    try {
-      if (typeof fetch !== 'undefined') {
-        const res = await fetch('/api/newsletter/subscribe', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email: cleanEmail })
-        });
-        const data = await res.json();
-        return {
-          success: data.success ?? true,
-          message: data.message || 'Subscribed! You will receive our weekly Arvika Fashion lookbook, new arrival catalogues & exclusive offers every week. 📩'
-        };
-      }
-    } catch (err) {
-      console.warn('Newsletter API call fallback:', err);
-    }
-    return {
-      success: true,
-      message: 'Subscribed! You will receive our weekly Arvika Fashion lookbook, new arrival catalogues & exclusive offers every week. 📩'
-    };
-  }
 }
 
 export const db = new DatabaseService();

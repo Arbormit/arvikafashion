@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { 
   MapPin, 
   Phone, 
@@ -7,13 +7,10 @@ import {
   Instagram, 
   Facebook, 
   Linkedin, 
-  Check, 
-  Send, 
   ShieldCheck, 
   Award
 } from 'lucide-react';
 import { ActiveTab } from '../types';
-import { db } from '../services/db';
 
 interface FooterProps {
   setActiveTab: (tab: ActiveTab) => void;
@@ -21,92 +18,20 @@ interface FooterProps {
 }
 
 export const Footer: React.FC<FooterProps> = ({ setActiveTab, setSelectedCategory }) => {
-  const [newsletterEmail, setNewsletterEmail] = useState('');
-  const [newsletterSuccess, setNewsletterSuccess] = useState(false);
-  const [toastMessage, setToastMessage] = useState<string | null>(null);
-
-  const handleSubscribe = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newsletterEmail) return;
-    
-    const emailToSub = newsletterEmail;
-    setNewsletterSuccess(true);
-    setNewsletterEmail('');
-
-    const res = await db.addNewsletterSubscriber(emailToSub);
-    setToastMessage(res.message);
-
-    setTimeout(() => {
-      setNewsletterSuccess(false);
-      setToastMessage(null);
-    }, 6000);
-  };
-
   return (
     <footer className="bg-[#F3ECE3] text-[#2D2A26] pt-16 pb-12 border-t border-[#E5DDD0] relative">
-      
-      {/* Toast Alert for Weekly Newsletter Confirmation */}
-      {toastMessage && (
-        <div className="fixed bottom-10 left-1/2 -translate-x-1/2 z-50 bg-[#7B9B88] text-white px-6 py-3.5 rounded-full text-xs font-montserrat font-bold shadow-2xl border border-[#688875] flex items-center gap-2 animate-fade-in max-w-md text-center">
-          <Check className="w-4.5 h-4.5 text-emerald-200 shrink-0" />
-          <span>{toastMessage}</span>
-        </div>
-      )}
-
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-16">
-        
-        {/* Newsletter Signup Banner */}
-        <div className="bg-[#7B9B88] rounded-3xl p-8 sm:p-10 border border-[#688875] flex flex-col lg:flex-row items-center justify-between gap-8 shadow-xl">
-          <div className="space-y-2 max-w-xl text-center lg:text-left">
-            <span className="text-[11px] font-montserrat uppercase tracking-widest text-[#E8DCB8] font-bold flex items-center justify-center lg:justify-start gap-1.5">
-              THE WEEKLY NEWSLETTER
-            </span>
-            <h3 className="font-serif text-2xl sm:text-3xl font-bold text-white">
-              Subscribe for Weekly Catalogues, New Arrivals & Sales
-            </h3>
-            <p className="text-xs text-white/90 font-sans leading-relaxed">
-              Receive weekly advertisement emails featuring new product drops, existing garment catalogues, quiet luxury merchandise, and exclusive 15% subscriber discounts.
-            </p>
-          </div>
-
-          <form onSubmit={handleSubscribe} className="w-full lg:w-auto flex flex-col sm:flex-row gap-3">
-            <input
-              type="email"
-              required
-              value={newsletterEmail}
-              onChange={(e) => setNewsletterEmail(e.target.value)}
-              placeholder="Enter your email address"
-              className="bg-white border border-[#D5E4DC] text-[#2D2A26] placeholder-[#2D2A26]/50 px-5 py-3.5 rounded-2xl text-xs font-sans focus:outline-none focus:border-[#7B9B88] min-w-[280px]"
-            />
-            <button
-              type="submit"
-              className="bg-[#E8DCB8] hover:bg-white text-[#2D2A26] px-6 py-3.5 rounded-2xl text-xs font-montserrat font-bold uppercase tracking-wider transition-all flex items-center justify-center space-x-2 shadow-md whitespace-nowrap cursor-pointer active:scale-95"
-            >
-              {newsletterSuccess ? (
-                <>
-                  <Check className="w-4 h-4 text-emerald-800" />
-                  <span>Subscribed!</span>
-                </>
-              ) : (
-                <>
-                  <span>Subscribe</span>
-                  <Send className="w-3.5 h-3.5" />
-                </>
-              )}
-            </button>
-          </form>
-        </div>
 
         {/* Main Footer Links & Locations Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 text-xs font-sans">
           
           {/* Brand Info */}
           <div className="lg:col-span-2 space-y-4">
-            <div className="flex items-center cursor-pointer" onClick={() => setActiveTab('home')}>
+            <div className="flex items-center cursor-pointer w-full pb-1" onClick={() => setActiveTab('home')}>
               <img
                 src="/flogo.jpeg"
                 alt="Arvika Fashion Logo"
-                className="h-16 sm:h-20 max-w-[380px] w-auto object-contain rounded-xl"
+                className="w-full max-w-[280px] xs:max-w-[340px] sm:max-w-[400px] h-20 sm:h-24 object-contain object-left rounded-xl transition-transform hover:scale-[1.02]"
               />
             </div>
 
