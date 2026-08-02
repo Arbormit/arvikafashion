@@ -78,12 +78,12 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         {/* Badges */}
         <div className="absolute top-3 left-3 flex flex-col gap-1.5 z-10">
           {product.isTrending && (
-            <span className="bg-[#214C3A] text-[#D8C6A5] text-[10px] font-montserrat font-bold px-2.5 py-1 rounded-full uppercase tracking-wider shadow-sm flex items-center gap-1">
+            <span className="bg-[#7B9B88] text-white text-[10px] font-montserrat font-bold px-2.5 py-1 rounded-full uppercase tracking-wider shadow-xs flex items-center gap-1">
               <Sparkles className="w-3 h-3" /> Trending
             </span>
           )}
           {product.isBestSeller && (
-            <span className="bg-[#C5A059] text-white text-[10px] font-montserrat font-bold px-2.5 py-1 rounded-full uppercase tracking-wider shadow-sm">
+            <span className="bg-[#E8DCB8] text-[#2D2A26] text-[10px] font-montserrat font-bold px-2.5 py-1 rounded-full uppercase tracking-wider shadow-xs border border-[#DCD3C5]">
               Best Seller
             </span>
           )}
@@ -97,12 +97,12 @@ export const ProductCard: React.FC<ProductCardProps> = ({
           }}
           className={`absolute top-3 right-3 p-2.5 rounded-full transition-all duration-200 z-10 ${
             isWishlisted 
-              ? 'bg-[#214C3A] text-[#FAF8F4] shadow-md scale-110' 
-              : 'bg-white/80 hover:bg-white text-[#1C1C1C] hover:text-[#214C3A] backdrop-blur-sm'
+              ? 'bg-[#7B9B88] text-white shadow-md scale-110' 
+              : 'bg-white/90 hover:bg-white text-[#2D2A26] hover:text-[#7B9B88] backdrop-blur-sm border border-[#EAE2D7]'
           }`}
           title={isWishlisted ? 'Remove from Wishlist' : 'Add to Wishlist'}
         >
-          <Heart className={`w-4 h-4 ${isWishlisted ? 'fill-[#D8C6A5] text-[#D8C6A5]' : ''}`} />
+          <Heart className={`w-4 h-4 ${isWishlisted ? 'fill-white text-white' : ''}`} />
         </button>
 
         {/* Hover Quick Actions */}
@@ -111,9 +111,9 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         }`}>
           <button
             onClick={() => onQuickView(product)}
-            className="flex-1 bg-white/95 hover:bg-[#FAF8F4] text-[#214C3A] py-2.5 rounded-xl font-montserrat text-xs font-bold transition-colors shadow-lg flex items-center justify-center gap-1.5"
+            className="flex-1 bg-white/95 hover:bg-[#FAF8F4] text-[#2D2A26] py-2.5 rounded-xl font-montserrat text-xs font-bold transition-colors shadow-md border border-[#EAE2D7] flex items-center justify-center gap-1.5"
           >
-            <Eye className="w-3.5 h-3.5" />
+            <Eye className="w-3.5 h-3.5 text-[#7B9B88]" />
             <span>Quick View</span>
           </button>
         </div>
@@ -123,20 +123,20 @@ export const ProductCard: React.FC<ProductCardProps> = ({
       <div className="p-4 flex-1 flex flex-col justify-between">
         <div>
           {/* Fabric Category Subtitle */}
-          <div className="text-[11px] font-montserrat uppercase tracking-wider text-[#8C7A6B] font-semibold flex items-center justify-between">
+          <div className="text-[11px] font-montserrat uppercase tracking-wider text-[#7B9B88] font-semibold flex items-center justify-between">
             <span>{product.categoryName}</span>
-            <span className="text-[#214C3A] font-bold">★ {product.rating}</span>
+            <span className="text-[#4E6E5D] font-bold">★ {product.rating}</span>
           </div>
 
           {/* Product Name */}
           <h3 
             onClick={() => onQuickView(product)}
-            className="font-serif text-lg font-bold text-[#214C3A] mt-1 hover:text-[#4A5D4E] cursor-pointer transition-colors leading-snug line-clamp-1"
+            className="font-serif text-lg font-bold text-[#2D2A26] mt-1 hover:text-[#7B9B88] cursor-pointer transition-colors leading-snug line-clamp-1"
           >
             {product.name}
           </h3>
 
-          <p className="text-xs text-[#1C1C1C]/70 font-sans line-clamp-1 mt-0.5">
+          <p className="text-xs text-[#2D2A26]/70 font-sans line-clamp-1 mt-0.5">
             {product.subtitle || product.fabric}
           </p>
 
@@ -148,7 +148,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
                 onClick={() => setSelectedColor(color.name)}
                 className={`w-4 h-4 rounded-full border transition-all ${
                   selectedColor === color.name 
-                    ? 'ring-2 ring-[#214C3A] ring-offset-1 scale-110' 
+                    ? 'ring-2 ring-[#7B9B88] ring-offset-1 scale-110' 
                     : 'border-black/20 opacity-80 hover:opacity-100'
                 }`}
                 style={{ backgroundColor: color.hex }}
@@ -168,8 +168,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({
                 onClick={() => setSelectedSize(size)}
                 className={`text-[10px] font-montserrat font-semibold px-2 py-0.5 rounded border transition-colors ${
                   selectedSize === size
-                    ? 'bg-[#214C3A] text-[#FAF8F4] border-[#214C3A]'
-                    : 'bg-[#EFE6D8]/50 text-[#1C1C1C] border-[#D8C6A5]/40 hover:border-[#214C3A]'
+                    ? 'bg-[#7B9B88] text-white border-[#7B9B88]'
+                    : 'bg-[#E8F0EC]/60 text-[#2D2A26] border-[#D5E4DC] hover:border-[#7B9B88]'
                 }`}
               >
                 {size}
@@ -179,9 +179,9 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         </div>
 
         {/* Pricing & CTA */}
-        <div className="pt-4 mt-3 border-t border-[#EFE6D8] flex items-center justify-between">
+        <div className="pt-4 mt-3 border-t border-[#EAE2D7] flex items-center justify-between">
           <div>
-            <div className="font-serif font-bold text-xl text-[#214C3A]">
+            <div className="font-serif font-bold text-xl text-[#2D2A26]">
               {price}
             </div>
             {originalPrice && (
@@ -196,24 +196,24 @@ export const ProductCard: React.FC<ProductCardProps> = ({
               onClick={handleAddToCartClick}
               className={`p-2.5 rounded-xl transition-all font-montserrat text-xs font-bold flex items-center gap-1.5 cursor-pointer ${
                 isInCart || addedToast
-                  ? 'bg-emerald-800 text-white shadow-sm'
-                  : 'bg-[#EFE6D8] hover:bg-[#D8C6A5] text-[#214C3A]'
+                  ? 'bg-emerald-700 text-white shadow-xs'
+                  : 'bg-[#E8F0EC] hover:bg-[#D5E4DC] text-[#2D2A26]'
               }`}
               title={isInCart ? 'Item Added to Cart ✓' : 'Add to Cart'}
             >
               {isInCart || addedToast ? (
                 <>
-                  <Check className="w-4 h-4 text-emerald-300" />
+                  <Check className="w-4 h-4 text-emerald-200" />
                   <span className="text-[10px] font-bold">Added</span>
                 </>
               ) : (
-                <ShoppingBag className="w-4 h-4" />
+                <ShoppingBag className="w-4 h-4 text-[#7B9B88]" />
               )}
             </button>
             
             <button
               onClick={handleBuyNowClick}
-              className="bg-[#214C3A] hover:bg-[#4A5D4E] text-[#FAF8F4] px-3.5 py-2 rounded-xl text-xs font-montserrat font-bold transition-all shadow-sm"
+              className="bg-[#7B9B88] hover:bg-[#688875] text-white px-3.5 py-2 rounded-xl text-xs font-montserrat font-bold transition-all shadow-xs cursor-pointer"
             >
               Buy Now
             </button>

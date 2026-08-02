@@ -45,11 +45,11 @@ export const TrendingGrid: React.FC<TrendingGridProps> = ({
       {/* Section Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-6">
         <div>
-          <span className="text-xs font-montserrat uppercase tracking-[0.25em] text-[#8C7A6B] font-bold flex items-center gap-1.5">
-            <Sparkles className="w-3.5 h-3.5 text-[#C5A059]" />
+          <span className="text-xs font-montserrat uppercase tracking-[0.25em] text-[#7B9B88] font-bold flex items-center gap-1.5">
+            <Sparkles className="w-3.5 h-3.5 text-[#7B9B88]" />
             CURRENT SEASON FAVORITES
           </span>
-          <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold text-[#214C3A] mt-2">
+          <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold text-[#2D2A26] mt-2">
             Trending European Couture
           </h2>
         </div>
@@ -62,8 +62,8 @@ export const TrendingGrid: React.FC<TrendingGridProps> = ({
               onClick={() => setFilter(f.id)}
               className={`px-4 py-2 rounded-full text-xs font-montserrat font-bold whitespace-nowrap transition-all ${
                 filter === f.id
-                  ? 'bg-[#214C3A] text-[#FAF8F4] shadow-md'
-                  : 'bg-[#EFE6D8]/60 text-[#1C1C1C] hover:bg-[#EFE6D8]'
+                  ? 'bg-[#7B9B88] text-white shadow-xs'
+                  : 'bg-[#E8F0EC]/60 text-[#2D2A26] hover:bg-[#E8F0EC] border border-[#D5E4DC]'
               }`}
             >
               {f.label}
@@ -93,10 +93,10 @@ export const TrendingGrid: React.FC<TrendingGridProps> = ({
       <div className="mt-14 text-center">
         <button
           onClick={onExploreAll}
-          className="inline-flex items-center space-x-3 bg-[#214C3A] text-[#FAF8F4] px-8 py-4 rounded-full font-montserrat text-xs font-bold uppercase tracking-wider hover:bg-[#4A5D4E] transition-all shadow-md group"
+          className="inline-flex items-center space-x-3 bg-[#7B9B88] text-white px-8 py-4 rounded-full font-montserrat text-xs font-bold uppercase tracking-wider hover:bg-[#688875] transition-all shadow-md group cursor-pointer"
         >
           <span>Explore All 30+ Garment Categories</span>
-          <ArrowRight className="w-4 h-4 text-[#D8C6A5] group-hover:translate-x-1 transition-transform" />
+          <ArrowRight className="w-4 h-4 text-[#E8DCB8] group-hover:translate-x-1 transition-transform" />
         </button>
       </div>
     </section>

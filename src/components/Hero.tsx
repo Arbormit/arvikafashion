@@ -45,15 +45,15 @@ export const Hero: React.FC<HeroProps> = () => {
   }, []);
 
   return (
-    <section className="relative w-full bg-[#1C1C1C] overflow-hidden">
+    <section className="relative w-full bg-[#FAF8F4] overflow-hidden">
       {/* Hidden H1 for SEO Search Engine Crawlers & Accessibility */}
       <h1 className="sr-only">
         Arvika Fashion | Premium Indian Craftsmanship & Organic Linen European Couture
       </h1>
 
-      {/* Dynamic Aspect Ratio Hero Container */}
+      {/* Dynamic Aspect Ratio Hero Container - Full Width & Natural Uncropped Height */}
       <div 
-        className="w-full relative transition-all duration-700 ease-in-out max-h-[88vh]"
+        className="w-full relative transition-all duration-700 ease-in-out"
         style={{ aspectRatio: `${SLIDES[currentSlide].aspectRatio}` }}
       >
         {SLIDES.map((s, idx) => (
@@ -67,7 +67,7 @@ export const Hero: React.FC<HeroProps> = () => {
             <img
               src={s.image}
               alt={s.title}
-              className="w-full h-full object-fill object-center select-none"
+              className="w-full h-full object-contain object-center select-none"
               referrerPolicy="no-referrer"
             />
           </div>
@@ -76,7 +76,7 @@ export const Hero: React.FC<HeroProps> = () => {
         {/* Slide Navigation Left Arrow */}
         <button
           onClick={() => setCurrentSlide((prev) => (prev - 1 + SLIDES.length) % SLIDES.length)}
-          className="absolute left-3 sm:left-6 top-1/2 -translate-y-1/2 z-20 p-2.5 sm:p-3.5 rounded-full bg-black/40 hover:bg-[#214C3A] text-white border border-white/20 backdrop-blur-md transition-all active:scale-95 shadow-xl cursor-pointer"
+          className="absolute left-3 sm:left-6 top-1/2 -translate-y-1/2 z-20 p-2.5 sm:p-3.5 rounded-full bg-[#FAF8F4]/85 hover:bg-[#7B9B88] text-[#2D2A26] hover:text-white border border-[#D5E4DC] backdrop-blur-md transition-all active:scale-95 shadow-md cursor-pointer"
           aria-label="Previous Slide"
         >
           <ChevronLeft className="w-5 h-5 sm:w-6 sm:h-6" />
@@ -85,20 +85,20 @@ export const Hero: React.FC<HeroProps> = () => {
         {/* Slide Navigation Right Arrow */}
         <button
           onClick={() => setCurrentSlide((prev) => (prev + 1) % SLIDES.length)}
-          className="absolute right-3 sm:right-6 top-1/2 -translate-y-1/2 z-20 p-2.5 sm:p-3.5 rounded-full bg-black/40 hover:bg-[#214C3A] text-white border border-white/20 backdrop-blur-md transition-all active:scale-95 shadow-xl cursor-pointer"
+          className="absolute right-3 sm:right-6 top-1/2 -translate-y-1/2 z-20 p-2.5 sm:p-3.5 rounded-full bg-[#FAF8F4]/85 hover:bg-[#7B9B88] text-[#2D2A26] hover:text-white border border-[#D5E4DC] backdrop-blur-md transition-all active:scale-95 shadow-md cursor-pointer"
           aria-label="Next Slide"
         >
           <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6" />
         </button>
 
         {/* Slide Dots Indicator */}
-        <div className="absolute bottom-4 sm:bottom-6 left-1/2 -translate-x-1/2 z-20 flex items-center space-x-2 sm:space-x-2.5 bg-black/40 backdrop-blur-md px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-full border border-white/20 shadow-xl">
+        <div className="absolute bottom-4 sm:bottom-6 left-1/2 -translate-x-1/2 z-20 flex items-center space-x-2 sm:space-x-2.5 bg-[#FAF8F4]/85 backdrop-blur-md px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-full border border-[#D5E4DC] shadow-md">
           {SLIDES.map((_, idx) => (
             <button
               key={idx}
               onClick={() => setCurrentSlide(idx)}
               className={`h-2 sm:h-2.5 rounded-full transition-all duration-300 cursor-pointer ${
-                idx === currentSlide ? 'w-6 sm:w-8 bg-[#D8C6A5]' : 'w-2 sm:w-2.5 bg-white/50 hover:bg-white'
+                idx === currentSlide ? 'w-6 sm:w-8 bg-[#7B9B88]' : 'w-2 sm:w-2.5 bg-[#2D2A26]/30 hover:bg-[#7B9B88]'
               }`}
               aria-label={`Go to slide ${idx + 1}`}
             />

@@ -2,25 +2,32 @@
 
 @layer base {
   :root {
-    --color-forest: #214C3A;
+    --color-pastel-sage: #7B9B88;
+    --color-pastel-mint: #E8F0EC;
+    --color-pastel-cream: #FAF8F4;
+    --color-pastel-sand: #E8DCB8;
+    --color-pastel-blush: #F7EBE8;
+    --color-pastel-linen: #F3ECE3;
+    --color-warm-espresso: #2D2A26;
+    --color-forest: #7B9B88;
     --color-ivory: #FAF8F4;
-    --color-sand: #D8C6A5;
-    --color-stone: #EFE6D8;
-    --color-olive: #4A5D4E;
+    --color-sand: #E8DCB8;
+    --color-stone: #F3ECE3;
+    --color-olive: #6B8E7B;
     --color-taupe: #8C7A6B;
-    --color-charcoal: #1C1C1C;
-    --color-gold: #C5A059;
-    --color-walnut: #3D2B1F;
+    --color-charcoal: #2D2A26;
+    --color-gold: #D8C6A5;
+    --color-walnut: #4E463D;
   }
 
   html {
-    background-color: #1C1C1C !important;
+    background-color: #FAF8F4 !important;
   }
 
   body {
     font-family: 'Manrope', -apple-system, BlinkMacSystemFont, sans-serif;
     background-color: #FAF8F4;
-    color: #1C1C1C;
+    color: #2D2A26;
     top: 0px !important;
     position: static !important;
   }
