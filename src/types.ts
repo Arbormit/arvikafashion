@@ -200,5 +200,13 @@ export interface Inquiry {
   createdAt: string;
 }
 
+export interface NewsletterSubscriber {
+  id: string;
+  email: string;
+  subscribedAt: string;
+  status: 'active' | 'unsubscribed';
+  lastWeeklyEmailSentAt?: string;
+}
+
 export type ActiveTab = 'home' | 'about' | 'collections' | 'reviews' | 'offers' | 'buynow' | 'contact';
 

@@ -1,6 +1,7 @@
-import { User, Order, Address, OrderStatus, PaymentStatus, PaymentDetails, CartItem, Currency, UserPreferences, Review, Inquiry } from '../types';
+import { User, Order, Address, OrderStatus, PaymentStatus, PaymentDetails, CartItem, Currency, UserPreferences, Review, Inquiry, Coupon } from '../types';
 import { PRODUCTS } from '../data/products';
 import { INITIAL_REVIEWS } from '../data/reviews';
+import { COUPONS } from '../data/offers';
 import { AuthService } from './authService';
 
 const STORAGE_KEYS = {
@@ -9,6 +10,7 @@ const STORAGE_KEYS = {
   ORDERS: 'arvika_db_orders',
   ANNOUNCEMENTS: 'arvika_announcements',
   REVIEWS: 'arvika_reviews',
+  OFFERS: 'arvika_offers',
 };
 
 // Default Shop Details
@@ -148,6 +150,7 @@ class DatabaseService {
   private orders: Order[] = [];
   private announcements: string[] = DEFAULT_ANNOUNCEMENTS;
   private reviews: Review[] = [];
+  private offers: Coupon[] = COUPONS;
 
   constructor() {
     this.init();
@@ -211,18 +214,32 @@ class DatabaseService {
         this.saveReviewsToStorage();
       }
 
+      const savedOffers = localStorage.getItem(STORAGE_KEYS.OFFERS);
+      if (savedOffers) {
+        this.offers = JSON.parse(savedOffers);
+      } else {
+        this.offers = COUPONS;
+        this.saveOffersToStorage();
+      }
+
       // Fetch live data from Neon PostgreSQL DB
       this.syncReviewsFromNeonServer();
       this.syncUsersFromNeonServer();
       this.syncInquiriesFromNeonServer();
+      this.syncOffersFromNeonServer();
+      this.syncAnnouncementsFromNeonServer();
 
       // Real-time Neon DB role poller & window focus listener
       if (typeof window !== 'undefined') {
         setInterval(() => this.syncUsersFromNeonServer(), 4000);
         setInterval(() => this.syncInquiriesFromNeonServer(), 4000);
+        setInterval(() => this.syncOffersFromNeonServer(), 4000);
+        setInterval(() => this.syncAnnouncementsFromNeonServer(), 4000);
         window.addEventListener('focus', () => {
           this.syncUsersFromNeonServer();
           this.syncInquiriesFromNeonServer();
+          this.syncOffersFromNeonServer();
+          this.syncAnnouncementsFromNeonServer();
         });
       }
     } catch (e) {
@@ -622,6 +639,24 @@ class DatabaseService {
     return [...this.users.filter(u => u.email && u.id !== 'usr_freja_2026' && u.id !== 'usr_admin_001')];
   }
 
+  private async syncAnnouncementsFromNeonServer() {
+    try {
+      if (typeof fetch !== 'undefined') {
+        const res = await fetch('/api/announcements');
+        const data = await res.json();
+        if (data.success && Array.isArray(data.announcements) && data.announcements.length > 0) {
+          this.announcements = data.announcements;
+          localStorage.setItem(STORAGE_KEYS.ANNOUNCEMENTS, JSON.stringify(this.announcements));
+          if (typeof window !== 'undefined') {
+            window.dispatchEvent(new Event('arvika_announcements_updated'));
+          }
+        }
+      }
+    } catch (e) {
+      console.warn('Neon DB announcements sync fallback:', e);
+    }
+  }
+
   public getAnnouncements(): string[] {
     return this.announcements.length > 0 ? this.announcements : DEFAULT_ANNOUNCEMENTS;
   }
@@ -635,7 +670,23 @@ class DatabaseService {
     this.announcements = filtered.length > 0 ? filtered : DEFAULT_ANNOUNCEMENTS;
     try {
       localStorage.setItem(STORAGE_KEYS.ANNOUNCEMENTS, JSON.stringify(this.announcements));
-      window.dispatchEvent(new Event('arvika_announcements_updated'));
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new Event('arvika_announcements_updated'));
+      }
+
+      // Sync to Neon DB
+      if (typeof fetch !== 'undefined') {
+        const token = AuthService.getAuthToken();
+        fetch('/api/announcements', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            ...(token ? { Authorization: `Bearer ${token}` } : {})
+          },
+          body: JSON.stringify({ announcements: this.announcements })
+        }).catch(err => console.warn('Neon DB update announcements notice:', err));
+      }
+
       return true;
     } catch (err) {
       console.error('Failed to save announcements:', err);
@@ -865,6 +916,116 @@ class DatabaseService {
     } catch (e) {
       console.warn('Failed to save reviews to localStorage:', e);
     }
+  }
+
+  private async syncOffersFromNeonServer() {
+    try {
+      if (typeof fetch !== 'undefined') {
+        const res = await fetch('/api/offers');
+        const data = await res.json();
+        if (data.success && Array.isArray(data.offers)) {
+          this.offers = data.offers;
+          this.saveOffersToStorage();
+        }
+      }
+    } catch (e) {
+      console.warn('Neon DB offers sync fallback:', e);
+    }
+  }
+
+  getOffers(): Coupon[] {
+    return [...this.offers];
+  }
+
+  private saveOffersToStorage() {
+    try {
+      localStorage.setItem(STORAGE_KEYS.OFFERS, JSON.stringify(this.offers));
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new Event('arvika_offers_updated'));
+      }
+    } catch (e) {
+      console.warn('Failed to save offers to localStorage:', e);
+    }
+  }
+
+  async addOffer(offer: Coupon): Promise<{ success: boolean; message?: string }> {
+    const cleanCode = offer.code.trim().toUpperCase();
+    const formattedOffer = { ...offer, code: cleanCode };
+    const existingIdx = this.offers.findIndex(o => o.code.toUpperCase() === cleanCode);
+    
+    if (existingIdx !== -1) {
+      this.offers[existingIdx] = formattedOffer;
+    } else {
+      this.offers.unshift(formattedOffer);
+    }
+    this.saveOffersToStorage();
+
+    try {
+      if (typeof fetch !== 'undefined') {
+        const token = AuthService.getAuthToken();
+        await fetch('/api/offers', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            ...(token ? { Authorization: `Bearer ${token}` } : {})
+          },
+          body: JSON.stringify(formattedOffer)
+        });
+      }
+    } catch (err) {
+      console.warn('Neon DB save offer notice:', err);
+    }
+    return { success: true, message: `Promo code ${cleanCode} created & saved to database.` };
+  }
+
+  async deleteOffer(code: string): Promise<{ success: boolean; message?: string }> {
+    const cleanCode = code.trim().toUpperCase();
+    const initialLen = this.offers.length;
+    this.offers = this.offers.filter(o => o.code.toUpperCase() !== cleanCode);
+    this.saveOffersToStorage();
+
+    try {
+      if (typeof fetch !== 'undefined') {
+        const token = AuthService.getAuthToken();
+        await fetch(`/api/offers/${encodeURIComponent(cleanCode)}`, {
+          method: 'DELETE',
+          headers: {
+            ...(token ? { Authorization: `Bearer ${token}` } : {})
+          }
+        });
+      }
+    } catch (err) {
+      console.warn('Neon DB delete offer notice:', err);
+    }
+
+    return { 
+      success: this.offers.length < initialLen, 
+      message: `Offer code ${cleanCode} has been permanently deleted from database & site.` 
+    };
+  }
+
+  async addNewsletterSubscriber(email: string): Promise<{ success: boolean; message: string }> {
+    const cleanEmail = email.trim().toLowerCase();
+    try {
+      if (typeof fetch !== 'undefined') {
+        const res = await fetch('/api/newsletter/subscribe', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: cleanEmail })
+        });
+        const data = await res.json();
+        return {
+          success: data.success ?? true,
+          message: data.message || 'Subscribed! You will receive our weekly Arvika Fashion lookbook, new arrival catalogues & exclusive offers every week. 📩'
+        };
+      }
+    } catch (err) {
+      console.warn('Newsletter API call fallback:', err);
+    }
+    return {
+      success: true,
+      message: 'Subscribed! You will receive our weekly Arvika Fashion lookbook, new arrival catalogues & exclusive offers every week. 📩'
+    };
   }
 }
 

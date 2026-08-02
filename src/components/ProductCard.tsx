@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Heart, Eye, ShoppingBag, Sparkles, Check } from 'lucide-react';
+import { Heart, Eye, ShoppingBag, Check } from 'lucide-react';
 import { Product, Currency, CartItem, WishlistItem } from '../types';
 
 interface ProductCardProps {
@@ -79,7 +79,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         <div className="absolute top-3 left-3 flex flex-col gap-1.5 z-10">
           {product.isTrending && (
             <span className="bg-[#7B9B88] text-white text-[10px] font-montserrat font-bold px-2.5 py-1 rounded-full uppercase tracking-wider shadow-xs flex items-center gap-1">
-              <Sparkles className="w-3 h-3" /> Trending
+              Trending
             </span>
           )}
           {product.isBestSeller && (

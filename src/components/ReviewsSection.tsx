@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Star, CheckCircle, ThumbsUp, Plus, Filter, MessageSquare, Sparkles, Check, X, Trash2, AlertCircle } from 'lucide-react';
+import { Star, CheckCircle, ThumbsUp, Plus, Filter, MessageSquare, Check, X, Trash2, AlertCircle } from 'lucide-react';
 import { Review } from '../types';
 import { db } from '../services/db';
 
@@ -109,7 +109,6 @@ export const ReviewsSection: React.FC = () => {
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div>
           <span className="text-xs font-montserrat uppercase tracking-[0.25em] text-[#8C7A6B] font-bold flex items-center gap-1.5">
-            <Sparkles className="w-3.5 h-3.5 text-[#C5A059]" />
             CLIENT FEEDBACK & EXPORT REPUTATION
           </span>
           <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold text-[#214C3A] mt-2">

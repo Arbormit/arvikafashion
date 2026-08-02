@@ -3,7 +3,6 @@ import {
   X, 
   Heart, 
   ShoppingBag, 
-  Sparkles, 
   Ruler, 
   ShieldCheck, 
   Truck, 
@@ -194,7 +193,6 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
 
                 {/* Offer Notification Banner */}
                 <div className="mt-4 bg-[#E8F0EC] border border-[#D5E4DC] p-3 rounded-xl flex items-center gap-2 text-xs font-sans text-[#2D2A26]">
-                  <Sparkles className="w-4 h-4 text-[#7B9B88] flex-shrink-0" />
                   <span>Eligible for <strong>15% OFF</strong> with promo code <strong className="underline cursor-pointer text-[#7B9B88]">EUROPE15</strong> at checkout.</span>
                 </div>
 
@@ -305,7 +303,6 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
                     onClick={handleBuyNow}
                     className="bg-[#7B9B88] hover:bg-[#688875] text-white py-4 rounded-2xl font-montserrat text-xs font-bold uppercase tracking-wider transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer active:scale-98"
                   >
-                    <Sparkles className="w-4 h-4 text-[#E8DCB8]" />
                     <span>Buy Now ({price})</span>
                   </button>
                 </div>

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Sparkles, X, ChevronUp, ExternalLink, Send, Check, Trash2 } from 'lucide-react';
+import { X, ChevronUp, ExternalLink, Send, Check, Trash2 } from 'lucide-react';
 import { WhatsAppProductContext, Currency } from '../types';
 import { SHOP_PHONE, SHOP_NAME } from '../services/db';
 
@@ -137,7 +137,6 @@ export const FloatingWhatsAppCTA: React.FC<FloatingWhatsAppCTAProps> = ({
               <div className="flex items-center justify-between pt-1 border-t border-[#EFE6D8]/80">
                 {coupon ? (
                   <div className="text-[10px] bg-emerald-50 text-emerald-800 p-1.5 rounded-lg border border-emerald-200 flex items-center gap-1 font-semibold">
-                    <Sparkles className="w-3 h-3 text-emerald-600" />
                     <span>Offer: <strong>{coupon.code}</strong></span>
                   </div>
                 ) : <div />}

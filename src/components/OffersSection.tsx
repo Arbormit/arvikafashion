@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
-import { Tag, Sparkles, Check, Copy, Percent, Gift, ArrowRight } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Tag, Check, Copy, Percent, Gift, ArrowRight } from 'lucide-react';
 import { Coupon, Currency } from '../types';
-import { COUPONS } from '../data/offers';
+import { db } from '../services/db';
 
 interface OffersSectionProps {
   currency: Currency;
@@ -16,7 +16,22 @@ export const OffersSection: React.FC<OffersSectionProps> = ({
   activeCouponCode,
   onGoToShop
 }) => {
+  const [offersList, setOffersList] = useState<Coupon[]>(() => db.getOffers());
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
+
+  useEffect(() => {
+    const handleOffersUpdate = () => {
+      setOffersList(db.getOffers());
+    };
+    if (typeof window !== 'undefined') {
+      window.addEventListener('arvika_offers_updated', handleOffersUpdate);
+    }
+    return () => {
+      if (typeof window !== 'undefined') {
+        window.removeEventListener('arvika_offers_updated', handleOffersUpdate);
+      }
+    };
+  }, []);
 
   const handleCopy = (code: string) => {
     navigator.clipboard.writeText(code);
@@ -31,7 +46,6 @@ export const OffersSection: React.FC<OffersSectionProps> = ({
       {/* Header */}
       <div className="text-center max-w-2xl mx-auto space-y-3">
         <span className="text-xs font-montserrat uppercase tracking-[0.25em] text-[#7B9B88] font-bold flex items-center justify-center gap-1.5">
-          <Sparkles className="w-3.5 h-3.5 text-[#7B9B88]" />
           EXCLUSIVE EUROPEAN PROMOTIONS
         </span>
         <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold text-[#2D2A26]">
@@ -43,10 +57,17 @@ export const OffersSection: React.FC<OffersSectionProps> = ({
       </div>
 
       {/* Coupon Cards Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {COUPONS.map((coupon) => {
-          const isApplied = activeCouponCode === coupon.code;
-          const minSpend = currency === 'INR' ? `₹${coupon.minOrderINR.toLocaleString('en-IN')}` : `€${coupon.minOrderEUR}`;
+      {offersList.length === 0 ? (
+        <div className="text-center py-12 bg-white rounded-3xl border border-[#EAE2D7] p-8 space-y-3">
+          <Tag className="w-10 h-10 text-[#7B9B88] mx-auto opacity-50" />
+          <h3 className="font-serif font-bold text-xl text-[#2D2A26]">No Active Offers Currently</h3>
+          <p className="text-xs text-[#2D2A26]/70">Please check back soon for seasonal discounts & boutique promotional offers.</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {offersList.map((coupon) => {
+            const isApplied = activeCouponCode === coupon.code;
+            const minSpend = currency === 'INR' ? `₹${coupon.minOrderINR.toLocaleString('en-IN')}` : `€${coupon.minOrderEUR}`;
 
           return (
             <div
@@ -121,6 +142,7 @@ export const OffersSection: React.FC<OffersSectionProps> = ({
           );
         })}
       </div>
+      )}
 
     </section>
   );

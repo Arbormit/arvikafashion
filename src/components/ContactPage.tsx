@@ -5,7 +5,6 @@ import {
   MapPin, 
   MessageCircle, 
   Clock, 
-  Sparkles, 
   Send, 
   Check, 
   Globe, 

@@ -8,7 +8,6 @@ import {
   Truck, 
   ShieldCheck, 
   Lock, 
-  Sparkles, 
   ArrowRight, 
   FileText,
   MapPin,
@@ -635,7 +634,6 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                     type="submit"
                     className="w-full bg-[#D8C6A5] hover:bg-[#FAF8F4] text-[#214C3A] py-4 rounded-2xl font-montserrat text-xs font-bold uppercase tracking-wider transition-all shadow-lg flex items-center justify-center space-x-2"
                   >
-                    <Sparkles className="w-4 h-4" />
                     <span>Verify Payment & Place Order</span>
                   </button>
 

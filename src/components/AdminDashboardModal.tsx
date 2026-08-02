@@ -17,11 +17,12 @@ import {
   Trash2,
   Users,
   Tag,
-  Sparkles,
   Star,
-  MessageSquare
+  MessageSquare,
+  Edit3,
+  Save
 } from 'lucide-react';
-import { Order, OrderStatus, Currency, PaymentStatus, User, Review, Inquiry } from '../types';
+import { Order, OrderStatus, Currency, PaymentStatus, User, Review, Inquiry, Coupon } from '../types';
 import { db, DEFAULT_ANNOUNCEMENTS } from '../services/db';
 
 interface AdminDashboardModalProps {
@@ -39,28 +40,46 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
 }) => {
   if (!isOpen) return null;
 
-  const [activeTab, setActiveTab] = useState<'orders' | 'users' | 'announcements' | 'reviews' | 'inquiries'>('orders');
+  const [activeTab, setActiveTab] = useState<'orders' | 'offers' | 'users' | 'announcements' | 'reviews' | 'inquiries'>('orders');
   const [orders, setOrders] = useState<Order[]>(() => db.getAllOrders());
   const [allUsers, setAllUsers] = useState<User[]>(() => db.getAllUsers());
   const [announcementsList, setAnnouncementsList] = useState<string[]>(() => db.getAnnouncements());
   const [reviewsList, setReviewsList] = useState<Review[]>(() => db.getReviews());
   const [inquiriesList, setInquiriesList] = useState<Inquiry[]>(() => db.getInquiries());
+  const [offersList, setOffersList] = useState<Coupon[]>(() => db.getOffers());
+  
   const [newAnnouncementText, setNewAnnouncementText] = useState('');
+  const [editingAnnIndex, setEditingAnnIndex] = useState<number | null>(null);
+  const [editingAnnText, setEditingAnnText] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('ALL');
   const [selectedOrderDetails, setSelectedOrderDetails] = useState<Order | null>(null);
   const [utrInputMap, setUtrInputMap] = useState<Record<string, string>>({});
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
+  // New Offer Form State
+  const [newOfferCode, setNewOfferCode] = useState('');
+  const [newOfferDesc, setNewOfferDesc] = useState('');
+  const [newOfferPercent, setNewOfferPercent] = useState('15');
+  const [newOfferBadge, setNewOfferBadge] = useState('SPECIAL PROMO');
+  const [newOfferMinINR, setNewOfferMinINR] = useState('5000');
+  const [newOfferMinEUR, setNewOfferMinEUR] = useState('60');
+
   const [orderToDelete, setOrderToDelete] = useState<Order | null>(null);
   const [reviewToDelete, setReviewToDelete] = useState<Review | null>(null);
   const [userToDelete, setUserToDelete] = useState<User | null>(null);
   const [inquiryToDelete, setInquiryToDelete] = useState<Inquiry | null>(null);
+  const [offerToDelete, setOfferToDelete] = useState<Coupon | null>(null);
 
   React.useEffect(() => {
     const handleInquiries = () => setInquiriesList(db.getInquiries());
+    const handleOffers = () => setOffersList(db.getOffers());
     window.addEventListener('arvika_inquiries_updated', handleInquiries);
-    return () => window.removeEventListener('arvika_inquiries_updated', handleInquiries);
+    window.addEventListener('arvika_offers_updated', handleOffers);
+    return () => {
+      window.removeEventListener('arvika_inquiries_updated', handleInquiries);
+      window.removeEventListener('arvika_offers_updated', handleOffers);
+    };
   }, []);
 
   const confirmDeleteInquiry = () => {
@@ -71,6 +90,39 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
       showToast(`Inquiry from "${inquiryToDelete.name}" permanently deleted from Neon DB.`);
     }
     setInquiryToDelete(null);
+  };
+
+  const confirmDeleteOffer = async () => {
+    if (!offerToDelete) return;
+    const res = await db.deleteOffer(offerToDelete.code);
+    if (res.success) {
+      setOffersList(db.getOffers());
+      showToast(res.message || `Offer code ${offerToDelete.code} permanently deleted from database & site!`);
+    }
+    setOfferToDelete(null);
+  };
+
+  const handleCreateOffer = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newOfferCode.trim() || !newOfferDesc.trim()) return;
+
+    const offerObj: Coupon = {
+      code: newOfferCode.trim().toUpperCase(),
+      description: newOfferDesc.trim(),
+      discountPercentage: Number(newOfferPercent) || 15,
+      minOrderINR: Number(newOfferMinINR) || 5000,
+      minOrderEUR: Number(newOfferMinEUR) || 60,
+      expiresAt: '2026-12-31',
+      badge: newOfferBadge.trim().toUpperCase() || 'PROMO OFFER'
+    };
+
+    const res = await db.addOffer(offerObj);
+    if (res.success) {
+      setOffersList(db.getOffers());
+      showToast(`Promo code ${offerObj.code} successfully created & published!`);
+      setNewOfferCode('');
+      setNewOfferDesc('');
+    }
   };
 
   const refreshOrders = () => {
@@ -202,15 +254,28 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
         )}
 
         {/* Admin Navigation Sub-Bar */}
-        <div className="flex border-b border-[#EFE6D8] space-x-6 text-xs font-montserrat uppercase tracking-wider font-bold">
+        <div className="flex border-b border-[#EFE6D8] space-x-6 text-xs font-montserrat uppercase tracking-wider font-bold overflow-x-auto">
           <button
             onClick={() => setActiveTab('orders')}
-            className={`pb-3 transition-colors border-b-2 flex items-center space-x-2 ${
+            className={`pb-3 transition-colors border-b-2 flex items-center space-x-2 shrink-0 ${
               activeTab === 'orders' ? 'border-[#214C3A] text-[#214C3A]' : 'text-[#8C7A6B] border-transparent hover:text-[#214C3A]'
             }`}
           >
             <Package className="w-4 h-4 text-[#C5A059]" />
-            <span>Orders & Dispatch Ledger ({orders.length})</span>
+            <span>Orders & Dispatch ({orders.length})</span>
+          </button>
+
+          <button
+            onClick={() => {
+              setActiveTab('offers');
+              setOffersList(db.getOffers());
+            }}
+            className={`pb-3 transition-colors border-b-2 flex items-center space-x-2 shrink-0 ${
+              activeTab === 'offers' ? 'border-[#214C3A] text-[#214C3A]' : 'text-[#8C7A6B] border-transparent hover:text-[#214C3A]'
+            }`}
+          >
+            <Tag className="w-4 h-4 text-[#C5A059]" />
+            <span>Offers & Coupons ({offersList.length})</span>
           </button>
 
           <button
@@ -464,6 +529,154 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
           </div>
         )}
 
+        {/* TAB: OFFERS & COUPONS MANAGEMENT */}
+        {activeTab === 'offers' && (
+          <div className="space-y-6 animate-fade-in">
+            {/* Header & Create Offer Form */}
+            <div className="bg-white p-6 rounded-3xl border border-[#EFE6D8] space-y-4 shadow-xs">
+              <div className="flex items-center justify-between border-b border-[#EFE6D8] pb-3">
+                <div className="space-y-1">
+                  <h3 className="font-serif text-lg font-bold text-[#214C3A] flex items-center gap-2">
+                    <Tag className="w-5 h-5 text-[#C5A059]" />
+                    <span>Offers & Promo Coupon Control Panel</span>
+                  </h3>
+                  <p className="text-xs text-[#8C7A6B]">
+                    Create promo codes or permanently delete offers. Deleted offers are immediately purged from Neon DB and checkout validation.
+                  </p>
+                </div>
+                <span className="bg-[#214C3A] text-[#FAF8F4] text-[10px] font-montserrat font-bold px-3 py-1 rounded-full uppercase tracking-wider">
+                  {offersList.length} Active Offers
+                </span>
+              </div>
+
+              {/* Create New Promo Code Form */}
+              <form onSubmit={handleCreateOffer} className="space-y-4 pt-2">
+                <h4 className="font-serif font-bold text-sm text-[#214C3A]">Create New Promotional Offer</h4>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                  <div>
+                    <label className="block text-[10px] font-montserrat font-bold uppercase text-[#8C7A6B] mb-1">Coupon Code</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. SUMMER2026"
+                      value={newOfferCode}
+                      onChange={(e) => setNewOfferCode(e.target.value.toUpperCase())}
+                      className="w-full bg-[#FAF8F4] border border-[#D8C6A5] rounded-xl px-3 py-2 text-xs font-mono font-bold text-[#214C3A] uppercase focus:outline-none focus:ring-2 focus:ring-[#214C3A]"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-montserrat font-bold uppercase text-[#8C7A6B] mb-1">Badge Tag</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. LIMITED EDITION"
+                      value={newOfferBadge}
+                      onChange={(e) => setNewOfferBadge(e.target.value)}
+                      className="w-full bg-[#FAF8F4] border border-[#D8C6A5] rounded-xl px-3 py-2 text-xs font-sans text-[#214C3A] focus:outline-none focus:ring-2 focus:ring-[#214C3A]"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-montserrat font-bold uppercase text-[#8C7A6B] mb-1">Discount (% Off)</label>
+                    <input
+                      type="number"
+                      placeholder="15"
+                      value={newOfferPercent}
+                      onChange={(e) => setNewOfferPercent(e.target.value)}
+                      className="w-full bg-[#FAF8F4] border border-[#D8C6A5] rounded-xl px-3 py-2 text-xs font-sans text-[#214C3A] focus:outline-none focus:ring-2 focus:ring-[#214C3A]"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-montserrat font-bold uppercase text-[#8C7A6B] mb-1">Min Spend (INR / EUR)</label>
+                    <div className="flex gap-2">
+                      <input
+                        type="number"
+                        placeholder="₹5000"
+                        value={newOfferMinINR}
+                        onChange={(e) => setNewOfferMinINR(e.target.value)}
+                        className="w-1/2 bg-[#FAF8F4] border border-[#D8C6A5] rounded-xl px-2 py-2 text-xs font-sans text-[#214C3A]"
+                      />
+                      <input
+                        type="number"
+                        placeholder="€60"
+                        value={newOfferMinEUR}
+                        onChange={(e) => setNewOfferMinEUR(e.target.value)}
+                        className="w-1/2 bg-[#FAF8F4] border border-[#D8C6A5] rounded-xl px-2 py-2 text-xs font-sans text-[#214C3A]"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-[10px] font-montserrat font-bold uppercase text-[#8C7A6B] mb-1">Description / Terms</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. 20% OFF on all Scandinavian linen dresses over ₹6,000 / €75"
+                    value={newOfferDesc}
+                    onChange={(e) => setNewOfferDesc(e.target.value)}
+                    className="w-full bg-[#FAF8F4] border border-[#D8C6A5] rounded-xl px-3 py-2 text-xs font-sans text-[#214C3A] focus:outline-none focus:ring-2 focus:ring-[#214C3A]"
+                    required
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  className="bg-[#214C3A] hover:bg-[#2D5A46] text-[#FAF8F4] px-6 py-2.5 rounded-xl text-xs font-montserrat font-bold uppercase tracking-wider transition-all shadow-xs cursor-pointer"
+                >
+                  Publish Promo Offer Code
+                </button>
+              </form>
+            </div>
+
+            {/* Active Offers Grid with Delete Button */}
+            <div className="space-y-3">
+              <h4 className="font-serif font-bold text-base text-[#214C3A]">Active Database Offers ({offersList.length})</h4>
+              {offersList.length === 0 ? (
+                <div className="text-center py-12 bg-white rounded-3xl border border-dashed border-[#D8C6A5] p-8 space-y-2">
+                  <Tag className="w-10 h-10 text-[#C5A059] mx-auto opacity-50" />
+                  <p className="font-serif font-bold text-[#214C3A]">No Active Offers in Database</p>
+                  <p className="text-xs text-[#8C7A6B]">Use the form above to add a new coupon code.</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {offersList.map((offer) => (
+                    <div
+                      key={offer.code}
+                      className="bg-white border border-[#EFE6D8] rounded-2xl p-5 shadow-xs flex flex-col justify-between space-y-4 relative"
+                    >
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <span className="bg-[#214C3A] text-[#FAF8F4] text-[9px] font-montserrat font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider">
+                            {offer.badge}
+                          </span>
+                          <span className="font-mono text-xs font-bold text-[#C5A059] bg-[#FAF8F4] px-2.5 py-0.5 rounded-md border border-[#EFE6D8]">
+                            {offer.code}
+                          </span>
+                        </div>
+                        <p className="text-xs font-[#214C3A] leading-relaxed pt-1">
+                          {offer.description}
+                        </p>
+                        <div className="text-[11px] text-[#8C7A6B] font-montserrat flex items-center justify-between border-t border-[#EFE6D8] pt-2">
+                          <span>Min Spend: ₹{offer.minOrderINR.toLocaleString('en-IN')} / €{offer.minOrderEUR}</span>
+                          <span className="font-bold text-[#214C3A]">{offer.discountPercentage ? `${offer.discountPercentage}% OFF` : `Flat Discount`}</span>
+                        </div>
+                      </div>
+
+                      {/* Permanent Delete Button */}
+                      <button
+                        type="button"
+                        onClick={() => setOfferToDelete(offer)}
+                        className="w-full bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 py-2 rounded-xl text-xs font-montserrat font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                        <span>Delete Offer Permanently</span>
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
         {/* TAB 2: USER ROLE PRIVILEGE MANAGEMENT (ADMIN ONLY) */}
         {activeTab === 'users' && (
           <div className="space-y-4 animate-fade-in">
@@ -603,7 +816,6 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                   }}
                   className="bg-[#214C3A] hover:bg-[#1A3D2F] text-[#FAF8F4] px-5 py-3 rounded-xl font-montserrat text-xs font-bold transition-all shadow-md shrink-0 flex items-center space-x-1.5 cursor-pointer"
                 >
-                  <Sparkles className="w-4 h-4 text-[#D8C6A5]" />
                   <span>Publish Realtime</span>
                 </button>
               </div>
@@ -631,35 +843,94 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
               </div>
 
               <div className="space-y-2">
-                {announcementsList.map((ann, idx) => (
-                  <div
-                    key={idx}
-                    className="flex items-center justify-between bg-[#FAF8F4] p-3 rounded-xl border border-[#EFE6D8] text-xs text-[#214C3A]"
-                  >
-                    <div className="flex items-center space-x-3 font-medium min-w-0 pr-2">
-                      <span className="w-6 h-6 rounded-full bg-[#EFE6D8] text-[#214C3A] font-mono text-[10px] font-bold flex items-center justify-center shrink-0">
-                        #{idx + 1}
-                      </span>
-                      <span className="truncate">{ann}</span>
-                    </div>
+                {announcementsList.map((ann, idx) => {
+                  const isEditing = editingAnnIndex === idx;
 
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const updated = announcementsList.filter((_, i) => i !== idx);
-                        const success = db.updateAnnouncements(updated);
-                        if (success) {
-                          setAnnouncementsList(db.getAnnouncements());
-                          showToast('Announcement item removed.');
-                        }
-                      }}
-                      className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors shrink-0 cursor-pointer"
-                      title="Delete Announcement"
+                  return (
+                    <div
+                      key={idx}
+                      className="flex items-center justify-between bg-[#FAF8F4] p-3 rounded-xl border border-[#EFE6D8] text-xs text-[#214C3A]"
                     >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
-                ))}
+                      <div className="flex items-center space-x-3 font-medium min-w-0 flex-1 pr-2">
+                        <span className="w-6 h-6 rounded-full bg-[#EFE6D8] text-[#214C3A] font-mono text-[10px] font-bold flex items-center justify-center shrink-0">
+                          #{idx + 1}
+                        </span>
+
+                        {isEditing ? (
+                          <input
+                            type="text"
+                            value={editingAnnText}
+                            onChange={(e) => setEditingAnnText(e.target.value)}
+                            className="flex-1 bg-white border border-[#214C3A] rounded-lg px-2.5 py-1 text-xs text-[#214C3A] focus:outline-none"
+                          />
+                        ) : (
+                          <span className="truncate">{ann}</span>
+                        )}
+                      </div>
+
+                      <div className="flex items-center space-x-1 shrink-0">
+                        {isEditing ? (
+                          <>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                if (!editingAnnText.trim()) return;
+                                const updated = [...announcementsList];
+                                updated[idx] = editingAnnText.trim();
+                                const success = db.updateAnnouncements(updated);
+                                if (success) {
+                                  setAnnouncementsList(db.getAnnouncements());
+                                  setEditingAnnIndex(null);
+                                  showToast('Announcement updated live across site! ⚡');
+                                }
+                              }}
+                              className="p-1.5 bg-[#214C3A] text-white rounded-lg hover:bg-[#1A3D2F] transition-colors cursor-pointer"
+                              title="Save Changes"
+                            >
+                              <Save className="w-4 h-4" />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setEditingAnnIndex(null)}
+                              className="p-1.5 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors cursor-pointer text-[10px] font-bold px-2"
+                            >
+                              Cancel
+                            </button>
+                          </>
+                        ) : (
+                          <>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setEditingAnnIndex(idx);
+                                setEditingAnnText(ann);
+                              }}
+                              className="p-1.5 text-[#214C3A] hover:bg-[#EFE6D8] rounded-lg transition-colors cursor-pointer"
+                              title="Edit Announcement Text"
+                            >
+                              <Edit3 className="w-4 h-4" />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const updated = announcementsList.filter((_, i) => i !== idx);
+                                const success = db.updateAnnouncements(updated);
+                                if (success) {
+                                  setAnnouncementsList(db.getAnnouncements());
+                                  showToast('Announcement item permanently deleted.');
+                                }
+                              }}
+                              className="p-1.5 text-red-600 hover:bg-red-50 rounded-lg transition-colors shrink-0 cursor-pointer"
+                              title="Delete Announcement"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           </div>
@@ -1037,6 +1308,58 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                 >
                   <Trash2 className="w-4 h-4" />
                   <span>Delete Account</span>
+                </button>
+              </div>
+
+            </div>
+          </div>
+        )}
+        {offerToDelete && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-fade-in font-sans">
+            <div className="bg-[#FAF8F4] border-2 border-red-200 rounded-3xl max-w-md w-full p-6 sm:p-8 relative shadow-2xl space-y-5">
+              
+              <div className="w-14 h-14 rounded-full bg-red-100 border-2 border-red-300 text-red-700 flex items-center justify-center mx-auto shadow-md">
+                <Trash2 className="w-7 h-7" />
+              </div>
+
+              <div className="text-center space-y-2">
+                <span className="bg-red-100 text-red-800 text-[10px] font-montserrat font-bold uppercase px-3 py-0.5 rounded-full">
+                  Permanent Database Purge
+                </span>
+                <h3 className="font-serif text-2xl font-bold text-[#214C3A]">
+                  Delete Offer Permanently?
+                </h3>
+                <p className="text-xs text-[#8C7A6B] leading-relaxed">
+                  Are you sure you want to permanently delete promo offer code <strong className="text-[#214C3A] font-bold font-mono">{offerToDelete.code}</strong>?
+                </p>
+              </div>
+
+              <div className="bg-red-50 border border-red-200 p-3 rounded-2xl text-[11px] text-red-800 space-y-1">
+                <div className="font-montserrat font-bold flex items-center gap-1.5 text-red-900">
+                  <AlertCircle className="w-4 h-4 shrink-0" />
+                  <span>Irreversible Website & Database Purge</span>
+                </div>
+                <p className="text-[10px] text-red-700 leading-normal">
+                  This offer code will be permanently deleted from Neon DB, the public Offers page, and checkout validation across the entire website.
+                </p>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setOfferToDelete(null)}
+                  className="w-full bg-white hover:bg-[#EFE6D8] border border-[#D8C6A5] text-[#214C3A] py-3 rounded-2xl text-xs font-montserrat font-bold transition-all shadow-xs cursor-pointer"
+                >
+                  Cancel
+                </button>
+
+                <button
+                  type="button"
+                  onClick={confirmDeleteOffer}
+                  className="w-full bg-red-700 hover:bg-red-800 text-white py-3 rounded-2xl text-xs font-montserrat font-bold uppercase tracking-wider transition-all shadow-md flex items-center justify-center space-x-1.5 cursor-pointer"
+                >
+                  <Trash2 className="w-4 h-4" />
+                  <span>Delete Offer</span>
                 </button>
               </div>
 

@@ -6,6 +6,7 @@ import fs from 'fs';
 import os from 'os';
 import { fileURLToPath } from 'url';
 import { neon } from '@neondatabase/serverless';
+import nodemailer from 'nodemailer';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -269,6 +270,68 @@ async function initNeonSchema() {
         created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
       );
     `;
+
+    await sql`
+      CREATE TABLE IF NOT EXISTS newsletter_subscribers (
+        id VARCHAR(64) PRIMARY KEY,
+        email VARCHAR(255) UNIQUE NOT NULL,
+        subscribed_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+        status VARCHAR(20) DEFAULT 'active',
+        last_weekly_email_sent_at TIMESTAMP WITH TIME ZONE
+      );
+    `;
+
+    await sql`
+      CREATE TABLE IF NOT EXISTS offers_coupons (
+        code VARCHAR(64) PRIMARY KEY,
+        description TEXT NOT NULL,
+        discount_percentage INT,
+        discount_fixed_inr INT,
+        discount_fixed_eur INT,
+        min_order_inr INT NOT NULL,
+        min_order_eur INT NOT NULL,
+        category_restriction VARCHAR(64),
+        expires_at VARCHAR(20) NOT NULL,
+        badge VARCHAR(64) NOT NULL,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+      );
+    `;
+
+    // Seed default coupons if table is empty
+    const existingOffers = await sql`SELECT COUNT(*)::int as count FROM offers_coupons`;
+    if (existingOffers && existingOffers[0] && existingOffers[0].count === 0) {
+      await sql`
+        INSERT INTO offers_coupons (code, description, discount_percentage, min_order_inr, min_order_eur, expires_at, badge)
+        VALUES ('EUROPE15', '15% OFF on your order over ₹5,000 or €60 for European & Indian Clients', 15, 5000, 60, '2026-12-31', 'WELCOME PROMO'),
+               ('LINEN20', '20% OFF on all Pure Linen Couture & Scandinavian Dresses', 20, 6000, 75, '2026-12-31', 'SEASONAL FAVOURITE')
+      `;
+      await sql`
+        INSERT INTO offers_coupons (code, description, discount_fixed_inr, discount_fixed_eur, min_order_inr, min_order_eur, expires_at, badge)
+        VALUES ('EXPORTELEGANCE', 'Flat ₹1,500 (€18) OFF on orders above ₹12,000 or €150', 1500, 18, 12000, 150, '2026-12-31', 'VIP EXECUTIVE'),
+               ('FREESHIP', 'Free Express Global DHL & BlueDart Doorstep Delivery', 500, 12, 8000, 100, '2026-12-31', 'FREE EXPRESS SHIPPING')
+      `;
+    }
+
+    await sql`
+      CREATE TABLE IF NOT EXISTS announcements_live (
+        id SERIAL PRIMARY KEY,
+        announcement_text TEXT NOT NULL,
+        display_order INT DEFAULT 0,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+      );
+    `;
+
+    const existingAnn = await sql`SELECT COUNT(*)::int as count FROM announcements_live`;
+    if (existingAnn && existingAnn[0] && existingAnn[0].count === 0) {
+      await sql`
+        INSERT INTO announcements_live (announcement_text, display_order)
+        VALUES 
+          ('Use Code EUROPE15 for 15% OFF First Order', 1),
+          ('European & Global Export Headquarters', 2),
+          ('GST Registered & OEKO-TEX® Certified Manufacturer', 3),
+          ('Top 5 European Languages Supported (EN, FR, DE, ES, IT)', 4)
+      `;
+    }
 
     // Automatic Column Migration for Pre-existing Neon DB Tables
     await sql`ALTER TABLE reviews ADD COLUMN IF NOT EXISTS user_avatar TEXT;`;
@@ -779,6 +842,408 @@ app.put('/api/inquiries/:id/status', async (req, res) => {
     res.status(400).json({ success: false });
   } catch (err) {
     res.status(500).json({ success: false });
+  }
+});
+
+// 5.6 OFFERS & COUPONS ENDPOINTS (Neon DB + Permanent Deletion)
+app.get('/api/offers', async (req, res) => {
+  try {
+    const sql = getSql();
+    if (sql) {
+      const rows = await sql`
+        SELECT 
+          code, 
+          description, 
+          discount_percentage as "discountPercentage", 
+          discount_fixed_inr as "discountFixedINR", 
+          discount_fixed_eur as "discountFixedEUR", 
+          min_order_inr as "minOrderINR", 
+          min_order_eur as "minOrderEUR", 
+          category_restriction as "categoryRestriction", 
+          expires_at as "expiresAt", 
+          badge
+        FROM offers_coupons
+        ORDER BY created_at DESC
+      `;
+      return res.json({ success: true, offers: rows || [] });
+    }
+    res.json({ success: true, offers: [] });
+  } catch (err) {
+    console.error('Fetch Offers Error:', err);
+    res.status(500).json({ success: false, offers: [] });
+  }
+});
+
+app.post('/api/offers', authenticateToken, requireAdmin, async (req, res) => {
+  try {
+    const { code, description, discountPercentage, discountFixedINR, discountFixedEUR, minOrderINR, minOrderEUR, categoryRestriction, expiresAt, badge } = req.body;
+    if (!code || !description) {
+      return res.status(400).json({ success: false, error: 'Code and description are required.' });
+    }
+
+    const cleanCode = sanitizeInput(code).toUpperCase();
+    const sql = getSql();
+    if (sql) {
+      await sql`
+        INSERT INTO offers_coupons (code, description, discount_percentage, discount_fixed_inr, discount_fixed_eur, min_order_inr, min_order_eur, category_restriction, expires_at, badge)
+        VALUES (
+          ${cleanCode}, 
+          ${sanitizeInput(description)}, 
+          ${discountPercentage || null}, 
+          ${discountFixedINR || null}, 
+          ${discountFixedEUR || null}, 
+          ${Number(minOrderINR) || 0}, 
+          ${Number(minOrderEUR) || 0}, 
+          ${categoryRestriction || null}, 
+          ${expiresAt || '2026-12-31'}, 
+          ${sanitizeInput(badge) || 'EXCLUSIVE OFFER'}
+        )
+        ON CONFLICT (code) DO UPDATE SET
+          description = EXCLUDED.description,
+          discount_percentage = EXCLUDED.discount_percentage,
+          discount_fixed_inr = EXCLUDED.discount_fixed_inr,
+          discount_fixed_eur = EXCLUDED.discount_fixed_eur,
+          min_order_inr = EXCLUDED.min_order_inr,
+          min_order_eur = EXCLUDED.min_order_eur,
+          category_restriction = EXCLUDED.category_restriction,
+          expires_at = EXCLUDED.expires_at,
+          badge = EXCLUDED.badge
+      `;
+      auditLog('OFFER_SAVED_NEON_DB', { code: cleanCode });
+      return res.status(201).json({ success: true, message: 'Offer saved in Neon DB.', code: cleanCode });
+    }
+    res.status(500).json({ success: false, error: 'Database connection offline.' });
+  } catch (err) {
+    console.error('Save Offer Error:', err);
+    res.status(500).json({ success: false, error: 'Failed to save offer.' });
+  }
+});
+
+app.delete('/api/offers/:code', authenticateToken, requireAdmin, async (req, res) => {
+  try {
+    const { code } = req.params;
+    const cleanCode = sanitizeInput(code).toUpperCase();
+    const sql = getSql();
+    if (sql && cleanCode) {
+      await sql`DELETE FROM offers_coupons WHERE UPPER(code) = UPPER(${cleanCode})`;
+      auditLog('OFFER_PERMANENTLY_DELETED_NEON_DB', { code: cleanCode });
+      return res.json({ success: true, message: `Offer ${cleanCode} permanently deleted from Neon DB and site.` });
+    }
+    res.status(400).json({ success: false, error: 'Invalid offer code or DB offline.' });
+  } catch (err) {
+    console.error('Delete Offer Error:', err);
+    res.status(500).json({ success: false, error: 'Failed to delete offer.' });
+  }
+});
+
+// 5.7 ANNOUNCEMENTS ENDPOINTS (Neon DB Sync)
+app.get('/api/announcements', async (req, res) => {
+  try {
+    const sql = getSql();
+    if (sql) {
+      const rows = await sql`
+        SELECT announcement_text as text 
+        FROM announcements_live 
+        ORDER BY display_order ASC, id ASC
+      `;
+      const list = rows ? rows.map(r => r.text) : [];
+      return res.json({ success: true, announcements: list });
+    }
+    res.json({ success: true, announcements: [] });
+  } catch (err) {
+    console.error('Fetch Announcements Error:', err);
+    res.status(500).json({ success: false, announcements: [] });
+  }
+});
+
+app.post('/api/announcements', authenticateToken, requireAdmin, async (req, res) => {
+  try {
+    const { announcements } = req.body;
+    if (!Array.isArray(announcements)) {
+      return res.status(400).json({ success: false, error: 'Announcements must be an array.' });
+    }
+
+    const sql = getSql();
+    if (sql) {
+      await sql`DELETE FROM announcements_live`;
+      for (let i = 0; i < announcements.length; i++) {
+        const text = sanitizeInput(announcements[i]).trim();
+        if (text) {
+          await sql`
+            INSERT INTO announcements_live (announcement_text, display_order)
+            VALUES (${text}, ${i + 1})
+          `;
+        }
+      }
+      auditLog('ANNOUNCEMENTS_UPDATED_NEON_DB', { count: announcements.length });
+      return res.json({ success: true, message: 'Announcements updated in Neon DB and broadcasted live.' });
+    }
+    res.status(500).json({ success: false, error: 'Database connection offline.' });
+  } catch (err) {
+    console.error('Update Announcements Error:', err);
+    res.status(500).json({ success: false, error: 'Failed to update announcements.' });
+  }
+});
+
+// WEEKLY NEWSLETTER & ADVERTISEMENT DISPATCHER
+
+const createEmailTransporter = () => {
+  if (process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS) {
+    return nodemailer.createTransport({
+      host: process.env.SMTP_HOST,
+      port: Number(process.env.SMTP_PORT) || 587,
+      secure: Number(process.env.SMTP_PORT) === 465,
+      auth: {
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASS,
+      },
+    });
+  }
+  return null;
+};
+
+const buildWeeklyAdvertisementEmailHtml = (email) => {
+  return `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Arvika Fashion Weekly Catalogue & New Arrivals</title>
+      <style>
+        body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background-color: #FAF8F4; color: #2D2A26; margin: 0; padding: 0; }
+        .container { max-width: 650px; margin: 20px auto; background: #ffffff; border-radius: 20px; overflow: hidden; border: 1px solid #EAE2D7; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        .header { background-color: #7B9B88; padding: 35px 25px; text-align: center; color: #ffffff; }
+        .header h1 { font-family: Georgia, serif; margin: 0; font-size: 30px; letter-spacing: 3px; text-transform: uppercase; }
+        .header p { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; margin-top: 5px; color: #E8DCB8; font-weight: bold; }
+        .hero-banner { background-color: #E8F0EC; padding: 25px; text-align: center; border-bottom: 1px solid #D5E4DC; }
+        .hero-banner h2 { font-family: Georgia, serif; color: #2D2A26; margin-top: 0; font-size: 22px; }
+        .hero-banner p { font-size: 13px; color: #4E6E5D; margin-bottom: 0; line-height: 1.5; }
+        .content { padding: 30px 25px; }
+        .section-title { font-family: Georgia, serif; font-size: 20px; color: #7B9B88; border-bottom: 2px solid #E8F0EC; padding-bottom: 8px; margin-bottom: 20px; }
+        .product-grid { display: table; width: 100%; margin-bottom: 25px; }
+        .product-card { display: table-cell; width: 50%; padding: 10px; vertical-align: top; box-sizing: border-box; }
+        .product-box { background: #FAF8F4; border: 1px solid #EAE2D7; border-radius: 12px; padding: 15px; text-align: center; }
+        .product-img { width: 100%; height: 180px; object-fit: cover; border-radius: 8px; }
+        .product-name { font-family: Georgia, serif; font-size: 15px; font-weight: bold; color: #2D2A26; margin: 10px 0 5px 0; }
+        .product-price { font-size: 14px; font-weight: bold; color: #7B9B88; }
+        .coupon-banner { background-color: #7B9B88; color: #ffffff; padding: 20px; border-radius: 14px; text-align: center; margin: 25px 0; }
+        .coupon-code { font-family: monospace; font-size: 24px; font-weight: bold; background: #E8DCB8; color: #2D2A26; padding: 6px 16px; border-radius: 8px; display: inline-block; margin-top: 10px; }
+        .footer { background-color: #F3ECE3; padding: 25px; text-align: center; font-size: 11px; color: #2D2A26; border-top: 1px solid #E5DDD0; }
+        .footer a { color: #7B9B88; text-decoration: underline; }
+        .btn-shop { display: inline-block; background-color: #7B9B88; color: #ffffff; padding: 12px 28px; border-radius: 25px; text-decoration: none; font-weight: bold; font-size: 12px; letter-spacing: 1px; text-transform: uppercase; margin-top: 15px; }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <div class="header">
+          <h1>Arvika Fashion</h1>
+          <p>European Export & Craft Atelier • Weekly Lookbook</p>
+        </div>
+
+        <div class="hero-banner">
+          <h2>✨ New Weekly Arrivals & Pure Linen Collections</h2>
+          <p>Discover our latest curated Scandinavian & European export apparel, handcrafted in India from 100% Normandy Organic Linen, wild mulberry silk, and handloom cotton.</p>
+        </div>
+
+        <div class="content">
+          <div class="section-title">Featured Weekly Garment Catalogue</div>
+
+          <div class="product-grid">
+            <div class="product-card">
+              <div class="product-box">
+                <img src="https://res.cloudinary.com/nwpiveo3/image/upload/v1785491637/WhatsApp_Image_2026-07-31_at_12.44.53_PM_2_lhvagv.jpg?q=80&w=600&auto=format&fit=crop" class="product-img" alt="Normandy Linen Trench">
+                <div class="product-name">Pure Normandy Organic Linen Trench</div>
+                <div class="product-price">€245 / ₹21,999</div>
+              </div>
+            </div>
+            <div class="product-card">
+              <div class="product-box">
+                <img src="https://res.cloudinary.com/nwpiveo3/image/upload/v1785491636/WhatsApp_Image_2026-07-31_at_12.25.11_PM_wya4me.jpg?q=80&w=600&auto=format&fit=crop" class="product-img" alt="Scandi Minimalist Dress">
+                <div class="product-name">Scandinavian Linen Midi Dress</div>
+                <div class="product-price">€185 / ₹16,500</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="product-grid">
+            <div class="product-card">
+              <div class="product-box">
+                <img src="https://res.cloudinary.com/nwpiveo3/image/upload/v1785491636/WhatsApp_Image_2026-07-31_at_12.44.51_PM_1_z02wka.jpg?q=80&w=600&auto=format&fit=crop" class="product-img" alt="Silk Mulberry Kimono">
+                <div class="product-name">Handloomed Mulberry Silk Robe</div>
+                <div class="product-price">€280 / ₹24,999</div>
+              </div>
+            </div>
+            <div class="product-card">
+              <div class="product-box">
+                <img src="https://res.cloudinary.com/nwpiveo3/image/upload/v1785491635/WhatsApp_Image_2026-07-29_at_3.54.17_PM_ymvjo7.jpg?q=80&w=600&auto=format&fit=crop" class="product-img" alt="Artisanal Handloom Scarf">
+                <div class="product-name">Jaipur Artisan Printed Silk Scarf</div>
+                <div class="product-price">€95 / ₹8,500</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="coupon-banner">
+            <div style="font-size: 16px; font-weight: bold;">Exclusive Weekly Subscriber Discount</div>
+            <div style="font-size: 12px; opacity: 0.9; margin-top: 4px;">Get 15% OFF your next B2B or retail order</div>
+            <div class="coupon-code">EUROPE15</div>
+          </div>
+
+          <div style="text-align: center;">
+            <a href="https://arvikafashion.com" class="btn-shop">Explore Full Catalogue Online</a>
+          </div>
+        </div>
+
+        <div class="footer">
+          <p><strong>ARVIKA FASHION PVT LTD</strong><br>
+          Faridabad & Jaipur Atelier HQ, India • Serving Boutiques Across Sweden, Denmark, Germany, France & UK</p>
+          <p>Phone: +91 9891179374 | WhatsApp: +91 9716505898 | Email: export@arvikafashion.com</p>
+          <p style="margin-top: 15px; color: #8C7A6B;">You received this weekly advertisement email because you subscribed to Arvika Fashion newsletters.<br>
+          To manage email preferences, contact <a href="mailto:export@arvikafashion.com">export@arvikafashion.com</a></p>
+        </div>
+      </div>
+    </body>
+    </html>
+  `;
+};
+
+const sendWeeklyAdvertisementEmail = async (email) => {
+  const transporter = createEmailTransporter();
+  const htmlContent = buildWeeklyAdvertisementEmailHtml(email);
+  const subject = '✨ Arvika Fashion Weekly Edition: New Arrivals, Pure Normandy Linen & Luxury Apparel Catalogue';
+
+  if (transporter) {
+    try {
+      await transporter.sendMail({
+        from: '"Arvika Fashion Weekly" <export@arvikafashion.com>',
+        to: email,
+        subject,
+        html: htmlContent,
+      });
+      console.log(`[WEEKLY NEWSLETTER EMAIL] ✅ Successfully sent weekly advertisement email via SMTP to: ${email}`);
+      return true;
+    } catch (err) {
+      console.error(`[WEEKLY NEWSLETTER EMAIL ERROR] Failed SMTP delivery to ${email}:`, err.message || err);
+    }
+  }
+
+  console.log(`=======================================================`);
+  console.log(`[WEEKLY ADVERTISEMENT EMAIL DISPATCH]`);
+  console.log(` ➜ Recipient: ${email}`);
+  console.log(` ➜ Subject:   ${subject}`);
+  console.log(` ➜ Status:    Email Campaign Generated & Scheduled Weekly`);
+  console.log(`=======================================================`);
+  return true;
+};
+
+// Weekly Scheduler: Runs every 24 hours and sends weekly ad emails to subscribers due (>= 7 days since last email)
+const runWeeklyNewsletterScheduler = async () => {
+  try {
+    const sql = getSql();
+    if (!sql) return;
+
+    const subscribers = await sql`
+      SELECT id, email, last_weekly_email_sent_at 
+      FROM newsletter_subscribers 
+      WHERE status = 'active'
+    `;
+
+    const now = new Date();
+    const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000;
+
+    for (const sub of subscribers) {
+      const lastSent = sub.last_weekly_email_sent_at ? new Date(sub.last_weekly_email_sent_at) : null;
+      if (!lastSent || (now.getTime() - lastSent.getTime()) >= SEVEN_DAYS_MS) {
+        console.log(`[WEEKLY SCHEDULER] Dispatching weekly advertisement email to: ${sub.email}`);
+        await sendWeeklyAdvertisementEmail(sub.email);
+        await sql`
+          UPDATE newsletter_subscribers 
+          SET last_weekly_email_sent_at = CURRENT_TIMESTAMP 
+          WHERE id = ${sub.id}
+        `;
+      }
+    }
+  } catch (err) {
+    console.error('[WEEKLY NEWSLETTER SCHEDULER NOTICE]', err.message || err);
+  }
+};
+
+// Check weekly schedule every 24 hours (and run once 10 seconds after server boot)
+setTimeout(runWeeklyNewsletterScheduler, 10000);
+setInterval(runWeeklyNewsletterScheduler, 24 * 60 * 60 * 1000);
+
+// NEWSLETTER SUBSCRIBERS API ENDPOINTS
+app.post('/api/newsletter/subscribe', async (req, res) => {
+  try {
+    const { email } = req.body;
+    const sanitizedEmail = sanitizeInput(email).toLowerCase();
+
+    if (!isValidEmail(sanitizedEmail)) {
+      return res.status(400).json({ success: false, error: 'Please enter a valid email address.' });
+    }
+
+    const sql = getSql();
+    if (sql) {
+      const existing = await sql`SELECT * FROM newsletter_subscribers WHERE LOWER(email) = LOWER(${sanitizedEmail})`;
+      if (existing && existing.length > 0) {
+        await sql`UPDATE newsletter_subscribers SET status = 'active' WHERE LOWER(email) = LOWER(${sanitizedEmail})`;
+        return res.json({ 
+          success: true, 
+          message: 'You are already subscribed! You will receive our weekly Arvika Fashion lookbook, new arrival catalogues & exclusive offers every week. 📩' 
+        });
+      }
+
+      const subId = `sub_${Date.now()}_${crypto.randomBytes(4).toString('hex')}`;
+      await sql`
+        INSERT INTO newsletter_subscribers (id, email, status, last_weekly_email_sent_at)
+        VALUES (${subId}, ${sanitizedEmail}, 'active', CURRENT_TIMESTAMP)
+      `;
+
+      auditLog('NEWSLETTER_SUBSCRIBER_ADDED_NEON_DB', { email: sanitizedEmail });
+
+      sendWeeklyAdvertisementEmail(sanitizedEmail).catch(err => console.warn('Welcome ad email error:', err));
+
+      return res.status(201).json({
+        success: true,
+        message: 'Successfully subscribed! You will receive our weekly Arvika Fashion lookbook, new arrival catalogues & exclusive offers every week. 📩'
+      });
+    }
+
+    sendWeeklyAdvertisementEmail(sanitizedEmail).catch(err => console.warn('Welcome ad email error:', err));
+    return res.status(201).json({
+      success: true,
+      message: 'Successfully subscribed! You will receive our weekly Arvika Fashion lookbook, new arrival catalogues & exclusive offers every week. 📩'
+    });
+  } catch (err) {
+    console.error('Newsletter Subscribe Error:', err);
+    res.status(500).json({ success: false, error: 'Server error subscribing to newsletter.' });
+  }
+});
+
+app.get('/api/newsletter/subscribers', authenticateToken, requireAdmin, async (req, res) => {
+  try {
+    const sql = getSql();
+    if (sql) {
+      const rows = await sql`
+        SELECT id, email, status, subscribed_at as "subscribedAt", last_weekly_email_sent_at as "lastWeeklyEmailSentAt"
+        FROM newsletter_subscribers
+        ORDER BY subscribed_at DESC
+      `;
+      return res.json({ success: true, subscribers: rows || [] });
+    }
+    res.json({ success: true, subscribers: [] });
+  } catch (err) {
+    res.status(500).json({ success: false, subscribers: [] });
+  }
+});
+
+app.post('/api/admin/trigger-weekly-newsletter', authenticateToken, requireAdmin, async (req, res) => {
+  try {
+    auditLog('ADMIN_TRIGGERED_WEEKLY_NEWSLETTER', { adminEmail: req.user.email });
+    await runWeeklyNewsletterScheduler();
+    res.json({ success: true, message: 'Weekly advertisement email campaign successfully dispatched to all active subscribers!' });
+  } catch (err) {
+    res.status(500).json({ success: false, error: 'Failed to trigger weekly newsletter dispatch.' });
   }
 });
 

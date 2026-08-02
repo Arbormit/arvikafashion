@@ -10,10 +10,10 @@ import {
   Check, 
   Send, 
   ShieldCheck, 
-  Award,
-  Sparkles
+  Award
 } from 'lucide-react';
 import { ActiveTab } from '../types';
+import { db } from '../services/db';
 
 interface FooterProps {
   setActiveTab: (tab: ActiveTab) => void;
@@ -23,30 +23,49 @@ interface FooterProps {
 export const Footer: React.FC<FooterProps> = ({ setActiveTab, setSelectedCategory }) => {
   const [newsletterEmail, setNewsletterEmail] = useState('');
   const [newsletterSuccess, setNewsletterSuccess] = useState(false);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
 
-  const handleSubscribe = (e: React.FormEvent) => {
+  const handleSubscribe = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newsletterEmail) return;
+    
+    const emailToSub = newsletterEmail;
     setNewsletterSuccess(true);
     setNewsletterEmail('');
-    setTimeout(() => setNewsletterSuccess(false), 4000);
+
+    const res = await db.addNewsletterSubscriber(emailToSub);
+    setToastMessage(res.message);
+
+    setTimeout(() => {
+      setNewsletterSuccess(false);
+      setToastMessage(null);
+    }, 6000);
   };
 
   return (
-    <footer className="bg-[#F3ECE3] text-[#2D2A26] pt-16 pb-12 border-t border-[#E5DDD0]">
+    <footer className="bg-[#F3ECE3] text-[#2D2A26] pt-16 pb-12 border-t border-[#E5DDD0] relative">
+      
+      {/* Toast Alert for Weekly Newsletter Confirmation */}
+      {toastMessage && (
+        <div className="fixed bottom-10 left-1/2 -translate-x-1/2 z-50 bg-[#7B9B88] text-white px-6 py-3.5 rounded-full text-xs font-montserrat font-bold shadow-2xl border border-[#688875] flex items-center gap-2 animate-fade-in max-w-md text-center">
+          <Check className="w-4.5 h-4.5 text-emerald-200 shrink-0" />
+          <span>{toastMessage}</span>
+        </div>
+      )}
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-16">
         
         {/* Newsletter Signup Banner */}
         <div className="bg-[#7B9B88] rounded-3xl p-8 sm:p-10 border border-[#688875] flex flex-col lg:flex-row items-center justify-between gap-8 shadow-xl">
           <div className="space-y-2 max-w-xl text-center lg:text-left">
             <span className="text-[11px] font-montserrat uppercase tracking-widest text-[#E8DCB8] font-bold flex items-center justify-center lg:justify-start gap-1.5">
-              THE NEWSLETTER
+              THE WEEKLY NEWSLETTER
             </span>
             <h3 className="font-serif text-2xl sm:text-3xl font-bold text-white">
-              Subscribe for Offers, Sales, etc.
+              Subscribe for Weekly Catalogues, New Arrivals & Sales
             </h3>
-            <p className="text-xs text-white/90 font-sans">
-              Receive seasonal lookbooks, fabric care guides, and exclusive 15% promotional codes.
+            <p className="text-xs text-white/90 font-sans leading-relaxed">
+              Receive weekly advertisement emails featuring new product drops, existing garment catalogues, quiet luxury merchandise, and exclusive 15% subscriber discounts.
             </p>
           </div>
 
@@ -56,12 +75,12 @@ export const Footer: React.FC<FooterProps> = ({ setActiveTab, setSelectedCategor
               required
               value={newsletterEmail}
               onChange={(e) => setNewsletterEmail(e.target.value)}
-              placeholder="Enter your business or personal email"
+              placeholder="Enter your email address"
               className="bg-white border border-[#D5E4DC] text-[#2D2A26] placeholder-[#2D2A26]/50 px-5 py-3.5 rounded-2xl text-xs font-sans focus:outline-none focus:border-[#7B9B88] min-w-[280px]"
             />
             <button
               type="submit"
-              className="bg-[#E8DCB8] hover:bg-white text-[#2D2A26] px-6 py-3.5 rounded-2xl text-xs font-montserrat font-bold uppercase tracking-wider transition-all flex items-center justify-center space-x-2 shadow-md whitespace-nowrap"
+              className="bg-[#E8DCB8] hover:bg-white text-[#2D2A26] px-6 py-3.5 rounded-2xl text-xs font-montserrat font-bold uppercase tracking-wider transition-all flex items-center justify-center space-x-2 shadow-md whitespace-nowrap cursor-pointer active:scale-95"
             >
               {newsletterSuccess ? (
                 <>
@@ -116,12 +135,6 @@ export const Footer: React.FC<FooterProps> = ({ setActiveTab, setSelectedCategor
                 title="Instagram @arvikafashion"
               >
                 <Instagram className="w-4 h-4" />
-              </a>
-              <a href="javascript:void(0)" onClick={(e) => e.preventDefault()} className="p-2 bg-[#7B9B88] rounded-full hover:bg-[#E8DCB8] hover:text-[#2D2A26] transition-colors" title="Facebook">
-                <Facebook className="w-4 h-4" />
-              </a>
-              <a href="javascript:void(0)" onClick={(e) => e.preventDefault()} className="p-2 bg-[#7B9B88] rounded-full hover:bg-[#E8DCB8] hover:text-[#2D2A26] transition-colors" title="LinkedIn">
-                <Linkedin className="w-4 h-4" />
               </a>
             </div>
           </div>

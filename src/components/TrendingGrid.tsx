@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Sparkles, ArrowRight, Filter } from 'lucide-react';
+import { ArrowRight, Filter } from 'lucide-react';
 import { Product, Currency } from '../types';
 import { ProductCard } from './ProductCard';
 
@@ -46,7 +46,6 @@ export const TrendingGrid: React.FC<TrendingGridProps> = ({
       <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-6">
         <div>
           <span className="text-xs font-montserrat uppercase tracking-[0.25em] text-[#7B9B88] font-bold flex items-center gap-1.5">
-            <Sparkles className="w-3.5 h-3.5 text-[#7B9B88]" />
             CURRENT SEASON FAVORITES
           </span>
           <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold text-[#2D2A26] mt-2">

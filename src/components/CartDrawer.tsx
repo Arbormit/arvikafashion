@@ -7,12 +7,11 @@ import {
   Check, 
   ArrowRight, 
   Truck, 
-  Sparkles,
   ShieldCheck,
   Share2
 } from 'lucide-react';
 import { CartItem, Currency, Coupon, User } from '../types';
-import { COUPONS } from '../data/offers';
+import { db } from '../services/db';
 
 interface CartDrawerProps {
   isOpen: boolean;
@@ -75,9 +74,10 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
     e.preventDefault();
     setCouponError(null);
 
-    const match = COUPONS.find(c => c.code.toUpperCase() === couponInput.trim().toUpperCase());
+    const activeOffers = db.getOffers();
+    const match = activeOffers.find(c => c.code.toUpperCase() === couponInput.trim().toUpperCase());
     if (!match) {
-      setCouponError('Invalid coupon code. Try EUROPE15 or LINEN20');
+      setCouponError('Invalid or expired promotional code.');
       return;
     }
 
@@ -285,7 +285,6 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                     }}
                     className="w-full bg-[#214C3A] hover:bg-[#1A3D2F] text-[#FAF8F4] py-3.5 rounded-2xl font-montserrat text-xs font-bold uppercase tracking-wider transition-all shadow-md flex items-center justify-center space-x-2 cursor-pointer active:scale-98"
                   >
-                    <Sparkles className="w-4 h-4 text-[#D8C6A5]" />
                     <span>Sign In / Register to Checkout</span>
                   </button>
 
@@ -317,7 +316,6 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                   onClick={onProceedToCheckout}
                   className="w-full bg-[#214C3A] hover:bg-[#1A3D2F] text-[#FAF8F4] py-4 rounded-2xl font-montserrat text-xs font-bold uppercase tracking-wider transition-all shadow-md flex items-center justify-center space-x-2 cursor-pointer active:scale-98"
                 >
-                  <Sparkles className="w-4 h-4 text-[#D8C6A5]" />
                   <span>Proceed to Checkout</span>
                   <ArrowRight className="w-4 h-4" />
                 </button>

@@ -1,6 +1,5 @@
 import React, { useState, useMemo } from 'react';
 import { 
-  Sparkles, 
   Search, 
   SlidersHorizontal, 
   X, 
@@ -113,7 +112,6 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
         <div className="flex justify-between items-end">
           <div>
             <span className="text-xs font-montserrat uppercase tracking-[0.2em] text-[#7B9B88] font-bold flex items-center gap-1.5">
-              <Sparkles className="w-3.5 h-3.5 text-[#7B9B88]" />
               EXPLORE OUR 8 GARMENT ATELIERS
             </span>
             <h2 className="font-serif text-3xl sm:text-4xl font-bold text-[#2D2A26] mt-1">

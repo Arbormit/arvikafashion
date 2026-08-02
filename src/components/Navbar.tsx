@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { db } from '../services/db';
 import { 
   ShoppingBag, 
@@ -9,7 +9,6 @@ import {
   ChevronDown, 
   Tag, 
   Search, 
-  Sparkles,
   ArrowRight,
   Globe,
   SlidersHorizontal,
@@ -70,7 +69,10 @@ export const Navbar: React.FC<NavbarProps> = ({
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isMegaMenuOpen, setIsMegaMenuOpen] = useState(false);
   const [isMobileCollectionsOpen, setIsMobileCollectionsOpen] = useState(false);
+  const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
   const [announcements, setAnnouncements] = useState<string[]>(() => db.getAnnouncements());
+
+  const profileDropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handleAnnouncementsUpdate = () => {
@@ -80,9 +82,21 @@ export const Navbar: React.FC<NavbarProps> = ({
     return () => window.removeEventListener('arvika_announcements_updated', handleAnnouncementsUpdate);
   }, []);
 
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (profileDropdownRef.current && !profileDropdownRef.current.contains(event.target as Node)) {
+        setIsProfileDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
   const t = TRANSLATIONS[language] || TRANSLATIONS.en;
 
   const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
+  const cartTotalINR = cart.reduce((sum, item) => sum + item.product.priceINR * item.quantity, 0);
+  const cartTotalEUR = cart.reduce((sum, item) => sum + item.product.priceEUR * item.quantity, 0);
 
   const handleNavClick = (tab: ActiveTab, categoryId: string | null = null) => {
     setActiveTab(tab);
@@ -372,24 +386,180 @@ export const Navbar: React.FC<NavbarProps> = ({
               <Search className="w-5 h-5" />
             </button>
 
-            {/* Desktop Auth / Profile Button (lg screen) */}
-            <div className="hidden lg:flex items-center">
+            {/* Desktop Auth / Profile Dropdown (lg screen) */}
+            <div className="hidden lg:flex items-center relative" ref={profileDropdownRef}>
               {user.isLoggedIn ? (
-                <button
-                  onClick={() => setIsProfileOpen(true)}
-                  className="flex items-center space-x-2 bg-[#7B9B88] text-white px-3.5 py-1.5 rounded-full text-xs font-montserrat font-semibold hover:bg-[#688875] transition-all shadow-xs border border-[#7B9B88]"
-                  title="Manage Profile & Addresses"
-                >
-                  <div className="w-5 h-5 rounded-full bg-[#E8DCB8] text-[#2D2A26] flex items-center justify-center font-bold text-[10px]">
-                    {user.name ? user.name.charAt(0).toUpperCase() : 'U'}
-                  </div>
-                  <span className="max-w-[100px] truncate">{user.name ? user.name.split(' ')[0] : 'Profile'}</span>
-                  {user.role === 'admin' && (
-                    <span className="bg-[#E8DCB8] text-[#2D2A26] text-[9px] px-1.5 py-0.2 rounded font-bold uppercase tracking-wider">
-                      Admin
-                    </span>
+                <>
+                  <button
+                    onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
+                    className="flex items-center space-x-2 bg-[#7B9B88] text-white px-3.5 py-1.5 rounded-full text-xs font-montserrat font-semibold hover:bg-[#688875] transition-all shadow-xs border border-[#7B9B88] cursor-pointer"
+                    title="Account Profile & Quick Menu"
+                  >
+                    <div className="w-5 h-5 rounded-full bg-[#E8DCB8] text-[#2D2A26] flex items-center justify-center font-bold text-[10px]">
+                      {user.name ? user.name.charAt(0).toUpperCase() : 'U'}
+                    </div>
+                    <span className="max-w-[100px] truncate">{user.name ? user.name.split(' ')[0] : 'Profile'}</span>
+                    {user.role === 'admin' && (
+                      <span className="bg-[#E8DCB8] text-[#2D2A26] text-[9px] px-1.5 py-0.2 rounded font-bold uppercase tracking-wider">
+                        Admin
+                      </span>
+                    )}
+                    <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${isProfileDropdownOpen ? 'rotate-180' : ''}`} />
+                  </button>
+
+                  {/* Profile Dropdown Popup Menu */}
+                  {isProfileDropdownOpen && (
+                    <div className="absolute right-0 top-full mt-2 w-72 bg-[#FAF8F4] border border-[#EAE2D7] rounded-2xl shadow-2xl p-4 z-50 animate-fade-in space-y-3">
+                      {/* User Account Info Header */}
+                      <div className="bg-[#E8F0EC] p-3 rounded-xl border border-[#D5E4DC] flex items-center space-x-3">
+                        <div className="w-10 h-10 rounded-full bg-[#7B9B88] text-white flex items-center justify-center font-serif font-bold text-lg shrink-0 shadow-xs">
+                          {user.name ? user.name.charAt(0).toUpperCase() : 'U'}
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <div className="font-serif font-bold text-sm text-[#2D2A26] truncate">
+                            {user.name}
+                          </div>
+                          <div className="text-[11px] text-[#4E6E5D] truncate font-sans">
+                            {user.email}
+                          </div>
+                          <div className="mt-1">
+                            <span className={`inline-block text-[9px] font-montserrat font-bold px-2 py-0.5 rounded-full uppercase tracking-wider ${
+                              user.role === 'admin' ? 'bg-[#E8DCB8] text-[#2D2A26]' : 'bg-[#7B9B88] text-white'
+                            }`}>
+                              {user.role === 'admin' ? '⭐ HQ Store Admin' : 'Registered Client'}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Menu Actions List */}
+                      <div className="space-y-1 text-xs font-montserrat">
+                        {/* 0. Buy Now / Express Checkout */}
+                        <button
+                          onClick={() => {
+                            setIsProfileDropdownOpen(false);
+                            handleNavClick('buynow');
+                          }}
+                          className="w-full text-left px-3 py-2.5 rounded-xl bg-[#E8DCB8] text-[#2D2A26] hover:bg-[#DFD2AE] transition-all flex items-center justify-between font-bold cursor-pointer mb-1 shadow-xs"
+                        >
+                          <div className="flex items-center space-x-2.5">
+                            <Tag className="w-4 h-4 text-[#2D2A26]" />
+                            <span>Buy Now (Express Catalogue)</span>
+                          </div>
+                          <ChevronDown className="w-3.5 h-3.5 -rotate-90 text-[#2D2A26]" />
+                        </button>
+
+                        {/* 1. Profile & Address Book */}
+                        <button
+                          onClick={() => {
+                            setIsProfileDropdownOpen(false);
+                            setIsProfileOpen(true);
+                          }}
+                          className="w-full text-left px-3 py-2.5 rounded-xl text-[#2D2A26] hover:bg-[#E8F0EC] transition-all flex items-center justify-between font-medium cursor-pointer"
+                        >
+                          <div className="flex items-center space-x-2.5">
+                            <User className="w-4 h-4 text-[#7B9B88]" />
+                            <span>My Account & Addresses</span>
+                          </div>
+                          <ChevronDown className="w-3.5 h-3.5 -rotate-90 text-[#7B9B88]" />
+                        </button>
+
+                        {/* 2. Track Order */}
+                        <button
+                          onClick={() => {
+                            setIsProfileDropdownOpen(false);
+                            onOpenTrackOrder();
+                          }}
+                          className="w-full text-left px-3 py-2.5 rounded-xl text-[#2D2A26] hover:bg-[#E8F0EC] transition-all flex items-center justify-between font-medium cursor-pointer"
+                        >
+                          <div className="flex items-center space-x-2.5">
+                            <PackageCheck className="w-4 h-4 text-[#7B9B88]" />
+                            <span>Track Express Order</span>
+                          </div>
+                          <ChevronDown className="w-3.5 h-3.5 -rotate-90 text-[#7B9B88]" />
+                        </button>
+
+                        {/* 3. Wishlist */}
+                        <button
+                          onClick={() => {
+                            setIsProfileDropdownOpen(false);
+                            setIsWishlistOpen(true);
+                          }}
+                          className="w-full text-left px-3 py-2.5 rounded-xl text-[#2D2A26] hover:bg-[#E8F0EC] transition-all flex items-center justify-between font-medium cursor-pointer"
+                        >
+                          <div className="flex items-center space-x-2.5">
+                            <Heart className="w-4 h-4 text-[#7B9B88]" />
+                            <span>Saved Wishlist</span>
+                          </div>
+                          {wishlist.length > 0 && (
+                            <span className="bg-[#7B9B88] text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
+                              {wishlist.length}
+                            </span>
+                          )}
+                        </button>
+
+                        {/* 4. My Cart */}
+                        <button
+                          onClick={() => {
+                            setIsProfileDropdownOpen(false);
+                            setIsCartOpen(true);
+                          }}
+                          className="w-full text-left px-3 py-2.5 rounded-xl text-[#2D2A26] hover:bg-[#E8F0EC] transition-all flex items-center justify-between font-medium cursor-pointer"
+                        >
+                          <div className="flex items-center space-x-2.5">
+                            <ShoppingBag className="w-4 h-4 text-[#7B9B88]" />
+                            <span>My Cart</span>
+                          </div>
+                          <span className="bg-[#E8DCB8] text-[#2D2A26] text-[10px] font-bold px-2 py-0.5 rounded-full">
+                            {cartCount > 0 ? `${cartCount} (${currency === 'INR' ? '₹' + cartTotalINR.toLocaleString('en-IN') : '€' + cartTotalEUR})` : 'Empty'}
+                          </span>
+                        </button>
+
+                        {/* 5. Admin Panel (Strict RBAC: Visible ONLY to Admin) */}
+                        {user.role === 'admin' && (
+                          <button
+                            onClick={() => {
+                              setIsProfileDropdownOpen(false);
+                              onOpenAdminDashboard();
+                            }}
+                            className="w-full text-left px-3 py-2.5 rounded-xl bg-[#2D2A26] text-white hover:bg-[#7B9B88] transition-all flex items-center justify-between font-bold cursor-pointer my-1 shadow-sm"
+                          >
+                            <div className="flex items-center space-x-2.5">
+                              <SlidersHorizontal className="w-4 h-4 text-[#E8DCB8]" />
+                              <span>Admin Panel Console</span>
+                            </div>
+                            <span className="bg-[#E8DCB8] text-[#2D2A26] text-[9px] px-1.5 py-0.2 rounded font-bold uppercase">
+                              Admin HQ
+                            </span>
+                          </button>
+                        )}
+                      </div>
+
+                      {/* Logout Divider */}
+                      <div className="pt-2 border-t border-[#EAE2D7]">
+                        <button
+                          onClick={() => {
+                            setIsProfileDropdownOpen(false);
+                            db.logout();
+                            setUser({
+                              id: '',
+                              name: '',
+                              email: '',
+                              role: 'customer',
+                              isLoggedIn: false,
+                              addresses: [],
+                              preferences: { currency: 'INR', emailNotifications: true, whatsappAlerts: true, marketingOptIn: true }
+                            });
+                          }}
+                          className="w-full text-left px-3 py-2 rounded-xl text-red-700 hover:bg-red-50 transition-all flex items-center space-x-2 text-xs font-montserrat font-bold cursor-pointer"
+                        >
+                          <LogOut className="w-4 h-4 text-red-600" />
+                          <span>Sign Out Account</span>
+                        </button>
+                      </div>
+                    </div>
                   )}
-                </button>
+                </>
               ) : (
                 <button
                   onClick={() => setIsAuthOpen(true)}
@@ -413,19 +583,6 @@ export const Navbar: React.FC<NavbarProps> = ({
           </div>
         </div>
       </div>
-
-      {/* SUB-NAVBAR Component (Displayed ONLY after user successfully logs in) */}
-      <SubNavbar
-        user={user}
-        currency={currency}
-        cart={cart}
-        wishlist={wishlist}
-        onNavigateBuyNow={() => handleNavClick('buynow')}
-        onOpenTrackOrder={onOpenTrackOrder}
-        onOpenWishlist={() => setIsWishlistOpen(true)}
-        onOpenCart={() => setIsCartOpen(true)}
-        onOpenAdminPanel={onOpenAdminDashboard}
-      />
 
       {/* Mobile Drawer Navigation Menu */}
       {isMobileMenuOpen && (
@@ -567,21 +724,40 @@ export const Navbar: React.FC<NavbarProps> = ({
               <span>Login / Signup Account</span>
             </button>
           ) : (
-            <div className="pt-2 border-t border-[#EFE6D8] space-y-2">
-              <div className="text-xs font-montserrat uppercase tracking-wider text-[#8C7A6B] font-bold">
-                Logged In as: {user.name} ({user.role.toUpperCase()})
+            <div className="pt-3 border-t border-[#EFE6D8] space-y-3">
+              {/* Account Badge Card */}
+              <div className="bg-[#E8F0EC] p-3 rounded-2xl border border-[#D5E4DC] flex items-center justify-between">
+                <div className="flex items-center space-x-2.5 min-w-0">
+                  <div className="w-8 h-8 rounded-full bg-[#7B9B88] text-white flex items-center justify-center font-bold text-xs shrink-0">
+                    {user.name ? user.name.charAt(0).toUpperCase() : 'U'}
+                  </div>
+                  <div className="min-w-0">
+                    <div className="font-serif font-bold text-xs text-[#2D2A26] truncate">
+                      {user.name}
+                    </div>
+                    <div className="text-[10px] text-[#4E6E5D] truncate">
+                      {user.email}
+                    </div>
+                  </div>
+                </div>
+                <span className={`text-[9px] font-montserrat font-bold px-2 py-0.5 rounded-full uppercase shrink-0 ${
+                  user.role === 'admin' ? 'bg-[#E8DCB8] text-[#2D2A26]' : 'bg-[#7B9B88] text-white'
+                }`}>
+                  {user.role === 'admin' ? 'Admin' : 'Client'}
+                </span>
               </div>
 
+              {/* Action Buttons Grid */}
               <div className="grid grid-cols-2 gap-2">
                 <button
                   onClick={() => {
                     setIsMobileMenuOpen(false);
-                    handleNavClick('buynow');
+                    setIsProfileOpen(true);
                   }}
-                  className="bg-[#D8C6A5] text-[#214C3A] py-2.5 px-3 rounded-xl text-xs font-montserrat font-bold flex items-center justify-center space-x-1.5"
+                  className="bg-white border border-[#EAE2D7] text-[#2D2A26] py-2.5 px-3 rounded-xl text-xs font-montserrat font-bold flex items-center justify-center space-x-1.5 shadow-xs"
                 >
-                  <Sparkles className="w-3.5 h-3.5" />
-                  <span>Buy Now</span>
+                  <User className="w-3.5 h-3.5 text-[#7B9B88]" />
+                  <span>My Profile</span>
                 </button>
 
                 <button
@@ -589,9 +765,9 @@ export const Navbar: React.FC<NavbarProps> = ({
                     setIsMobileMenuOpen(false);
                     onOpenTrackOrder();
                   }}
-                  className="bg-[#214C3A] text-[#FAF8F4] py-2.5 px-3 rounded-xl text-xs font-montserrat font-bold flex items-center justify-center space-x-1.5"
+                  className="bg-white border border-[#EAE2D7] text-[#2D2A26] py-2.5 px-3 rounded-xl text-xs font-montserrat font-bold flex items-center justify-center space-x-1.5 shadow-xs"
                 >
-                  <PackageCheck className="w-3.5 h-3.5 text-[#D8C6A5]" />
+                  <PackageCheck className="w-3.5 h-3.5 text-[#7B9B88]" />
                   <span>Track Order</span>
                 </button>
 
@@ -600,9 +776,9 @@ export const Navbar: React.FC<NavbarProps> = ({
                     setIsMobileMenuOpen(false);
                     setIsWishlistOpen(true);
                   }}
-                  className="bg-[#EFE6D8] text-[#214C3A] py-2.5 px-3 rounded-xl text-xs font-montserrat font-bold flex items-center justify-center space-x-1.5"
+                  className="bg-white border border-[#EAE2D7] text-[#2D2A26] py-2.5 px-3 rounded-xl text-xs font-montserrat font-bold flex items-center justify-center space-x-1.5 shadow-xs"
                 >
-                  <Heart className="w-3.5 h-3.5" />
+                  <Heart className="w-3.5 h-3.5 text-[#7B9B88]" />
                   <span>Wishlist ({wishlist.length})</span>
                 </button>
 
@@ -611,26 +787,47 @@ export const Navbar: React.FC<NavbarProps> = ({
                     setIsMobileMenuOpen(false);
                     setIsCartOpen(true);
                   }}
-                  className="bg-[#EFE6D8] text-[#214C3A] py-2.5 px-3 rounded-xl text-xs font-montserrat font-bold flex items-center justify-center space-x-1.5"
+                  className="bg-[#7B9B88] text-white py-2.5 px-3 rounded-xl text-xs font-montserrat font-bold flex items-center justify-center space-x-1.5 shadow-xs"
                 >
                   <ShoppingBag className="w-3.5 h-3.5" />
                   <span>Cart ({cartCount})</span>
                 </button>
               </div>
 
-              {/* Admin Panel Button Mobile (RBAC) */}
+              {/* Admin Panel Console Button (RBAC) */}
               {user.role === 'admin' && (
                 <button
                   onClick={() => {
                     setIsMobileMenuOpen(false);
                     onOpenAdminDashboard();
                   }}
-                  className="w-full bg-gradient-to-r from-[#C5A059] to-[#D8C6A5] text-[#214C3A] py-3 rounded-xl font-montserrat font-bold text-xs uppercase tracking-wider flex items-center justify-center space-x-2 shadow-md border border-[#FAF8F4]/30"
+                  className="w-full bg-[#2D2A26] text-white py-3 rounded-xl font-montserrat font-bold text-xs uppercase tracking-wider flex items-center justify-center space-x-2 shadow-md border border-[#E8DCB8]/40"
                 >
-                  <SlidersHorizontal className="w-4 h-4" />
-                  <span>Open HQ Admin Control Console</span>
+                  <SlidersHorizontal className="w-4 h-4 text-[#E8DCB8]" />
+                  <span>Admin Panel Console</span>
                 </button>
               )}
+
+              {/* Sign Out Button */}
+              <button
+                onClick={() => {
+                  setIsMobileMenuOpen(false);
+                  db.logout();
+                  setUser({
+                    id: '',
+                    name: '',
+                    email: '',
+                    role: 'customer',
+                    isLoggedIn: false,
+                    addresses: [],
+                    preferences: { currency: 'INR', emailNotifications: true, whatsappAlerts: true, marketingOptIn: true }
+                  });
+                }}
+                className="w-full bg-red-50 text-red-700 border border-red-200 py-2.5 rounded-xl font-montserrat font-bold text-xs flex items-center justify-center space-x-2"
+              >
+                <LogOut className="w-3.5 h-3.5 text-red-600" />
+                <span>Sign Out Account</span>
+              </button>
             </div>
           )}
 

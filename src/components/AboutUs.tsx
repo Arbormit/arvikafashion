@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { 
   Building2, 
-  Sparkles, 
   Globe2, 
   ShieldCheck, 
   CheckCircle2, 
@@ -197,7 +196,6 @@ export const AboutUs: React.FC = () => {
         <div className="border-t border-[#EAE2D7] pt-16 space-y-8">
           <div className="text-center space-y-2 max-w-3xl mx-auto">
             <span className="text-xs font-montserrat uppercase tracking-[0.25em] text-[#7B9B88] font-bold flex items-center justify-center gap-1.5">
-              <Sparkles className="w-3.5 h-3.5 text-[#7B9B88]" />
               STRATEGIC ANALYSIS
             </span>
             <h2 className="font-serif text-3xl sm:text-4xl font-bold text-[#2D2A26]">
