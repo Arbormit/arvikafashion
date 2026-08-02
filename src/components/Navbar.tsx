@@ -205,22 +205,16 @@ export const Navbar: React.FC<NavbarProps> = ({
       </div>
 
       {/* Primary Navigation Bar */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-20">
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-20 sm:h-24 gap-2">
           
-          {/* 1. Logo & Emblem */}
-          <div className="flex items-center space-x-3 cursor-pointer group" onClick={() => handleNavClick('home')}>
-            <div className="w-10 h-10 rounded-full bg-[#7B9B88] text-white flex items-center justify-center font-serif text-xl font-bold tracking-tighter border border-[#E8DCB8]/60 shadow-xs transition-transform group-hover:scale-105">
-              AR
-            </div>
-            <div className="flex flex-col">
-              <span className="font-serif text-2xl font-bold tracking-[0.15em] text-[#2D2A26] uppercase leading-tight">
-                ARVIKA
-              </span>
-              <span className="text-[9px] font-montserrat uppercase tracking-[0.35em] text-[#7B9B88] -mt-0.5 font-semibold">
-                FASHION
-              </span>
-            </div>
+          {/* 1. Brand Logo */}
+          <div className="flex items-center cursor-pointer group shrink-0 py-1" onClick={() => handleNavClick('home')}>
+            <img
+              src="/logo.png"
+              alt="Arvika Fashion Logo"
+              className="h-14 sm:h-18 lg:h-20 max-w-[240px] sm:max-w-[340px] lg:max-w-[400px] w-auto object-contain transition-transform group-hover:scale-[1.02]"
+            />
           </div>
 
           {/* Desktop Primary Nav Links */}

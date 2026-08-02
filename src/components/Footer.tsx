@@ -102,18 +102,12 @@ export const Footer: React.FC<FooterProps> = ({ setActiveTab, setSelectedCategor
           
           {/* Brand Info */}
           <div className="lg:col-span-2 space-y-4">
-            <div className="flex items-center space-x-3 cursor-pointer" onClick={() => setActiveTab('home')}>
-              <div className="w-10 h-10 rounded-full bg-[#7B9B88] text-white flex items-center justify-center font-serif text-xl font-bold border border-[#E8DCB8]">
-                AR
-              </div>
-              <div className="flex flex-col">
-                <span className="font-serif text-2xl font-bold tracking-[0.15em] text-[#2D2A26] uppercase leading-tight">
-                  ARVIKA
-                </span>
-                <span className="text-[9px] font-montserrat uppercase tracking-[0.35em] text-[#7B9B88] font-semibold">
-                  FASHION
-                </span>
-              </div>
+            <div className="flex items-center cursor-pointer" onClick={() => setActiveTab('home')}>
+              <img
+                src="/flogo.jpeg"
+                alt="Arvika Fashion Logo"
+                className="h-16 sm:h-20 max-w-[380px] w-auto object-contain rounded-xl"
+              />
             </div>
 
             <p className="text-[#2D2A26]/80 leading-relaxed max-w-sm">
