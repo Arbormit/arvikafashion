@@ -187,7 +187,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
                     <span className="text-base text-[#8C7A6B] line-through font-sans">{originalPrice}</span>
                   )}
                   <span className="text-xs font-montserrat font-bold bg-[#7B9B88] text-white px-2.5 py-0.5 rounded-full">
-                    Includes GST & Taxes
+                    
                   </span>
                 </div>
 

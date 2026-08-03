@@ -20,9 +20,12 @@ import {
   Star,
   MessageSquare,
   Edit3,
-  Save
+  Save,
+  Plus,
+  Upload,
+  Image as ImageIcon
 } from 'lucide-react';
-import { Order, OrderStatus, Currency, PaymentStatus, User, Review, Inquiry, Coupon } from '../types';
+import { Order, OrderStatus, Currency, PaymentStatus, User, Review, Inquiry, Coupon, Product } from '../types';
 import { db, DEFAULT_ANNOUNCEMENTS } from '../services/db';
 
 interface AdminDashboardModalProps {
@@ -40,22 +43,57 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
 }) => {
   if (!isOpen) return null;
 
-  const [activeTab, setActiveTab] = useState<'orders' | 'offers' | 'users' | 'announcements' | 'reviews' | 'inquiries'>('orders');
+  const [activeTab, setActiveTab] = useState<'orders' | 'products' | 'offers' | 'users' | 'announcements' | 'reviews' | 'inquiries'>('orders');
   const [orders, setOrders] = useState<Order[]>(() => db.getAllOrders());
   const [allUsers, setAllUsers] = useState<User[]>(() => db.getAllUsers());
   const [announcementsList, setAnnouncementsList] = useState<string[]>(() => db.getAnnouncements());
   const [reviewsList, setReviewsList] = useState<Review[]>(() => db.getReviews());
   const [inquiriesList, setInquiriesList] = useState<Inquiry[]>(() => db.getInquiries());
   const [offersList, setOffersList] = useState<Coupon[]>(() => db.getOffers());
+  const [productsList, setProductsList] = useState<Product[]>(() => db.getProducts());
   
   const [newAnnouncementText, setNewAnnouncementText] = useState('');
   const [editingAnnIndex, setEditingAnnIndex] = useState<number | null>(null);
   const [editingAnnText, setEditingAnnText] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('ALL');
+  const [categoryFilter, setCategoryFilter] = useState<string>('ALL');
   const [selectedOrderDetails, setSelectedOrderDetails] = useState<Order | null>(null);
   const [utrInputMap, setUtrInputMap] = useState<Record<string, string>>({});
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  // Product Management Form States
+  const [productToDelete, setProductToDelete] = useState<Product | null>(null);
+  const [isProductEditorOpen, setIsProductEditorOpen] = useState(false);
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+
+  const [prodId, setProdId] = useState('');
+  const [prodSku, setProdSku] = useState('');
+  const [prodName, setProdName] = useState('');
+  const [prodSubtitle, setProdSubtitle] = useState('');
+  const [prodCategoryId, setProdCategoryId] = useState('Cotton');
+  const [prodCategoryName, setProdCategoryName] = useState('Pure Cotton Couture');
+  const [prodPriceINR, setProdPriceINR] = useState('650');
+  const [prodPriceEUR, setProdPriceEUR] = useState('12');
+  const [prodOrigPriceINR, setProdOrigPriceINR] = useState('');
+  const [prodOrigPriceEUR, setProdOrigPriceEUR] = useState('');
+  const [prodImages, setProdImages] = useState<string[]>([]);
+  const [newImgUrlInput, setNewImgUrlInput] = useState('');
+  const [prodColors, setProdColors] = useState<{ name: string; hex: string }[]>([]);
+  const [newColorName, setNewColorName] = useState('');
+  const [newColorHex, setNewColorHex] = useState('#7B9B88');
+  const [prodSizes, setProdSizes] = useState<string[]>(['free size']);
+  const [newSizeInput, setNewSizeInput] = useState('');
+  const [prodFabric, setProdFabric] = useState('100% Organic Cotton');
+  const [prodGsm, setProdGsm] = useState('185');
+  const [prodFit, setProdFit] = useState('Comfort Fit');
+  const [prodDescription, setProdDescription] = useState('');
+  const [prodSustainability, setProdSustainability] = useState('100% Organic Cotton, zero microplastics.');
+  const [prodInStock, setProdInStock] = useState(true);
+  const [prodIsTrending, setProdIsTrending] = useState(true);
+  const [prodIsBestSeller, setProdIsBestSeller] = useState(false);
+  const [prodRating, setProdRating] = useState('4.9');
+  const [prodReviewCount, setProdReviewCount] = useState('15');
 
   // New Offer Form State
   const [newOfferCode, setNewOfferCode] = useState('');
@@ -74,13 +112,170 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
   React.useEffect(() => {
     const handleInquiries = () => setInquiriesList(db.getInquiries());
     const handleOffers = () => setOffersList(db.getOffers());
+    const handleProducts = () => setProductsList(db.getProducts());
     window.addEventListener('arvika_inquiries_updated', handleInquiries);
     window.addEventListener('arvika_offers_updated', handleOffers);
+    window.addEventListener('arvika_products_updated', handleProducts);
     return () => {
       window.removeEventListener('arvika_inquiries_updated', handleInquiries);
       window.removeEventListener('arvika_offers_updated', handleOffers);
+      window.removeEventListener('arvika_products_updated', handleProducts);
     };
   }, []);
+
+  const handleOpenNewProduct = () => {
+    setEditingProduct(null);
+    const newId = `arv-prod-${Date.now()}`;
+    const newSku = `ARV-SKU-${Math.floor(1000 + Math.random() * 9000)}`;
+    setProdId(newId);
+    setProdSku(newSku);
+    setProdName('');
+    setProdSubtitle('');
+    setProdCategoryId('Cotton');
+    setProdCategoryName('Pure Cotton Couture');
+    setProdPriceINR('650');
+    setProdPriceEUR('12');
+    setProdOrigPriceINR('');
+    setProdOrigPriceEUR('');
+    setProdImages(['https://res.cloudinary.com/nwpiveo3/image/upload/v1785491630/WhatsApp_Image_2026-07-27_at_6.18.22_PM_qjoznw.jpg?q=80&w=1000&auto=format&fit=crop']);
+    setProdColors([{ name: 'Natural Printed', hex: '#FAF8F4' }]);
+    setProdSizes(['free size']);
+    setProdFabric('100% Organic Cotton');
+    setProdGsm('185');
+    setProdFit('Comfort Fit');
+    setProdDescription('');
+    setProdSustainability('100% Organic Cotton, zero plastic packaging.');
+    setProdInStock(true);
+    setProdIsTrending(true);
+    setProdIsBestSeller(false);
+    setProdRating('4.9');
+    setProdReviewCount('15');
+    setIsProductEditorOpen(true);
+  };
+
+  const handleOpenEditProduct = (prod: Product) => {
+    setEditingProduct(prod);
+    setProdId(prod.id);
+    setProdSku(prod.sku || `ARV-SKU-${prod.id}`);
+    setProdName(prod.name);
+    setProdSubtitle(prod.subtitle || '');
+    setProdCategoryId(prod.categoryId);
+    setProdCategoryName(prod.categoryName);
+    setProdPriceINR(String(prod.priceINR));
+    setProdPriceEUR(String(prod.priceEUR));
+    setProdOrigPriceINR(prod.originalPriceINR ? String(prod.originalPriceINR) : '');
+    setProdOrigPriceEUR(prod.originalPriceEUR ? String(prod.originalPriceEUR) : '');
+    setProdImages(prod.images && prod.images.length > 0 ? [...prod.images] : []);
+    setProdColors(prod.colors && prod.colors.length > 0 ? [...prod.colors] : []);
+    setProdSizes(prod.sizes && prod.sizes.length > 0 ? [...prod.sizes] : []);
+    setProdFabric(prod.fabric || '');
+    setProdGsm(prod.gsm ? String(prod.gsm) : '185');
+    setProdFit(prod.fit || '');
+    setProdDescription(prod.description || '');
+    setProdSustainability(prod.sustainabilityNotes || '');
+    setProdInStock(prod.inStock !== false);
+    setProdIsTrending(prod.isTrending ?? true);
+    setProdIsBestSeller(prod.isBestSeller ?? false);
+    setProdRating(String(prod.rating || 4.9));
+    setProdReviewCount(String(prod.reviewCount || 12));
+    setIsProductEditorOpen(true);
+  };
+
+  const handleImageFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+    Array.from(files).forEach((file: File) => {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        if (event.target?.result) {
+          setProdImages((prev) => [...prev, event.target!.result as string]);
+        }
+      };
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const handleAddImageUrl = () => {
+    if (!newImgUrlInput.trim()) return;
+    setProdImages((prev) => [...prev, newImgUrlInput.trim()]);
+    setNewImgUrlInput('');
+  };
+
+  const handleRemoveImage = (index: number) => {
+    setProdImages((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const handleAddColor = () => {
+    if (!newColorName.trim()) return;
+    setProdColors((prev) => [...prev, { name: newColorName.trim(), hex: newColorHex }]);
+    setNewColorName('');
+  };
+
+  const handleRemoveColor = (index: number) => {
+    setProdColors((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const handleAddSize = () => {
+    if (!newSizeInput.trim()) return;
+    if (!prodSizes.includes(newSizeInput.trim())) {
+      setProdSizes((prev) => [...prev, newSizeInput.trim()]);
+    }
+    setNewSizeInput('');
+  };
+
+  const handleToggleSize = (size: string) => {
+    setProdSizes((prev) => 
+      prev.includes(size) ? prev.filter((s) => s !== size) : [...prev, size]
+    );
+  };
+
+  const handleSaveProductForm = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!prodName.trim()) {
+      alert('Product Name is required.');
+      return;
+    }
+
+    const newProd: Product = {
+      id: prodId || `arv-prod-${Date.now()}`,
+      sku: prodSku || `ARV-SKU-${Date.now()}`,
+      name: prodName.trim(),
+      subtitle: prodSubtitle.trim(),
+      categoryId: prodCategoryId,
+      categoryName: prodCategoryName,
+      priceINR: Number(prodPriceINR) || 0,
+      priceEUR: Number(prodPriceEUR) || 0,
+      originalPriceINR: prodOrigPriceINR ? Number(prodOrigPriceINR) : undefined,
+      originalPriceEUR: prodOrigPriceEUR ? Number(prodOrigPriceEUR) : undefined,
+      images: prodImages.length > 0 ? prodImages : ['https://res.cloudinary.com/nwpiveo3/image/upload/v1785491630/WhatsApp_Image_2026-07-27_at_6.18.22_PM_qjoznw.jpg?q=80&w=1000&auto=format&fit=crop'],
+      colors: prodColors.length > 0 ? prodColors : [{ name: 'Standard', hex: '#2D2A26' }],
+      sizes: prodSizes.length > 0 ? prodSizes : ['free size'],
+      fabric: prodFabric.trim() || '100% Organic Cotton',
+      gsm: Number(prodGsm) || 185,
+      fit: prodFit.trim() || 'Comfort Fit',
+      description: prodDescription.trim() || 'Handcrafted luxury apparel.',
+      sustainabilityNotes: prodSustainability.trim() || '100% Organic, zero plastic packaging.',
+      rating: Number(prodRating) || 4.9,
+      reviewCount: Number(prodReviewCount) || 12,
+      inStock: prodInStock,
+      isTrending: prodIsTrending,
+      isBestSeller: prodIsBestSeller,
+      isNewArrival: true
+    };
+
+    const res = await db.addProduct(newProd);
+    setProductsList(db.getProducts());
+    showToast(res.message);
+    setIsProductEditorOpen(false);
+  };
+
+  const confirmDeleteProduct = async () => {
+    if (!productToDelete) return;
+    const res = await db.deleteProduct(productToDelete.id);
+    setProductsList(db.getProducts());
+    showToast(res.message || `Product "${productToDelete.name}" permanently deleted from database & site!`);
+    setProductToDelete(null);
+  };
 
   const confirmDeleteInquiry = () => {
     if (!inquiryToDelete) return;
@@ -253,81 +448,150 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
           </div>
         )}
 
-        {/* Admin Navigation Sub-Bar */}
-        <div className="flex border-b border-[#EFE6D8] space-x-6 text-xs font-montserrat uppercase tracking-wider font-bold overflow-x-auto">
+        {/* Admin Navigation Sub-Bar (Segmented Pill Tab Navigation Control) */}
+        <div className="bg-[#FAF8F4] p-1.5 rounded-2xl border border-[#EFE6D8] flex items-center space-x-1.5 overflow-x-auto scrollbar-none shadow-xs text-xs font-montserrat font-bold">
+          {/* 1. Orders & Dispatch */}
           <button
             onClick={() => setActiveTab('orders')}
-            className={`pb-3 transition-colors border-b-2 flex items-center space-x-2 shrink-0 ${
-              activeTab === 'orders' ? 'border-[#214C3A] text-[#214C3A]' : 'text-[#8C7A6B] border-transparent hover:text-[#214C3A]'
+            className={`px-4 py-2.5 rounded-xl transition-all flex items-center space-x-2 shrink-0 cursor-pointer whitespace-nowrap ${
+              activeTab === 'orders'
+                ? 'bg-[#214C3A] text-white shadow-md font-bold scale-[1.01]'
+                : 'text-[#8C7A6B] hover:text-[#214C3A] hover:bg-[#EFE6D8]/60 font-medium'
             }`}
           >
-            <Package className="w-4 h-4 text-[#C5A059]" />
-            <span>Orders & Dispatch ({orders.length})</span>
+            <Package className={`w-4 h-4 ${activeTab === 'orders' ? 'text-[#E8DCB8]' : 'text-[#7B9B88]'}`} />
+            <span>Orders & Dispatch</span>
+            <span className={`px-2 py-0.5 rounded-full text-[10px] font-mono font-bold ${
+              activeTab === 'orders' ? 'bg-[#E8DCB8] text-[#214C3A]' : 'bg-[#EFE6D8] text-[#8C7A6B]'
+            }`}>
+              {orders.length}
+            </span>
           </button>
 
+          {/* 2. Products & Catalog */}
+          <button
+            onClick={() => {
+              setActiveTab('products');
+              setProductsList(db.getProducts());
+            }}
+            className={`px-4 py-2.5 rounded-xl transition-all flex items-center space-x-2 shrink-0 cursor-pointer whitespace-nowrap ${
+              activeTab === 'products'
+                ? 'bg-[#214C3A] text-white shadow-md font-bold scale-[1.01]'
+                : 'text-[#8C7A6B] hover:text-[#214C3A] hover:bg-[#EFE6D8]/60 font-medium'
+            }`}
+          >
+            <Package className={`w-4 h-4 ${activeTab === 'products' ? 'text-[#E8DCB8]' : 'text-[#7B9B88]'}`} />
+            <span>Products & Catalog</span>
+            <span className={`px-2 py-0.5 rounded-full text-[10px] font-mono font-bold ${
+              activeTab === 'products' ? 'bg-[#E8DCB8] text-[#214C3A]' : 'bg-[#EFE6D8] text-[#8C7A6B]'
+            }`}>
+              {productsList.length}
+            </span>
+          </button>
+
+          {/* 3. Offers & Coupons */}
           <button
             onClick={() => {
               setActiveTab('offers');
               setOffersList(db.getOffers());
             }}
-            className={`pb-3 transition-colors border-b-2 flex items-center space-x-2 shrink-0 ${
-              activeTab === 'offers' ? 'border-[#214C3A] text-[#214C3A]' : 'text-[#8C7A6B] border-transparent hover:text-[#214C3A]'
+            className={`px-4 py-2.5 rounded-xl transition-all flex items-center space-x-2 shrink-0 cursor-pointer whitespace-nowrap ${
+              activeTab === 'offers'
+                ? 'bg-[#214C3A] text-white shadow-md font-bold scale-[1.01]'
+                : 'text-[#8C7A6B] hover:text-[#214C3A] hover:bg-[#EFE6D8]/60 font-medium'
             }`}
           >
-            <Tag className="w-4 h-4 text-[#C5A059]" />
-            <span>Offers & Coupons ({offersList.length})</span>
+            <Tag className={`w-4 h-4 ${activeTab === 'offers' ? 'text-[#E8DCB8]' : 'text-[#7B9B88]'}`} />
+            <span>Offers & Coupons</span>
+            <span className={`px-2 py-0.5 rounded-full text-[10px] font-mono font-bold ${
+              activeTab === 'offers' ? 'bg-[#E8DCB8] text-[#214C3A]' : 'bg-[#EFE6D8] text-[#8C7A6B]'
+            }`}>
+              {offersList.length}
+            </span>
           </button>
 
+          {/* 4. User Role Control */}
           <button
             onClick={() => {
               setActiveTab('users');
               setAllUsers(db.getAllUsers());
             }}
-            className={`pb-3 transition-colors border-b-2 flex items-center space-x-2 ${
-              activeTab === 'users' ? 'border-[#214C3A] text-[#214C3A]' : 'text-[#8C7A6B] border-transparent hover:text-[#214C3A]'
+            className={`px-4 py-2.5 rounded-xl transition-all flex items-center space-x-2 shrink-0 cursor-pointer whitespace-nowrap ${
+              activeTab === 'users'
+                ? 'bg-[#214C3A] text-white shadow-md font-bold scale-[1.01]'
+                : 'text-[#8C7A6B] hover:text-[#214C3A] hover:bg-[#EFE6D8]/60 font-medium'
             }`}
           >
-            <Users className="w-4 h-4 text-[#C5A059]" />
-            <span>User Role Privilege Control ({allUsers.length})</span>
+            <Users className={`w-4 h-4 ${activeTab === 'users' ? 'text-[#E8DCB8]' : 'text-[#7B9B88]'}`} />
+            <span>User Privilege Control</span>
+            <span className={`px-2 py-0.5 rounded-full text-[10px] font-mono font-bold ${
+              activeTab === 'users' ? 'bg-[#E8DCB8] text-[#214C3A]' : 'bg-[#EFE6D8] text-[#8C7A6B]'
+            }`}>
+              {allUsers.length}
+            </span>
           </button>
 
+          {/* 5. Live Announcement Manager */}
           <button
             onClick={() => {
               setActiveTab('announcements');
               setAnnouncementsList(db.getAnnouncements());
             }}
-            className={`pb-3 transition-colors border-b-2 flex items-center space-x-2 ${
-              activeTab === 'announcements' ? 'border-[#214C3A] text-[#214C3A]' : 'text-[#8C7A6B] border-transparent hover:text-[#214C3A]'
+            className={`px-4 py-2.5 rounded-xl transition-all flex items-center space-x-2 shrink-0 cursor-pointer whitespace-nowrap ${
+              activeTab === 'announcements'
+                ? 'bg-[#214C3A] text-white shadow-md font-bold scale-[1.01]'
+                : 'text-[#8C7A6B] hover:text-[#214C3A] hover:bg-[#EFE6D8]/60 font-medium'
             }`}
           >
-            <Tag className="w-4 h-4 text-[#C5A059]" />
-            <span>Live Announcement Manager ({announcementsList.length})</span>
+            <Tag className={`w-4 h-4 ${activeTab === 'announcements' ? 'text-[#E8DCB8]' : 'text-[#7B9B88]'}`} />
+            <span>Announcement Manager</span>
+            <span className={`px-2 py-0.5 rounded-full text-[10px] font-mono font-bold ${
+              activeTab === 'announcements' ? 'bg-[#E8DCB8] text-[#214C3A]' : 'bg-[#EFE6D8] text-[#8C7A6B]'
+            }`}>
+              {announcementsList.length}
+            </span>
           </button>
 
+          {/* 6. Reviews Moderation */}
           <button
             onClick={() => {
               setActiveTab('reviews');
               setReviewsList(db.getReviews());
             }}
-            className={`pb-3 transition-colors border-b-2 flex items-center space-x-2 ${
-              activeTab === 'reviews' ? 'border-[#214C3A] text-[#214C3A]' : 'text-[#8C7A6B] border-transparent hover:text-[#214C3A]'
+            className={`px-4 py-2.5 rounded-xl transition-all flex items-center space-x-2 shrink-0 cursor-pointer whitespace-nowrap ${
+              activeTab === 'reviews'
+                ? 'bg-[#214C3A] text-white shadow-md font-bold scale-[1.01]'
+                : 'text-[#8C7A6B] hover:text-[#214C3A] hover:bg-[#EFE6D8]/60 font-medium'
             }`}
           >
-            <MessageSquare className="w-4 h-4 text-[#C5A059]" />
-            <span>Reviews Moderation ({reviewsList.length})</span>
+            <MessageSquare className={`w-4 h-4 ${activeTab === 'reviews' ? 'text-[#E8DCB8]' : 'text-[#7B9B88]'}`} />
+            <span>Reviews Moderation</span>
+            <span className={`px-2 py-0.5 rounded-full text-[10px] font-mono font-bold ${
+              activeTab === 'reviews' ? 'bg-[#E8DCB8] text-[#214C3A]' : 'bg-[#EFE6D8] text-[#8C7A6B]'
+            }`}>
+              {reviewsList.length}
+            </span>
           </button>
 
+          {/* 7. Customer Inquiries */}
           <button
             onClick={() => {
               setActiveTab('inquiries');
               setInquiriesList(db.getInquiries());
             }}
-            className={`pb-3 transition-colors border-b-2 flex items-center space-x-2 ${
-              activeTab === 'inquiries' ? 'border-[#214C3A] text-[#214C3A]' : 'text-[#8C7A6B] border-transparent hover:text-[#214C3A]'
+            className={`px-4 py-2.5 rounded-xl transition-all flex items-center space-x-2 shrink-0 cursor-pointer whitespace-nowrap ${
+              activeTab === 'inquiries'
+                ? 'bg-[#214C3A] text-white shadow-md font-bold scale-[1.01]'
+                : 'text-[#8C7A6B] hover:text-[#214C3A] hover:bg-[#EFE6D8]/60 font-medium'
             }`}
           >
-            <FileText className="w-4 h-4 text-[#C5A059]" />
-            <span>Customer Inquiries ({inquiriesList.length})</span>
+            <FileText className={`w-4 h-4 ${activeTab === 'inquiries' ? 'text-[#E8DCB8]' : 'text-[#7B9B88]'}`} />
+            <span>Customer Inquiries</span>
+            <span className={`px-2 py-0.5 rounded-full text-[10px] font-mono font-bold ${
+              activeTab === 'inquiries' ? 'bg-[#E8DCB8] text-[#214C3A]' : 'bg-[#EFE6D8] text-[#8C7A6B]'
+            }`}>
+              {inquiriesList.length}
+            </span>
           </button>
         </div>
 
@@ -525,6 +789,155 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                   </table>
                 </div>
               )}
+            </div>
+          </div>
+        )}
+
+        {/* TAB: PRODUCTS & CATALOG MANAGEMENT */}
+        {activeTab === 'products' && (
+          <div className="space-y-6 animate-fade-in">
+            {/* Header & Controls Bar */}
+            <div className="bg-white p-6 rounded-3xl border border-[#EFE6D8] space-y-4 shadow-xs">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-[#EFE6D8] pb-4">
+                <div className="space-y-1">
+                  <h3 className="font-serif text-xl font-bold text-[#214C3A] flex items-center gap-2">
+                    <Package className="w-5 h-5 text-[#7B9B88]" />
+                    <span>Products & Inventory Management</span>
+                  </h3>
+                  <p className="text-xs text-[#8C7A6B]">
+                    Seamlessly add new products, edit garment specs, upload images, and control stock availability across collections.
+                  </p>
+                </div>
+
+                <button
+                  onClick={handleOpenNewProduct}
+                  className="bg-[#7B9B88] hover:bg-[#214C3A] text-white font-montserrat font-bold text-xs px-5 py-2.5 rounded-2xl shadow-md transition-all flex items-center space-x-2 shrink-0 cursor-pointer"
+                >
+                  <Plus className="w-4 h-4" />
+                  <span>Add New Product</span>
+                </button>
+              </div>
+
+              {/* Filter Bar */}
+              <div className="flex flex-col sm:flex-row items-center gap-4 pt-1">
+                <div className="relative flex-1 w-full">
+                  <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-[#8C7A6B]" />
+                  <input
+                    type="text"
+                    placeholder="Search products by name, SKU, fabric or category..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="w-full bg-[#FAF8F4] border border-[#EFE6D8] pl-10 pr-4 py-2.5 rounded-xl text-xs font-sans text-[#2D2A26] focus:outline-none focus:border-[#7B9B88]"
+                  />
+                </div>
+
+                <div className="flex items-center space-x-2 w-full sm:w-auto">
+                  <Filter className="w-4 h-4 text-[#7B9B88]" />
+                  <select
+                    value={categoryFilter}
+                    onChange={(e) => setCategoryFilter(e.target.value)}
+                    className="bg-[#FAF8F4] border border-[#EFE6D8] text-[#2D2A26] text-xs font-sans rounded-xl px-3 py-2.5 focus:outline-none focus:border-[#7B9B88]"
+                  >
+                    <option value="ALL">All Categories</option>
+                    <option value="Cotton">Cotton / Pure Cotton Couture</option>
+                    <option value="pure-linen">Pure Linen Couture</option>
+                    <option value="scandi-dresses">Scandinavian Minimal Dresses</option>
+                    <option value="coats-jackets">Artisanal Trench Coats & Jackets</option>
+                    <option value="organic-cotton">Organic Cotton Essentials</option>
+                    <option value="trousers-pants">Tailored Trousers & Culottes</option>
+                    <option value="silk-wool-knits">Silk-Wool Knitwear</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            {/* Products Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+              {productsList
+                .filter((p) => {
+                  const matchesSearch = 
+                    p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                    p.sku.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                    p.fabric.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                    p.categoryName.toLowerCase().includes(searchQuery.toLowerCase());
+                  const matchesCat = categoryFilter === 'ALL' || p.categoryId === categoryFilter;
+                  return matchesSearch && matchesCat;
+                })
+                .map((prod) => (
+                  <div 
+                    key={prod.id} 
+                    className="bg-white rounded-3xl border border-[#EFE6D8] overflow-hidden shadow-xs hover:shadow-md transition-all flex flex-col justify-between"
+                  >
+                    <div className="space-y-3">
+                      {/* Thumbnail & Badges */}
+                      <div className="relative h-48 bg-[#FAF8F4] overflow-hidden group">
+                        <img 
+                          src={prod.images[0] || 'https://res.cloudinary.com/nwpiveo3/image/upload/v1785491630/WhatsApp_Image_2026-07-27_at_6.18.22_PM_qjoznw.jpg?q=80&w=1000&auto=format&fit=crop'} 
+                          alt={prod.name}
+                          className="w-full h-full object-cover transition-transform group-hover:scale-105 duration-300" 
+                        />
+                        <div className="absolute top-3 left-3 flex flex-wrap gap-1.5">
+                          <span className={`text-[9px] font-montserrat font-bold uppercase px-2.5 py-1 rounded-full text-white shadow-xs ${prod.inStock ? 'bg-[#7B9B88]' : 'bg-red-500'}`}>
+                            {prod.inStock ? 'In Stock' : 'Out of Stock'}
+                          </span>
+                          {prod.isTrending && (
+                            <span className="text-[9px] font-montserrat font-bold uppercase px-2.5 py-1 rounded-full bg-[#E8DCB8] text-[#2D2A26]">
+                              Trending
+                            </span>
+                          )}
+                        </div>
+                        <div className="absolute bottom-3 right-3 bg-black/60 backdrop-blur-xs text-white text-[10px] font-mono px-2 py-0.5 rounded">
+                          {prod.sku}
+                        </div>
+                      </div>
+
+                      {/* Info Content */}
+                      <div className="p-4 space-y-2">
+                        <div className="text-[10px] font-montserrat font-bold uppercase text-[#7B9B88] tracking-wider">
+                          {prod.categoryName}
+                        </div>
+                        <h4 className="font-serif font-bold text-base text-[#2D2A26] line-clamp-1">
+                          {prod.name}
+                        </h4>
+                        {prod.subtitle && (
+                          <p className="text-xs text-[#8C7A6B] line-clamp-1">{prod.subtitle}</p>
+                        )}
+
+                        <div className="flex items-center justify-between pt-2 border-t border-[#EFE6D8]">
+                          <div className="font-serif font-bold text-base text-[#214C3A]">
+                            ₹{prod.priceINR.toLocaleString('en-IN')} <span className="text-xs text-[#8C7A6B] font-sans font-normal">(€{prod.priceEUR})</span>
+                          </div>
+                          <div className="text-xs text-[#7B9B88] font-bold flex items-center gap-1">
+                            <Star className="w-3.5 h-3.5 fill-[#7B9B88] text-[#7B9B88]" />
+                            <span>{prod.rating} ({prod.reviewCount})</span>
+                          </div>
+                        </div>
+
+                        <div className="text-[11px] text-[#2D2A26]/70 line-clamp-2 pt-1 font-sans">
+                          {prod.description}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Action Buttons */}
+                    <div className="p-4 pt-0 flex items-center justify-end space-x-2 border-t border-transparent mt-3">
+                      <button
+                        onClick={() => handleOpenEditProduct(prod)}
+                        className="flex-1 bg-[#E8F0EC] hover:bg-[#7B9B88] hover:text-white text-[#214C3A] py-2 rounded-xl text-xs font-montserrat font-bold transition-all flex items-center justify-center space-x-1.5 cursor-pointer"
+                      >
+                        <Edit3 className="w-3.5 h-3.5" />
+                        <span>Edit Details</span>
+                      </button>
+                      <button
+                        onClick={() => setProductToDelete(prod)}
+                        className="bg-red-50 hover:bg-red-600 hover:text-white text-red-600 p-2 rounded-xl transition-all border border-red-200 cursor-pointer"
+                        title="Delete Product Permanently"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                ))}
             </div>
           </div>
         )}
@@ -1360,6 +1773,541 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                 >
                   <Trash2 className="w-4 h-4" />
                   <span>Delete Offer</span>
+                </button>
+              </div>
+
+            </div>
+          </div>
+        )}
+
+        {/* COMPREHENSIVE PRODUCT EDITOR MODAL / DRAWER */}
+        {isProductEditorOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-fade-in font-sans overflow-y-auto">
+            <div className="bg-[#FAF8F4] border border-[#EFE6D8] rounded-3xl max-w-4xl w-full max-h-[90vh] overflow-y-auto p-6 sm:p-8 relative shadow-2xl space-y-6">
+              
+              {/* Modal Header */}
+              <div className="flex items-center justify-between border-b border-[#EFE6D8] pb-4">
+                <div className="space-y-1">
+                  <h3 className="font-serif text-xl font-bold text-[#214C3A] flex items-center gap-2">
+                    <Package className="w-5 h-5 text-[#7B9B88]" />
+                    <span>{editingProduct ? 'Edit Product Details' : 'Add New Product to Collection'}</span>
+                  </h3>
+                  <p className="text-xs text-[#8C7A6B]">
+                    Specify product specifications, pricing, imagery, colors, sizes, and stock availability.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsProductEditorOpen(false)}
+                  className="p-2 text-[#8C7A6B] hover:text-[#214C3A] rounded-full hover:bg-[#EFE6D8]"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* Form Body */}
+              <form onSubmit={handleSaveProductForm} className="space-y-6">
+                
+                {/* 1. Basic Details */}
+                <div className="bg-white p-5 rounded-2xl border border-[#EFE6D8] space-y-4">
+                  <h4 className="font-montserrat font-bold text-xs uppercase tracking-wider text-[#7B9B88]">
+                    1. Basic Product Identity & Category
+                  </h4>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div>
+                      <label className="block text-[11px] font-montserrat font-bold text-[#2D2A26] mb-1">
+                        Product ID *
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        value={prodId}
+                        onChange={(e) => setProdId(e.target.value)}
+                        className="w-full bg-[#FAF8F4] border border-[#D8C6A5] p-2.5 rounded-xl text-xs font-mono text-[#2D2A26] focus:outline-none focus:border-[#7B9B88]"
+                        placeholder="e.g. arv-106"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-[11px] font-montserrat font-bold text-[#2D2A26] mb-1">
+                        SKU Code *
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        value={prodSku}
+                        onChange={(e) => setProdSku(e.target.value)}
+                        className="w-full bg-[#FAF8F4] border border-[#D8C6A5] p-2.5 rounded-xl text-xs font-mono text-[#2D2A26] focus:outline-none focus:border-[#7B9B88]"
+                        placeholder="e.g. ARV-COT-106"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-[11px] font-montserrat font-bold text-[#2D2A26] mb-1">
+                        Category ID *
+                      </label>
+                      <select
+                        value={prodCategoryId}
+                        onChange={(e) => {
+                          const catId = e.target.value;
+                          setProdCategoryId(catId);
+                          const names: Record<string, string> = {
+                            'Cotton': 'Pure Cotton Couture',
+                            'pure-linen': 'Pure Linen Couture',
+                            'scandi-dresses': 'Scandinavian Minimal Dresses',
+                            'coats-jackets': 'Artisanal Trench Coats & Jackets',
+                            'organic-cotton': 'Organic Cotton Essentials',
+                            'trousers-pants': 'Tailored Trousers & Culottes',
+                            'silk-wool-knits': 'Silk-Wool Knitwear'
+                          };
+                          if (names[catId]) setProdCategoryName(names[catId]);
+                        }}
+                        className="w-full bg-[#FAF8F4] border border-[#D8C6A5] p-2.5 rounded-xl text-xs font-sans text-[#2D2A26] focus:outline-none focus:border-[#7B9B88]"
+                      >
+                        <option value="Cotton">Cotton / Pure Cotton Couture</option>
+                        <option value="pure-linen">Pure Linen Couture</option>
+                        <option value="scandi-dresses">Scandinavian Minimal Dresses</option>
+                        <option value="coats-jackets">Artisanal Trench Coats & Jackets</option>
+                        <option value="organic-cotton">Organic Cotton Essentials</option>
+                        <option value="trousers-pants">Tailored Trousers & Culottes</option>
+                        <option value="silk-wool-knits">Silk-Wool Knitwear</option>
+                      </select>
+                    </div>
+
+                    <div className="sm:col-span-2">
+                      <label className="block text-[11px] font-montserrat font-bold text-[#2D2A26] mb-1">
+                        Product Name *
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        value={prodName}
+                        onChange={(e) => setProdName(e.target.value)}
+                        className="w-full bg-[#FAF8F4] border border-[#D8C6A5] p-2.5 rounded-xl text-xs font-sans text-[#2D2A26] focus:outline-none focus:border-[#7B9B88]"
+                        placeholder="e.g. Cotton Printed Shirt for Women"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-[11px] font-montserrat font-bold text-[#2D2A26] mb-1">
+                        Category Display Name
+                      </label>
+                      <input
+                        type="text"
+                        value={prodCategoryName}
+                        onChange={(e) => setProdCategoryName(e.target.value)}
+                        className="w-full bg-[#FAF8F4] border border-[#D8C6A5] p-2.5 rounded-xl text-xs font-sans text-[#2D2A26] focus:outline-none focus:border-[#7B9B88]"
+                        placeholder="e.g. Pure Cotton Couture"
+                      />
+                    </div>
+
+                    <div className="sm:col-span-3">
+                      <label className="block text-[11px] font-montserrat font-bold text-[#2D2A26] mb-1">
+                        Subtitle / Tagline
+                      </label>
+                      <input
+                        type="text"
+                        value={prodSubtitle}
+                        onChange={(e) => setProdSubtitle(e.target.value)}
+                        className="w-full bg-[#FAF8F4] border border-[#D8C6A5] p-2.5 rounded-xl text-xs font-sans text-[#2D2A26] focus:outline-none focus:border-[#7B9B88]"
+                        placeholder="e.g. Long Cotton Printed Shirt"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* 2. Pricing & Currency */}
+                <div className="bg-white p-5 rounded-2xl border border-[#EFE6D8] space-y-4">
+                  <h4 className="font-montserrat font-bold text-xs uppercase tracking-wider text-[#7B9B88]">
+                    2. Pricing & Financials (INR & EUR)
+                  </h4>
+
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                    <div>
+                      <label className="block text-[11px] font-montserrat font-bold text-[#2D2A26] mb-1">
+                        Price (INR ₹) *
+                      </label>
+                      <input
+                        type="number"
+                        required
+                        min="0"
+                        value={prodPriceINR}
+                        onChange={(e) => setProdPriceINR(e.target.value)}
+                        className="w-full bg-[#FAF8F4] border border-[#D8C6A5] p-2.5 rounded-xl text-xs font-serif font-bold text-[#214C3A] focus:outline-none focus:border-[#7B9B88]"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-[11px] font-montserrat font-bold text-[#2D2A26] mb-1">
+                        Price (EUR €) *
+                      </label>
+                      <input
+                        type="number"
+                        required
+                        min="0"
+                        value={prodPriceEUR}
+                        onChange={(e) => setProdPriceEUR(e.target.value)}
+                        className="w-full bg-[#FAF8F4] border border-[#D8C6A5] p-2.5 rounded-xl text-xs font-serif font-bold text-[#214C3A] focus:outline-none focus:border-[#7B9B88]"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-[11px] font-montserrat font-bold text-[#8C7A6B] mb-1">
+                        Original Price (INR ₹)
+                      </label>
+                      <input
+                        type="number"
+                        min="0"
+                        value={prodOrigPriceINR}
+                        onChange={(e) => setProdOrigPriceINR(e.target.value)}
+                        className="w-full bg-[#FAF8F4] border border-[#EFE6D8] p-2.5 rounded-xl text-xs font-sans text-[#8C7A6B] focus:outline-none focus:border-[#7B9B88]"
+                        placeholder="Optional"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-[11px] font-montserrat font-bold text-[#8C7A6B] mb-1">
+                        Original Price (EUR €)
+                      </label>
+                      <input
+                        type="number"
+                        min="0"
+                        value={prodOrigPriceEUR}
+                        onChange={(e) => setProdOrigPriceEUR(e.target.value)}
+                        className="w-full bg-[#FAF8F4] border border-[#EFE6D8] p-2.5 rounded-xl text-xs font-sans text-[#8C7A6B] focus:outline-none focus:border-[#7B9B88]"
+                        placeholder="Optional"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* 3. Image Upload & Gallery */}
+                <div className="bg-white p-5 rounded-2xl border border-[#EFE6D8] space-y-4">
+                  <div className="flex items-center justify-between">
+                    <h4 className="font-montserrat font-bold text-xs uppercase tracking-wider text-[#7B9B88] flex items-center gap-1.5">
+                      <ImageIcon className="w-4 h-4" />
+                      <span>3. Product Images Gallery ({prodImages.length})</span>
+                    </h4>
+                    <label className="bg-[#E8F0EC] hover:bg-[#7B9B88] hover:text-white text-[#214C3A] px-3 py-1.5 rounded-xl text-xs font-montserrat font-bold transition-all flex items-center gap-1.5 cursor-pointer">
+                      <Upload className="w-3.5 h-3.5" />
+                      <span>Upload Image File</span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        multiple
+                        onChange={handleImageFileUpload}
+                        className="hidden"
+                      />
+                    </label>
+                  </div>
+
+                  {/* Existing Images Thumbnails */}
+                  <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-3">
+                    {prodImages.map((img, idx) => (
+                      <div key={idx} className="relative group aspect-square rounded-xl overflow-hidden border border-[#EFE6D8] bg-[#FAF8F4]">
+                        <img src={img} alt={`Product ${idx}`} className="w-full h-full object-cover" />
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveImage(idx)}
+                          className="absolute top-1 right-1 bg-red-600 text-white p-1 rounded-full opacity-90 hover:opacity-100 transition-opacity"
+                          title="Remove Image"
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Add Image URL Input */}
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="url"
+                      placeholder="Paste image URL (e.g. Cloudinary, Unsplash)..."
+                      value={newImgUrlInput}
+                      onChange={(e) => setNewImgUrlInput(e.target.value)}
+                      className="flex-1 bg-[#FAF8F4] border border-[#D8C6A5] p-2.5 rounded-xl text-xs font-sans text-[#2D2A26] focus:outline-none focus:border-[#7B9B88]"
+                    />
+                    <button
+                      type="button"
+                      onClick={handleAddImageUrl}
+                      className="bg-[#7B9B88] hover:bg-[#214C3A] text-white px-4 py-2.5 rounded-xl text-xs font-montserrat font-bold transition-all whitespace-nowrap cursor-pointer"
+                    >
+                      + Add URL
+                    </button>
+                  </div>
+                </div>
+
+                {/* 4. Colors & Sizes Variants */}
+                <div className="bg-white p-5 rounded-2xl border border-[#EFE6D8] space-y-5">
+                  <h4 className="font-montserrat font-bold text-xs uppercase tracking-wider text-[#7B9B88]">
+                    4. Color & Size Variants
+                  </h4>
+
+                  {/* Color Chips */}
+                  <div className="space-y-2">
+                    <label className="block text-[11px] font-montserrat font-bold text-[#2D2A26]">
+                      Colors ({prodColors.length})
+                    </label>
+                    <div className="flex flex-wrap gap-2">
+                      {prodColors.map((c, idx) => (
+                        <div key={idx} className="flex items-center gap-1.5 bg-[#FAF8F4] border border-[#D8C6A5] px-3 py-1.5 rounded-full text-xs font-sans">
+                          <span className="w-3.5 h-3.5 rounded-full border border-black/20" style={{ backgroundColor: c.hex }} />
+                          <span>{c.name}</span>
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveColor(idx)}
+                            className="text-red-500 hover:text-red-700 ml-1"
+                          >
+                            <X className="w-3 h-3" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Add Color Form */}
+                    <div className="flex items-center gap-2 pt-1">
+                      <input
+                        type="color"
+                        value={newColorHex}
+                        onChange={(e) => setNewColorHex(e.target.value)}
+                        className="w-9 h-9 p-0.5 rounded-xl border border-[#D8C6A5] cursor-pointer"
+                      />
+                      <input
+                        type="text"
+                        placeholder="Color Name (e.g. Cream Printed, Sky Blue)"
+                        value={newColorName}
+                        onChange={(e) => setNewColorName(e.target.value)}
+                        className="flex-1 bg-[#FAF8F4] border border-[#D8C6A5] p-2 rounded-xl text-xs font-sans focus:outline-none focus:border-[#7B9B88]"
+                      />
+                      <button
+                        type="button"
+                        onClick={handleAddColor}
+                        className="bg-[#7B9B88] text-white px-3 py-2 rounded-xl text-xs font-montserrat font-bold cursor-pointer"
+                      >
+                        + Add Color
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Size Chips & Preset Toggles */}
+                  <div className="space-y-2 pt-2 border-t border-[#EFE6D8]">
+                    <label className="block text-[11px] font-montserrat font-bold text-[#2D2A26]">
+                      Available Sizes ({prodSizes.join(', ')})
+                    </label>
+
+                    <div className="flex flex-wrap gap-2">
+                      {['XS', 'S', 'M', 'L', 'XL', 'XXL', 'free size', '100x180'].map((sz) => (
+                        <button
+                          key={sz}
+                          type="button"
+                          onClick={() => handleToggleSize(sz)}
+                          className={`px-3 py-1.5 rounded-xl text-xs font-montserrat font-bold border transition-all cursor-pointer ${
+                            prodSizes.includes(sz)
+                              ? 'bg-[#7B9B88] text-white border-[#7B9B88]'
+                              : 'bg-[#FAF8F4] text-[#2D2A26] border-[#D8C6A5] hover:border-[#7B9B88]'
+                          }`}
+                        >
+                          {sz}
+                        </button>
+                      ))}
+                    </div>
+
+                    <div className="flex items-center gap-2 pt-1">
+                      <input
+                        type="text"
+                        placeholder="Add Custom Size (e.g. 120x200)"
+                        value={newSizeInput}
+                        onChange={(e) => setNewSizeInput(e.target.value)}
+                        className="flex-1 bg-[#FAF8F4] border border-[#D8C6A5] p-2 rounded-xl text-xs font-sans focus:outline-none focus:border-[#7B9B88]"
+                      />
+                      <button
+                        type="button"
+                        onClick={handleAddSize}
+                        className="bg-[#7B9B88] text-white px-3 py-2 rounded-xl text-xs font-montserrat font-bold cursor-pointer"
+                      >
+                        + Add Size
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 5. Fabric & Specifications */}
+                <div className="bg-white p-5 rounded-2xl border border-[#EFE6D8] space-y-4">
+                  <h4 className="font-montserrat font-bold text-xs uppercase tracking-wider text-[#7B9B88]">
+                    5. Fabric & Garment Technical Specs
+                  </h4>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div>
+                      <label className="block text-[11px] font-montserrat font-bold text-[#2D2A26] mb-1">
+                        Fabric Composition *
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        value={prodFabric}
+                        onChange={(e) => setProdFabric(e.target.value)}
+                        className="w-full bg-[#FAF8F4] border border-[#D8C6A5] p-2.5 rounded-xl text-xs font-sans text-[#2D2A26] focus:outline-none focus:border-[#7B9B88]"
+                        placeholder="e.g. 100% Organic Cotton"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-[11px] font-montserrat font-bold text-[#2D2A26] mb-1">
+                        Fabric Weight GSM
+                      </label>
+                      <input
+                        type="number"
+                        value={prodGsm}
+                        onChange={(e) => setProdGsm(e.target.value)}
+                        className="w-full bg-[#FAF8F4] border border-[#D8C6A5] p-2.5 rounded-xl text-xs font-sans text-[#2D2A26] focus:outline-none focus:border-[#7B9B88]"
+                        placeholder="e.g. 185"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-[11px] font-montserrat font-bold text-[#2D2A26] mb-1">
+                        Fit Silhouette
+                      </label>
+                      <input
+                        type="text"
+                        value={prodFit}
+                        onChange={(e) => setProdFit(e.target.value)}
+                        className="w-full bg-[#FAF8F4] border border-[#D8C6A5] p-2.5 rounded-xl text-xs font-sans text-[#2D2A26] focus:outline-none focus:border-[#7B9B88]"
+                        placeholder="e.g. Comfort Fit / Long Scarfe"
+                      />
+                    </div>
+
+                    <div className="sm:col-span-3">
+                      <label className="block text-[11px] font-montserrat font-bold text-[#2D2A26] mb-1">
+                        Full Product Description *
+                      </label>
+                      <textarea
+                        rows={3}
+                        required
+                        value={prodDescription}
+                        onChange={(e) => setProdDescription(e.target.value)}
+                        className="w-full bg-[#FAF8F4] border border-[#D8C6A5] p-2.5 rounded-xl text-xs font-sans text-[#2D2A26] focus:outline-none focus:border-[#7B9B88]"
+                        placeholder="Describe fabric weave, feel, styling suggestions, and craft details..."
+                      />
+                    </div>
+
+                    <div className="sm:col-span-3">
+                      <label className="block text-[11px] font-montserrat font-bold text-[#2D2A26] mb-1">
+                        Sustainability & Eco Notes
+                      </label>
+                      <input
+                        type="text"
+                        value={prodSustainability}
+                        onChange={(e) => setProdSustainability(e.target.value)}
+                        className="w-full bg-[#FAF8F4] border border-[#D8C6A5] p-2.5 rounded-xl text-xs font-sans text-[#2D2A26] focus:outline-none focus:border-[#7B9B88]"
+                        placeholder="e.g. 100% Organic, zero microplastics, Jaipur atelier tailoring."
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* 6. Stock Availability & Badges */}
+                <div className="bg-white p-5 rounded-2xl border border-[#EFE6D8] space-y-4">
+                  <h4 className="font-montserrat font-bold text-xs uppercase tracking-wider text-[#7B9B88]">
+                    6. Stock Status & Featuring Toggles
+                  </h4>
+
+                  <div className="flex flex-wrap items-center gap-6">
+                    <label className="flex items-center space-x-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={prodInStock}
+                        onChange={(e) => setProdInStock(e.target.checked)}
+                        className="w-4 h-4 accent-[#7B9B88]"
+                      />
+                      <span className="text-xs font-montserrat font-bold text-[#2D2A26]">In Stock & Available</span>
+                    </label>
+
+                    <label className="flex items-center space-x-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={prodIsTrending}
+                        onChange={(e) => setProdIsTrending(e.target.checked)}
+                        className="w-4 h-4 accent-[#7B9B88]"
+                      />
+                      <span className="text-xs font-montserrat font-bold text-[#2D2A26]">Feature on Trending Grid</span>
+                    </label>
+
+                    <label className="flex items-center space-x-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={prodIsBestSeller}
+                        onChange={(e) => setProdIsBestSeller(e.target.checked)}
+                        className="w-4 h-4 accent-[#7B9B88]"
+                      />
+                      <span className="text-xs font-montserrat font-bold text-[#2D2A26]">Best Seller Badge</span>
+                    </label>
+                  </div>
+                </div>
+
+                {/* Form Buttons */}
+                <div className="flex items-center justify-end space-x-3 pt-3 border-t border-[#EFE6D8]">
+                  <button
+                    type="button"
+                    onClick={() => setIsProductEditorOpen(false)}
+                    className="px-6 py-3 rounded-2xl bg-[#EFE6D8] hover:bg-[#D8C6A5] text-[#214C3A] text-xs font-montserrat font-bold transition-all cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+
+                  <button
+                    type="submit"
+                    className="px-8 py-3 rounded-2xl bg-[#7B9B88] hover:bg-[#214C3A] text-white text-xs font-montserrat font-bold uppercase tracking-wider transition-all shadow-md flex items-center space-x-2 cursor-pointer"
+                  >
+                    <Save className="w-4 h-4" />
+                    <span>Save Product to Database</span>
+                  </button>
+                </div>
+
+              </form>
+            </div>
+          </div>
+        )}
+
+        {/* DEDICATED DELETE PRODUCT CONFIRMATION POPUP MODAL */}
+        {productToDelete && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-fade-in font-sans">
+            <div className="bg-[#FAF8F4] border-2 border-red-200 rounded-3xl max-w-md w-full p-6 sm:p-8 relative shadow-2xl space-y-5">
+              
+              <div className="w-14 h-14 rounded-full bg-red-100 border-2 border-red-300 text-red-700 flex items-center justify-center mx-auto shadow-md">
+                <Trash2 className="w-7 h-7" />
+              </div>
+
+              <div className="text-center space-y-2">
+                <span className="bg-red-100 text-red-800 text-[10px] font-montserrat font-bold uppercase px-3 py-0.5 rounded-full">
+                  Permanent Deletion Warning
+                </span>
+                <h3 className="font-serif text-xl font-bold text-[#2D2A26]">
+                  Delete "{productToDelete.name}"?
+                </h3>
+                <p className="text-xs text-[#8C7A6B] leading-relaxed">
+                  Are you sure you want to permanently delete product <strong className="text-[#2D2A26]">{productToDelete.sku}</strong> from Neon PostgreSQL database and live store collections?
+                </p>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setProductToDelete(null)}
+                  className="w-full bg-white hover:bg-[#EFE6D8] border border-[#D8C6A5] text-[#214C3A] py-3 rounded-2xl text-xs font-montserrat font-bold transition-all shadow-xs cursor-pointer"
+                >
+                  Cancel
+                </button>
+
+                <button
+                  type="button"
+                  onClick={confirmDeleteProduct}
+                  className="w-full bg-red-700 hover:bg-red-800 text-white py-3 rounded-2xl text-xs font-montserrat font-bold uppercase tracking-wider transition-all shadow-md flex items-center justify-center space-x-1.5 cursor-pointer"
+                >
+                  <Trash2 className="w-4 h-4" />
+                  <span>Delete Product</span>
                 </button>
               </div>
 

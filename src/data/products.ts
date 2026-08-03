@@ -4,11 +4,11 @@ export const PRODUCTS: Product[] = [
   // PURE LINEN COUTURE
   {
     id: 'arv-101',
-    name: 'Stockholm Oversized Linen Shirt',
-    subtitle: 'Classic French Seam Button-Down',
-    categoryId: 'pure-linen',
-    categoryName: 'Pure Linen Couture',
-    priceINR: 5490,
+    name: 'Cotton Scarfe',
+    subtitle: 'Long Cotton Scarfe',
+    categoryId: 'Cotton',
+    categoryName: 'Cotton',
+    priceINR: 350,
     priceEUR: 68,
     originalPriceINR: 6990,
     originalPriceEUR: 85,
@@ -18,17 +18,15 @@ export const PRODUCTS: Product[] = [
       'https://res.cloudinary.com/nwpiveo3/image/upload/v1785491630/WhatsApp_Image_2026-07-27_at_6.18.22_PM_qjoznw.jpg?q=80&w=1000&auto=format&fit=crop'
     ],
     colors: [
-      { name: 'Warm Sand', hex: '#D8C6A5' },
-      { name: 'Forest Green', hex: '#214C3A' },
-      { name: 'Ivory White', hex: '#FAF8F4' },
-      { name: 'Stone Beige', hex: '#EFE6D8' }
+      { name: 'Cream Printed', hex: '#dbd2d2ff' },
+      { name: 'blue printed', hex: '#007eebff'}
     ],
-    sizes: ['XS', 'S', 'M', 'L', 'XL', 'XXL'],
-    fabric: '100% Certified French Normandy Organic Linen',
+    sizes: ['100x180'],
+    fabric: '100% Organic Cotton',
     gsm: 185,
-    fit: 'Relaxed Scandinavian Oversized Fit',
-    description: 'Woven in Jaipur from hand-selected French flax yarn. Features a soft structured band collar, natural mother-of-pearl buttons, and dropped shoulders for an airy silhouette.',
-    sustainabilityNotes: 'Zero microplastics, OEKO-TEX® Standard 100 dye certification, zero-waste Jaipur atelier tailoring.',
+    fit: 'Long Cotton Scarfe',
+    description: 'Wrap yourself in luxury with our oversized Cotton Scarfe, perfect for adding a layer of warmth and style to any outfit. Made from premium organic cotton, this versatile accessory combines comfort with timeless elegance.',
+    sustainabilityNotes: 'Best Scarfe to wear in summers',
     isTrending: true,
     isBestSeller: true,
     rating: 4.9,
@@ -38,13 +36,13 @@ export const PRODUCTS: Product[] = [
   },
   {
     id: 'arv-102',
-    name: 'Copenhagen Tailored Linen Tunic',
-    subtitle: 'Mandarin Collar Minimal Tunic',
-    categoryId: 'pure-linen',
-    categoryName: 'Pure Linen Couture',
-    priceINR: 6290,
+    name: 'Cotton Printed Scarf',
+    subtitle: 'Long Cotton Scarf',
+    categoryId: 'Cotton',
+    categoryName: 'Cotton',
+    priceINR: 350,
     priceEUR: 78,
-    originalPriceINR: 7500,
+    originalPriceINR: 800,
     originalPriceEUR: 92,
     images: [
       'https://res.cloudinary.com/nwpiveo3/image/upload/v1785491637/WhatsApp_Image_2026-07-31_at_12.44.52_PM_rm6hix.jpg?q=80&w=1000&auto=format&fit=crop',
@@ -55,12 +53,12 @@ export const PRODUCTS: Product[] = [
       { name: 'Charcoal Black', hex: '#1C1C1C' },
       { name: 'Olive Green', hex: '#4A5D4E' }
     ],
-    sizes: ['S', 'M', 'L', 'XL'],
-    fabric: '100% Pure Pre-washed Heavyweight Linen',
+    sizes: ['100x180'],
+    fabric: '100% Cotton',
     gsm: 210,
-    fit: 'Straight Architectural Cut',
-    description: 'Designed for quiet luxury. Deep side slits ensure effortless motion, while subtle tonal topstitching adds discreet craftsmanship detail.',
-    sustainabilityNotes: 'Woven using rainwater-harvested flax processing in Jaipur.',
+    fit: 'Long Cotton Scarfe',
+    description: 'Wrap yourself in luxury with our oversized Cotton Scarfe, perfect for adding a layer of warmth and style to any outfit. Made from premium organic cotton, this versatile accessory combines comfort with timeless elegance.',
+    sustainabilityNotes: 'Best Scarfe to wear in summers',
     isTrending: true,
     rating: 4.8,
     reviewCount: 98,
@@ -164,35 +162,24 @@ export const PRODUCTS: Product[] = [
   },
   {
     id: 'arv-202',
-    name: 'Malmö Crisp Poplin Utility Shirt',
-    subtitle: 'GOTS Organic Cotton Poplin',
-    categoryId: 'organic-cotton',
-    categoryName: 'Organic Cotton Essentials',
-    priceINR: 4290,
+    name: 'Cotton Kurti',
+    subtitle: 'Cotton Printed Kurti for women',
+    categoryId: 'Cotton',
+    categoryName: 'Cotton dress',
+    priceINR: 650,
     priceEUR: 54,
     images: [
       'https://res.cloudinary.com/nwpiveo3/image/upload/v1785491636/WhatsApp_Image_2026-07-29_at_3.54.20_PM_rphk4q.jpg?q=80&w=1000&auto=format&fit=crop',
-      'https://res.cloudinary.com/nwpiveo3/image/upload/v1785491636/WhatsApp_Image_2026-07-29_at_3.54.20_PM_2_nwr8dw.jpg?q=80&w=1000&auto=format&fit=crop',
-      'https://res.cloudinary.com/nwpiveo3/image/upload/v1785491636/WhatsApp_Image_2026-07-29_at_3.54.20_PM_1_k2gsyj.jpg?q=80&w=1000&auto=format&fit=crop',
-      'https://res.cloudinary.com/nwpiveo3/image/upload/v1785491635/WhatsApp_Image_2026-07-29_at_3.54.19_PM_rglf2c.jpg?q=80&w=1000&auto=format&fit=crop',
-      'https://res.cloudinary.com/nwpiveo3/image/upload/v1785491635/WhatsApp_Image_2026-07-29_at_3.54.19_PM_3_vgh6vq.jpg?q=80&w=1000&auto=format&fit=crop',
-      'https://res.cloudinary.com/nwpiveo3/image/upload/v1785491635/WhatsApp_Image_2026-07-29_at_3.54.19_PM_2_cpfola.jpg?q=80&w=1000&auto=format&fit=crop',
-      'https://res.cloudinary.com/nwpiveo3/image/upload/v1785491635/WhatsApp_Image_2026-07-29_at_3.54.19_PM_1_h5zzlh.jpg?q=80&w=1000&auto=format&fit=crop',
-      'https://res.cloudinary.com/nwpiveo3/image/upload/v1785491635/WhatsApp_Image_2026-07-29_at_3.54.18_PM_iu7cxv.jpg?q=80&w=1000&auto=format&fit=crop',
-      'https://res.cloudinary.com/nwpiveo3/image/upload/v1785491635/WhatsApp_Image_2026-07-29_at_3.54.18_PM_3_u6qozs.jpg?q=80&w=1000&auto=format&fit=crop',
-      'https://res.cloudinary.com/nwpiveo3/image/upload/v1785491635/WhatsApp_Image_2026-07-29_at_3.54.18_PM_1_rlgmln.jpg?q=80&w=1000&auto=format&fit=crop',
-      'https://res.cloudinary.com/nwpiveo3/image/upload/v1785491635/WhatsApp_Image_2026-07-29_at_3.54.18_PM_2_gjvscw.jpg?q=80&w=1000&auto=format&fit=crop',
     ],
     colors: [
-      { name: 'Ivory White', hex: '#FAF8F4' },
-      { name: 'Taupe', hex: '#8C7A6B' }
+      { name: 'White Printed', hex: '#FFFFFF' }
     ],
-    sizes: ['S', 'M', 'L', 'XL'],
-    fabric: '100% Organic Fine Cotton Poplin',
+    sizes: ['free size'],
+    fabric: '100% cotton',
     gsm: 140,
-    fit: 'Crisp Straight Cut',
-    description: 'Tailored with clean minimalist seam lines, a curved curved hemline, and hidden placket detail.',
-    sustainabilityNotes: '100% biodegradable trims and organic dyes.',
+    fit: 'Comfort Fit',
+    description: 'Cotton Printed Kurti for women',
+    sustainabilityNotes: 'Purely organic cotton is used for the production of this kurti.',
     rating: 4.8,
     reviewCount: 64,
     sku: 'ARV-COT-202',
@@ -200,24 +187,22 @@ export const PRODUCTS: Product[] = [
   },
   {
     id: 'arv-203',
-    name: 'Helsinki Ribbed Tank & Lounge Set',
-    subtitle: 'Organic Cotton-Elastane Fine Rib',
-    categoryId: 'organic-cotton',
-    categoryName: 'Organic Cotton Essentials',
-    priceINR: 3490,
+    name: 'Linen Dress',
+    subtitle: 'Linen Dress',
+    categoryId: 'Linen Dress',
+    categoryName: 'Linen Dress',
+    priceINR: 2500,
     priceEUR: 44,
     images: [
-      'https://res.cloudinary.com/nwpiveo3/image/upload/v1785491635/WhatsApp_Image_2026-07-29_at_3.54.17_PM_3_umcq0i.jpg?q=80&w=1000&auto=format&fit=crop',
-      'https://res.cloudinary.com/nwpiveo3/image/upload/v1785491634/WhatsApp_Image_2026-07-29_at_3.54.17_PM_2_j6ow2r.jpg?q=80&w=1000&auto=format&fit=crop'
+      'https://res.cloudinary.com/nwpiveo3/image/upload/v1785491635/WhatsApp_Image_2026-07-29_at_3.54.17_PM_3_umcq0i.jpg?q=80&w=1000&auto=format&fit=crop'
     ],
     colors: [
-      { name: 'Warm Sand', hex: '#D8C6A5' },
-      { name: 'Ivory White', hex: '#FAF8F4' }
+      { name: 'Printed', hex: '' }
     ],
     sizes: ['XS', 'S', 'M', 'L', 'XL'],
-    fabric: '95% Organic Cotton, 5% Elastane',
+    fabric: '100% Linen',
     gsm: 210,
-    fit: 'Form-Sculpting Soft Fit',
+    fit: 'Relaxed Fit',
     description: 'Ultra-soft rib knit top engineered with double-layer self-fabric lining for seamless opacity and total comfort.',
     sustainabilityNotes: 'GOTS Certified & OEKO-TEX Standard 100.',
     rating: 4.9,
@@ -229,29 +214,28 @@ export const PRODUCTS: Product[] = [
   // ARTISANAL TRENCH COATS & JACKETS
   {
     id: 'arv-301',
-    name: 'Arvika Signature Linen Trench Coat',
-    subtitle: 'Double-Breasted Heritage Duster',
-    categoryId: 'coats-jackets',
-    categoryName: 'Artisanal Trench Coats & Jackets',
-    priceINR: 12990,
+    name: 'Arvika Signature Cotton Dress',
+    subtitle: 'Signature Cotton Dress',
+    categoryId: 'Cotton',
+    categoryName: 'Cotton',
+    priceINR: 3500,
     priceEUR: 155,
-    originalPriceINR: 15990,
+    originalPriceINR: 6990,
     originalPriceEUR: 190,
     images: [
       'https://res.cloudinary.com/nwpiveo3/image/upload/v1785491635/WhatsApp_Image_2026-07-29_at_3.54.17_PM_ymvjo7.jpg?q=80&w=1000&auto=format&fit=crop',
       'https://res.cloudinary.com/nwpiveo3/image/upload/v1785491634/WhatsApp_Image_2026-07-29_at_3.54.17_PM_1_qh3qt5.jpg?q=80&w=1000&auto=format&fit=crop',
     ],
     colors: [
-      { name: 'Forest Green', hex: '#214C3A' },
-      { name: 'Warm Sand', hex: '#D8C6A5' },
-      { name: 'Dark Walnut', hex: '#3D2B1F' }
+      { name: 'Blue Printed', hex: '#06cdffff' },
+      { name: 'White Printed', hex: '#f6f6f6ff' }
     ],
-    sizes: ['S', 'M', 'L', 'XL'],
-    fabric: 'Heavyweight Linen-Wool Weather Twill',
-    gsm: 320,
-    fit: 'Tailored European Trench Fit',
-    description: 'Our crown jewel outerwear. Crafted with wide storm flaps, adjustable wrist straps, natural horn-effect coconut buttons, and an unlined interior exposing bound seams.',
-    sustainabilityNotes: 'Hand-tailored in our master export atelier in Faridabad.',
+    sizes: ['free size'],
+    fabric: '100% Cotton',
+    gsm: 120,
+    fit: 'Comfort Fit',
+    description: 'Cotton Printed Kurti for women',
+    sustainabilityNotes: 'Purely organic cotton is used for the production of this kurti.',
     isTrending: true,
     isBestSeller: true,
     rating: 5.0,
@@ -261,24 +245,21 @@ export const PRODUCTS: Product[] = [
   },
   {
     id: 'arv-302',
-    name: 'Bergen Unstructured Linen Blazer',
-    subtitle: 'Relaxed Single-Breasted Jacket',
-    categoryId: 'coats-jackets',
-    categoryName: 'Artisanal Trench Coats & Jackets',
-    priceINR: 8990,
+    name: 'Cotton Kaftan',
+    subtitle: '',
+    categoryId: 'Cotton',
+    categoryName: 'Cotton Dress',
+    priceINR: 450,
     priceEUR: 112,
     images: [
-      'https://res.cloudinary.com/nwpiveo3/image/upload/v1785491634/WhatsApp_Image_2026-07-29_at_3.54.16_PM_2_hx4llu.jpg?q=80&w=1000&auto=format&fit=crop',
-      'https://res.cloudinary.com/nwpiveo3/image/upload/v1785491634/WhatsApp_Image_2026-07-29_at_3.54.16_PM_1_obybr7.jpg?q=80&w=1000&auto=format&fit=crop'
+      'https://res.cloudinary.com/nwpiveo3/image/upload/v1785491634/WhatsApp_Image_2026-07-29_at_3.54.16_PM_2_hx4llu.jpg?q=80&w=1000&auto=format&fit=crop'
     ],
     colors: [
-      { name: 'Stone Beige', hex: '#EFE6D8' },
-      { name: 'Forest Green', hex: '#214C3A' },
-      { name: 'Charcoal Black', hex: '#1C1C1C' }
+      { name: 'Stone Beige', hex: '#EFE6D8' }
     ],
-    sizes: ['XS', 'S', 'M', 'L', 'XL'],
-    fabric: '100% Pre-washed Heavy Linen',
-    gsm: 260,
+    sizes: ['free size'],
+    fabric: '100% Cotton',
+    gsm: 120,
     fit: 'Soft Tailored Oversized',
     description: 'Designed without stiff shoulder pads for a natural drape. Features classic patch pockets and notch lapels.',
     sustainabilityNotes: 'Plastic-free construction including organic cotton internal stays.',
@@ -290,30 +271,26 @@ export const PRODUCTS: Product[] = [
   // SCANDINAVIAN MINIMAL DRESSES
   {
     id: 'arv-401',
-    name: 'Reykjavik Tiered Linen Midi Dress',
-    subtitle: 'Flowing Pocketed Linen Dress',
-    categoryId: 'scandi-dresses',
-    categoryName: 'Scandinavian Minimal Dresses',
-    priceINR: 7490,
+    name: 'Cotton Dress',
+    subtitle: 'Cotton Dress',
+    categoryId: 'Cotton',
+    categoryName: 'Cotton Dress',
+    priceINR: 850,
     priceEUR: 92,
     originalPriceINR: 8990,
     originalPriceEUR: 110,
     images: [
-      'https://res.cloudinary.com/nwpiveo3/image/upload/v1785491634/WhatsApp_Image_2026-07-29_at_3.54.16_PM_umomth.jpg?q=80&w=1000&auto=format&fit=crop',
-      'https://res.cloudinary.com/nwpiveo3/image/upload/v1785491634/WhatsApp_Image_2026-07-29_at_3.54.15_PM_3_oazfqd.jpg?q=80&w=1000&auto=format&fit=crop',
-      'https://res.cloudinary.com/nwpiveo3/image/upload/v1785491634/WhatsApp_Image_2026-07-29_at_3.54.15_PM_2_qd4ry7.jpg?q=80&w=1000&auto=format&fit=crop'
+      'https://res.cloudinary.com/nwpiveo3/image/upload/v1785491634/WhatsApp_Image_2026-07-29_at_3.54.16_PM_umomth.jpg?q=80&w=1000&auto=format&fit=crop'
     ],
     colors: [
-      { name: 'Forest Green', hex: '#214C3A' },
-      { name: 'Warm Sand', hex: '#D8C6A5' },
-      { name: 'Ivory White', hex: '#FAF8F4' }
+      { name: 'Forest Green', hex: '#214C3A' }
     ],
-    sizes: ['XS', 'S', 'M', 'L', 'XL'],
-    fabric: '100% Organic French Flax Linen',
-    gsm: 190,
+    sizes: ['free size'],
+    fabric: '100% Cotton',
+    gsm: 120,
     fit: 'Fluid Tiered Silhouette',
-    description: 'Effortless Nordic silhouette with subtle gathered tiers, deep side seam pockets, and an adjustable neck closure with fabric ties.',
-    sustainabilityNotes: 'Woven & dyed with closed-loop water treatment in Jaipur.',
+    description: 'The perfect blend of comfort and style. This dress features a flattering A-line cut with a tiered design that drapes beautifully on all body types. Crafted from breathable cotton fabric, it’s ideal for warm weather or layering during cooler months. The relaxed fit ensures maximum comfort without compromising on style. Complete with practical side pockets and a versatile round neckline, this dress easily transitions from casual daytime outings to relaxed evening gatherings.',
+    sustainabilityNotes: 'Best cotton to wear in summers.',
     isTrending: true,
     isBestSeller: true,
     rating: 4.9,
@@ -383,22 +360,20 @@ export const PRODUCTS: Product[] = [
   // TAILORED TROUSERS & CULOTTES
   {
     id: 'arv-501',
-    name: 'Tromsø Pleated Linen Culottes',
-    subtitle: 'Cropped Wide-Leg Trouser',
-    categoryId: 'trousers-pants',
-    categoryName: 'Tailored Trousers & Culottes',
-    priceINR: 5290,
+    name: 'Cotton Kurti',
+    subtitle: 'Modern Cotton Kurti',
+    categoryId: 'Cotton',
+    categoryName: 'Cotton Kurti',
+    priceINR: 450,
     priceEUR: 66,
     images: [
       'https://res.cloudinary.com/nwpiveo3/image/upload/v1785491632/WhatsApp_Image_2026-07-29_at_3.54.12_PM_2_evonye.jpg?q=80&w=1000&auto=format&fit=crop',
       'https://res.cloudinary.com/nwpiveo3/image/upload/v1785491632/WhatsApp_Image_2026-07-29_at_3.54.12_PM_1_ukjb5w.jpg?q=80&w=1000&auto=format&fit=crop'
     ],
     colors: [
-      { name: 'Warm Sand', hex: '#D8C6A5' },
-      { name: 'Olive Green', hex: '#4A5D4E' },
-      { name: 'Ivory White', hex: '#FAF8F4' }
+      { name: 'Sky Blue', hex: '#196fd2ff' }
     ],
-    sizes: ['XS', 'S', 'M', 'L', 'XL'],
+    sizes: ['free size'],
     fabric: '100% Pre-washed Organic Linen',
     gsm: 200,
     fit: 'High-Rise Cropped Cut',
@@ -412,21 +387,21 @@ export const PRODUCTS: Product[] = [
   },
   {
     id: 'arv-502',
-    name: 'Trondheim Elasticated Linen Pants',
-    subtitle: 'Everyday Relaxed Lounge Trouser',
+    name: 'Linen Kurti',
+    subtitle: 'Everyday Linen Kurti',
     categoryId: 'trousers-pants',
-    categoryName: 'Tailored Trousers & Culottes',
-    priceINR: 4890,
+    categoryName: 'Linen',
+    priceINR: 3200,
     priceEUR: 60,
     images: [
       'https://res.cloudinary.com/nwpiveo3/image/upload/v1785491632/WhatsApp_Image_2026-07-29_at_3.54.11_PM_cwbwcy.jpg?q=80&w=1000&auto=format&fit=crop',
       'https://res.cloudinary.com/nwpiveo3/image/upload/v1785491632/WhatsApp_Image_2026-07-29_at_3.54.11_PM_2_h5zwl5.jpg?q=80&w=1000&auto=format&fit=crop'
     ],
     colors: [
-      { name: 'Stone Beige', hex: '#EFE6D8' },
-      { name: 'Forest Green', hex: '#214C3A' }
+      { name: 'Natural Beige', hex: '#EFE6D8' },
+      { name: 'Mid Red', hex: '#961313ff' }
     ],
-    sizes: ['S', 'M', 'L', 'XL', 'XXL'],
+    sizes: ['XS','S', 'M', 'L', 'XL'],
     fabric: '100% Pure Softened Linen',
     gsm: 180,
     fit: 'Relaxed Tapered Fit',
@@ -471,12 +446,12 @@ export const PRODUCTS: Product[] = [
   },
   {
     id: 'arv-602',
-    name: 'Espoo Longline Silk-Blend Cardigan',
-    subtitle: 'Open-Front Draped Cardigan',
-    categoryId: 'silk-wool-knits',
-    categoryName: 'Artisanal Silk-Wool Knitwear',
-    priceINR: 8990,
-    priceEUR: 110,
+    name: 'Linen Beach Dress',
+    subtitle: 'Modern Beach Dress',
+    categoryId: 'Linen',
+    categoryName: 'Linen',
+    priceINR: 3800,
+    priceEUR: 45,
     images: [
       'https://res.cloudinary.com/nwpiveo3/image/upload/v1785491632/WhatsApp_Image_2026-07-29_at_3.54.12_PM_renz2i.jpg?q=80&w=1000&auto=format&fit=crop',
       'https://res.cloudinary.com/nwpiveo3/image/upload/v1785491631/WhatsApp_Image_2026-07-29_at_3.54.11_PM_1_x28y4d.jpg?q=80&w=1000&auto=format&fit=crop',
@@ -484,11 +459,11 @@ export const PRODUCTS: Product[] = [
       'https://res.cloudinary.com/nwpiveo3/image/upload/v1785491631/WhatsApp_Image_2026-07-29_at_3.54.10_PM_znd7ci.jpg?q=80&w=1000&auto=format&fit=crop'
     ],
     colors: [
-      { name: 'Warm Sand', hex: '#D8C6A5' },
-      { name: 'Stone Beige', hex: '#EFE6D8' }
+      { name: 'Natural Beige', hex: '#D8C6A5' },
+      { name: 'White', hex: '#ffffffff' }
     ],
-    sizes: ['S', 'M', 'L', 'XL'],
-    fabric: '60% Organic Cotton, 30% Silk, 10% Linen',
+    sizes: ['XS','S', 'M', 'L', 'XL'],
+    fabric: 'Linen',
     gsm: 200,
     fit: 'Fluid Draped Fit',
     description: 'Versatile mid-thigh length open cardigan with subtle ribbed hem and sleeve cuffs.',
@@ -645,5 +620,54 @@ export const PRODUCTS: Product[] = [
     sku: 'ARV-LNN-105',
     inStock: true
   },
-  
+  {
+    id: 'arv-105',
+    name: 'Cotton Shirt for women',
+    subtitle: 'Cotton Shirt for women',
+    categoryId: 'Cotton',
+    categoryName: 'Cotton Shirts',
+    priceINR: 650,
+    priceEUR: 84,
+    images: [
+      'https://res.cloudinary.com/nwpiveo3/image/upload/v1785761420/WhatsApp_Image_2026-07-31_at_3.38.23_PM_min4yq.jpg?q=80&w=1000&auto=format&fit=crop'
+    ],
+    colors: [
+      { name: 'Blue Printed', hex: '#0061d8ff' }
+    ],
+    sizes: ['free size'],
+    fabric: '100% Cotton',
+    gsm: 195,
+    fit: 'Comfort Fit',
+    description: 'Printed Cotton Kurti for women',
+    sustainabilityNotes: 'Natural shell buttons.',
+    rating: 4.8,
+    reviewCount: 45,
+    sku: 'ARV-LNN-105',
+    inStock: true
+  },
+  {
+    id: 'arv-105',
+    name: 'Cotton Shirt for women',
+    subtitle: 'Cotton Shirt for women',
+    categoryId: 'Cotton',
+    categoryName: 'Cotton Shirts',
+    priceINR: 650,
+    priceEUR: 84,
+    images: [
+      'https://res.cloudinary.com/nwpiveo3/image/upload/v1785761898/WhatsApp_Image_2026-07-31_at_3.38.23_PM_1_yjldo7.jpg?q=80&w=1000&auto=format&fit=crop'
+    ],
+    colors: [
+      { name: 'Blue Printed', hex: '#0061d8ff' }
+    ],
+    sizes: ['free size'],
+    fabric: '100% Cotton',
+    gsm: 195,
+    fit: 'Comfort Fit',
+    description: 'Printed Cotton Kurti for women',
+    sustainabilityNotes: 'Natural shell buttons.',
+    rating: 4.8,
+    reviewCount: 45,
+    sku: 'ARV-LNN-105',
+    inStock: true
+  }
 ];

@@ -45,8 +45,8 @@ app.use((req, res, next) => {
   next();
 });
 
-// JSON body parser with strict size limits (max 10kb to prevent oversized payload attacks)
-app.use(express.json({ limit: '10kb' }));
+// JSON body parser with 10mb limit (allows base64 product image uploads)
+app.use(express.json({ limit: '10mb' }));
 
 // ==========================================
 // RATE LIMITING & BRUTE FORCE PROTECTION
@@ -318,6 +318,21 @@ async function initNeonSchema() {
         announcement_text TEXT NOT NULL,
         display_order INT DEFAULT 0,
         created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+      );
+    `;
+
+    await sql`
+      CREATE TABLE IF NOT EXISTS products_custom (
+        id VARCHAR(64) PRIMARY KEY,
+        data JSONB NOT NULL,
+        updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+      );
+    `;
+
+    await sql`
+      CREATE TABLE IF NOT EXISTS products_deleted (
+        id VARCHAR(64) PRIMARY KEY,
+        deleted_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
       );
     `;
 
@@ -982,6 +997,77 @@ app.post('/api/announcements', authenticateToken, requireAdmin, async (req, res)
   } catch (err) {
     console.error('Update Announcements Error:', err);
     res.status(500).json({ success: false, error: 'Failed to update announcements.' });
+  }
+});
+
+// 5.8 PRODUCTS CATALOG ENDPOINTS (Neon DB Sync & Full Admin CRUD)
+app.get('/api/products', async (req, res) => {
+  try {
+    const sql = getSql();
+    if (sql) {
+      const customRows = await sql`
+        SELECT data FROM products_custom ORDER BY updated_at DESC
+      `;
+      const deletedRows = await sql`
+        SELECT id FROM products_deleted
+      `;
+      const customProducts = customRows ? customRows.map(r => r.data) : [];
+      const deletedIds = deletedRows ? deletedRows.map(r => r.id) : [];
+      return res.json({ success: true, customProducts, deletedIds });
+    }
+    res.json({ success: true, customProducts: [], deletedIds: [] });
+  } catch (err) {
+    console.error('Fetch Products Error:', err);
+    res.status(500).json({ success: false, customProducts: [], deletedIds: [] });
+  }
+});
+
+app.post('/api/products', authenticateToken, requireAdmin, async (req, res) => {
+  try {
+    const product = req.body;
+    if (!product || !product.id || !product.name) {
+      return res.status(400).json({ success: false, error: 'Product ID and name are required.' });
+    }
+
+    const sql = getSql();
+    if (sql) {
+      await sql`
+        INSERT INTO products_custom (id, data)
+        VALUES (${product.id}, ${JSON.stringify(product)})
+        ON CONFLICT (id) DO UPDATE SET
+          data = EXCLUDED.data,
+          updated_at = CURRENT_TIMESTAMP
+      `;
+      await sql`DELETE FROM products_deleted WHERE id = ${product.id}`;
+
+      auditLog('PRODUCT_SAVED_NEON_DB', { productId: product.id, name: product.name });
+      return res.status(201).json({ success: true, message: `Product "${product.name}" saved in Neon DB and catalog.`, product });
+    }
+    res.status(500).json({ success: false, error: 'Database connection offline.' });
+  } catch (err) {
+    console.error('Save Product Error:', err);
+    res.status(500).json({ success: false, error: 'Failed to save product.' });
+  }
+});
+
+app.delete('/api/products/:id', authenticateToken, requireAdmin, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const sql = getSql();
+    if (sql && id) {
+      await sql`DELETE FROM products_custom WHERE id = ${id}`;
+      await sql`
+        INSERT INTO products_deleted (id)
+        VALUES (${id})
+        ON CONFLICT (id) DO NOTHING
+      `;
+      auditLog('PRODUCT_DELETED_NEON_DB', { productId: id });
+      return res.json({ success: true, message: `Product ${id} permanently deleted from database and site.` });
+    }
+    res.status(400).json({ success: false, error: 'Invalid product ID or DB offline.' });
+  } catch (err) {
+    console.error('Delete Product Error:', err);
+    res.status(500).json({ success: false, error: 'Failed to delete product.' });
   }
 });
 

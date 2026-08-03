@@ -1,4 +1,4 @@
-import { User, Order, Address, OrderStatus, PaymentStatus, PaymentDetails, CartItem, Currency, UserPreferences, Review, Inquiry, Coupon } from '../types';
+import { User, Order, Address, OrderStatus, PaymentStatus, PaymentDetails, CartItem, Currency, UserPreferences, Review, Inquiry, Coupon, Product } from '../types';
 import { PRODUCTS } from '../data/products';
 import { INITIAL_REVIEWS } from '../data/reviews';
 import { COUPONS } from '../data/offers';
@@ -11,6 +11,8 @@ const STORAGE_KEYS = {
   ANNOUNCEMENTS: 'arvika_announcements',
   REVIEWS: 'arvika_reviews',
   OFFERS: 'arvika_offers',
+  CUSTOM_PRODUCTS: 'arvika_custom_products_v1',
+  DELETED_PRODUCTS: 'arvika_deleted_products_v1',
 };
 
 // Default Shop Details
@@ -151,6 +153,8 @@ class DatabaseService {
   private announcements: string[] = DEFAULT_ANNOUNCEMENTS;
   private reviews: Review[] = [];
   private offers: Coupon[] = COUPONS;
+  private customProducts: Product[] = [];
+  private deletedProductIds: string[] = [];
 
   constructor() {
     this.init();
@@ -222,12 +226,23 @@ class DatabaseService {
         this.saveOffersToStorage();
       }
 
+      const savedCustomProducts = localStorage.getItem(STORAGE_KEYS.CUSTOM_PRODUCTS);
+      if (savedCustomProducts) {
+        this.customProducts = JSON.parse(savedCustomProducts);
+      }
+
+      const savedDeletedProducts = localStorage.getItem(STORAGE_KEYS.DELETED_PRODUCTS);
+      if (savedDeletedProducts) {
+        this.deletedProductIds = JSON.parse(savedDeletedProducts);
+      }
+
       // Fetch live data from Neon PostgreSQL DB
       this.syncReviewsFromNeonServer();
       this.syncUsersFromNeonServer();
       this.syncInquiriesFromNeonServer();
       this.syncOffersFromNeonServer();
       this.syncAnnouncementsFromNeonServer();
+      this.syncProductsFromNeonServer();
 
       // Real-time Neon DB role poller & window focus listener
       if (typeof window !== 'undefined') {
@@ -235,11 +250,13 @@ class DatabaseService {
         setInterval(() => this.syncInquiriesFromNeonServer(), 4000);
         setInterval(() => this.syncOffersFromNeonServer(), 4000);
         setInterval(() => this.syncAnnouncementsFromNeonServer(), 4000);
+        setInterval(() => this.syncProductsFromNeonServer(), 4000);
         window.addEventListener('focus', () => {
           this.syncUsersFromNeonServer();
           this.syncInquiriesFromNeonServer();
           this.syncOffersFromNeonServer();
           this.syncAnnouncementsFromNeonServer();
+          this.syncProductsFromNeonServer();
         });
       }
     } catch (e) {
@@ -1001,6 +1018,149 @@ class DatabaseService {
     return { 
       success: this.offers.length < initialLen, 
       message: `Offer code ${cleanCode} has been permanently deleted from database & site.` 
+    };
+  }
+
+  private saveProductsToStorage() {
+    localStorage.setItem(STORAGE_KEYS.CUSTOM_PRODUCTS, JSON.stringify(this.customProducts));
+    localStorage.setItem(STORAGE_KEYS.DELETED_PRODUCTS, JSON.stringify(this.deletedProductIds));
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new Event('arvika_products_updated'));
+    }
+  }
+
+  private async syncProductsFromNeonServer() {
+    try {
+      if (typeof fetch !== 'undefined') {
+        const res = await fetch('/api/products');
+        const data = await res.json();
+        if (data.success) {
+          let updated = false;
+          if (Array.isArray(data.customProducts)) {
+            this.customProducts = data.customProducts;
+            localStorage.setItem(STORAGE_KEYS.CUSTOM_PRODUCTS, JSON.stringify(this.customProducts));
+            updated = true;
+          }
+          if (Array.isArray(data.deletedIds)) {
+            this.deletedProductIds = data.deletedIds;
+            localStorage.setItem(STORAGE_KEYS.DELETED_PRODUCTS, JSON.stringify(this.deletedProductIds));
+            updated = true;
+          }
+          if (updated && typeof window !== 'undefined') {
+            window.dispatchEvent(new Event('arvika_products_updated'));
+          }
+        }
+      }
+    } catch (e) {
+      console.warn('Neon DB products sync fallback:', e);
+    }
+  }
+
+  public getProducts(): Product[] {
+    const customMap = new Map<string, Product>();
+    this.customProducts.forEach(p => customMap.set(p.id, p));
+
+    const staticActive = PRODUCTS.filter(p => !this.deletedProductIds.includes(p.id) && !customMap.has(p.id));
+    const activeCustom = this.customProducts.filter(p => !this.deletedProductIds.includes(p.id));
+
+    return [...activeCustom, ...staticActive];
+  }
+
+  public getProductById(id: string): Product | undefined {
+    return this.getProducts().find(p => p.id === id);
+  }
+
+  public async addProduct(product: Product): Promise<{ success: boolean; message: string }> {
+    const cleanProduct: Product = {
+      ...product,
+      id: product.id ? product.id.trim() : `arv-custom-${Date.now()}`,
+      sku: product.sku ? product.sku.trim().toUpperCase() : `ARV-SKU-${Date.now()}`,
+      name: product.name.trim(),
+      subtitle: product.subtitle ? product.subtitle.trim() : '',
+      categoryId: product.categoryId || 'Cotton',
+      categoryName: product.categoryName || 'Pure Cotton Couture',
+      images: Array.isArray(product.images) && product.images.length > 0 ? product.images : ['https://res.cloudinary.com/nwpiveo3/image/upload/v1785491630/WhatsApp_Image_2026-07-27_at_6.18.22_PM_qjoznw.jpg?q=80&w=1000&auto=format&fit=crop'],
+      colors: Array.isArray(product.colors) && product.colors.length > 0 ? product.colors : [{ name: 'Standard', hex: '#2D2A26' }],
+      sizes: Array.isArray(product.sizes) && product.sizes.length > 0 ? product.sizes : ['free size'],
+      fabric: product.fabric || '100% Organic Cotton',
+      gsm: Number(product.gsm) || 185,
+      fit: product.fit || 'Comfort Fit',
+      description: product.description || 'Premium handcrafted apparel.',
+      sustainabilityNotes: product.sustainabilityNotes || '100% Organic, zero plastic.',
+      priceINR: Number(product.priceINR) || 0,
+      priceEUR: Number(product.priceEUR) || 0,
+      originalPriceINR: product.originalPriceINR ? Number(product.originalPriceINR) : undefined,
+      originalPriceEUR: product.originalPriceEUR ? Number(product.originalPriceEUR) : undefined,
+      rating: Number(product.rating) || 4.9,
+      reviewCount: Number(product.reviewCount) || 12,
+      inStock: product.inStock !== false,
+      isTrending: product.isTrending ?? true,
+      isBestSeller: product.isBestSeller ?? false,
+      isNewArrival: product.isNewArrival ?? true
+    };
+
+    // Remove from deleted list if re-adding
+    this.deletedProductIds = this.deletedProductIds.filter(id => id !== cleanProduct.id);
+
+    const existingIdx = this.customProducts.findIndex(p => p.id === cleanProduct.id);
+    if (existingIdx >= 0) {
+      this.customProducts[existingIdx] = cleanProduct;
+    } else {
+      this.customProducts.unshift(cleanProduct);
+    }
+
+    this.saveProductsToStorage();
+
+    // Sync with Neon DB Backend
+    try {
+      const token = AuthService.getAuthToken();
+      if (typeof fetch !== 'undefined') {
+        await fetch('/api/products', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            ...(token ? { Authorization: `Bearer ${token}` } : {})
+          },
+          body: JSON.stringify(cleanProduct)
+        });
+      }
+    } catch (err) {
+      console.warn('Neon DB save product notice:', err);
+    }
+
+    return {
+      success: true,
+      message: `Product "${cleanProduct.name}" saved successfully in collection and database!`
+    };
+  }
+
+  public async deleteProduct(id: string): Promise<{ success: boolean; message: string }> {
+    const cleanId = id.trim();
+    this.customProducts = this.customProducts.filter(p => p.id !== cleanId);
+    if (!this.deletedProductIds.includes(cleanId)) {
+      this.deletedProductIds.push(cleanId);
+    }
+
+    this.saveProductsToStorage();
+
+    // Sync with Neon DB Backend
+    try {
+      const token = AuthService.getAuthToken();
+      if (typeof fetch !== 'undefined') {
+        await fetch(`/api/products/${encodeURIComponent(cleanId)}`, {
+          method: 'DELETE',
+          headers: {
+            ...(token ? { Authorization: `Bearer ${token}` } : {})
+          }
+        });
+      }
+    } catch (err) {
+      console.warn('Neon DB delete product notice:', err);
+    }
+
+    return {
+      success: true,
+      message: `Product permanently deleted from database & site.`
     };
   }
 }

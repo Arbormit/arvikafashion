@@ -1,11 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { ShoppingBag, Heart } from 'lucide-react';
 import { ActiveTab, Currency, Language, Product, CartItem, WishlistItem, Coupon, User, Order, WhatsAppProductContext } from './types';
-import { PRODUCTS } from './data/products';
 import { db } from './services/db';
 import { Navbar } from './components/Navbar';
 import { Hero } from './components/Hero';
-import { BrandPillars } from './components/BrandPillars';
 import { TrendingGrid } from './components/TrendingGrid';
 import { AboutUs } from './components/AboutUs';
 import { StatsCounter } from './components/StatsCounter';
@@ -64,6 +62,15 @@ export default function App() {
   });
 
   const [appliedCoupon, setAppliedCoupon] = useState<Coupon | null>(null);
+
+  // Dynamic Products List from database service
+  const [productsList, setProductsList] = useState<Product[]>(() => db.getProducts());
+
+  useEffect(() => {
+    const handleProductsUpdate = () => setProductsList(db.getProducts());
+    window.addEventListener('arvika_products_updated', handleProductsUpdate);
+    return () => window.removeEventListener('arvika_products_updated', handleProductsUpdate);
+  }, []);
 
   // User Auth State from DB service
   const [user, setUser] = useState<User>(() => db.getCurrentUser());
@@ -353,9 +360,8 @@ export default function App() {
                   setSelectedCategory={setSelectedCategory} 
                 />
                 <StatsCounter />
-                {/* <BrandPillars /> */}
                 <TrendingGrid
-                  products={PRODUCTS}
+                  products={productsList}
                   currency={currency}
                   onQuickView={setQuickViewProduct}
                   onAddToCart={handleAddToCart}
@@ -378,7 +384,6 @@ export default function App() {
               <div className="space-y-12 animate-fade-in">
                 <AboutUs />
                 <StatsCounter />
-                {/* <BrandPillars /> */}
               </div>
             )}
 
@@ -386,7 +391,7 @@ export default function App() {
             {(activeTab === 'collections' || activeTab === 'buynow') && (
               <div className="animate-fade-in">
                 <CollectionsView
-                  products={PRODUCTS}
+                  products={productsList}
                   currency={currency}
                   selectedCategory={selectedCategory}
                   setSelectedCategory={setSelectedCategory}
@@ -460,7 +465,7 @@ export default function App() {
           {globalToast.type === 'cart' ? (
             <ShoppingBag className="w-5 h-5 text-[#D8C6A5] shrink-0" />
           ) : (
-            <Heart className="w-5 h-5 fill-[#D8C6A5] text-[#D8C6A5] shrink-0" />
+            <Heart className="w-5 h-[#D8C6A5] text-[#D8C6A5] shrink-0" />
           )}
           <span className="truncate">{globalToast.message}</span>
         </div>
@@ -535,7 +540,7 @@ export default function App() {
       <SearchModal
         isOpen={isSearchOpen}
         onClose={() => setIsSearchOpen(false)}
-        products={PRODUCTS}
+        products={productsList}
         currency={currency}
         onQuickView={setQuickViewProduct}
       />

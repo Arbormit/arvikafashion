@@ -21,7 +21,6 @@ import {
 import { ActiveTab, Currency, Language, User as UserType, CartItem, WishlistItem } from '../types';
 import { CATEGORIES } from '../data/categories';
 import { TOP_EUROPEAN_LANGUAGES, TRANSLATIONS, applyLanguageTranslation } from '../data/translations';
-import { SubNavbar } from './SubNavbar';
 
 interface NavbarProps {
   activeTab: ActiveTab;
@@ -213,7 +212,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             <img
               src="/logo.png"
               alt="Arvika Fashion Logo"
-              className="w-full max-w-[280px] xs:max-w-[340px] sm:max-w-[400px] h-20 sm:h-24 object-contain object-left transition-transform hover:scale-[1.02]"
+              className="w-full max-w-[220px] xs:max-w-[300px] sm:max-w-[360px] h-18 sm:h-22 object-contain object-left transition-transform hover:scale-[1.02]"
             />
           </div>
 
