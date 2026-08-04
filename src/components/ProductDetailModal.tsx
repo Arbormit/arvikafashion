@@ -89,10 +89,12 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
           </button>
 
           <div className="flex flex-col items-center text-center px-2 min-w-0">
-            <span className="font-serif text-sm sm:text-base lg:text-xl font-bold text-[#2D2A26] tracking-wider uppercase truncate max-w-[150px] sm:max-w-none">
-              ARVIKA FASHION
-            </span>
-            <span className="text-[8px] sm:text-[9px] font-montserrat uppercase tracking-widest text-[#7B9B88] font-semibold -mt-0.5 truncate max-w-[150px] sm:max-w-none">
+            <img
+              src="/logo.png"
+              alt="Arvika Fashion Logo"
+              className="h-10 sm:h-12 w-auto max-w-[160px] sm:max-w-[200px] object-contain"
+            />
+            <span className="text-[8px] sm:text-[9px] font-montserrat uppercase tracking-widest text-[#7B9B88] font-semibold mt-0.5 truncate max-w-[150px] sm:max-w-none">
               {product.categoryName} • EXPORT EDITION
             </span>
           </div>

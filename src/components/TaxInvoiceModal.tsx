@@ -66,10 +66,11 @@ export const TaxInvoiceModal: React.FC<TaxInvoiceModalProps> = ({
           {/* Header & Seller/Buyer Banner */}
           <div className="flex flex-col sm:flex-row justify-between items-start border-b border-[#EFE6D8] pb-6 gap-4">
             <div>
-              <div className="w-10 h-10 rounded-full bg-[#214C3A] text-[#D8C6A5] font-serif font-bold text-lg flex items-center justify-center mb-2">
-                AR
-              </div>
-              <h1 className="font-serif font-bold text-2xl text-[#214C3A]">{SHOP_NAME}</h1>
+              <img
+                src="/logo.png"
+                alt="Arvika Fashion Logo"
+                className="h-14 w-auto max-w-[220px] object-contain object-left mb-2"
+              />
               <p className="text-[11px] text-[#8C7A6B] mt-0.5">Luxury Organic European Linen & Atelier Garments</p>
               <p className="text-[10px] text-[#1C1C1C]/70 mt-1">
                 Plot 42, Export Promotion Industrial Park, Faridabad, Haryana - 121003, India<br />

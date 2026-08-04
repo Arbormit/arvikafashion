@@ -200,8 +200,12 @@ class DatabaseService {
       }
 
       const savedAnnouncements = localStorage.getItem(STORAGE_KEYS.ANNOUNCEMENTS);
-      if (savedAnnouncements) {
-        this.announcements = JSON.parse(savedAnnouncements);
+      if (savedAnnouncements !== null) {
+        try {
+          this.announcements = JSON.parse(savedAnnouncements);
+        } catch {
+          this.announcements = [];
+        }
       } else {
         this.announcements = DEFAULT_ANNOUNCEMENTS;
         localStorage.setItem(STORAGE_KEYS.ANNOUNCEMENTS, JSON.stringify(DEFAULT_ANNOUNCEMENTS));
@@ -219,8 +223,12 @@ class DatabaseService {
       }
 
       const savedOffers = localStorage.getItem(STORAGE_KEYS.OFFERS);
-      if (savedOffers) {
-        this.offers = JSON.parse(savedOffers);
+      if (savedOffers !== null) {
+        try {
+          this.offers = JSON.parse(savedOffers);
+        } catch {
+          this.offers = [];
+        }
       } else {
         this.offers = COUPONS;
         this.saveOffersToStorage();
@@ -661,7 +669,7 @@ class DatabaseService {
       if (typeof fetch !== 'undefined') {
         const res = await fetch('/api/announcements');
         const data = await res.json();
-        if (data.success && Array.isArray(data.announcements) && data.announcements.length > 0) {
+        if (data.success && Array.isArray(data.announcements)) {
           this.announcements = data.announcements;
           localStorage.setItem(STORAGE_KEYS.ANNOUNCEMENTS, JSON.stringify(this.announcements));
           if (typeof window !== 'undefined') {
@@ -675,7 +683,7 @@ class DatabaseService {
   }
 
   public getAnnouncements(): string[] {
-    return this.announcements.length > 0 ? this.announcements : DEFAULT_ANNOUNCEMENTS;
+    return [...this.announcements];
   }
 
   public updateAnnouncements(newAnnouncements: string[]): boolean {
@@ -684,7 +692,7 @@ class DatabaseService {
       return false;
     }
     const filtered = newAnnouncements.map((a) => a.trim()).filter((a) => a.length > 0);
-    this.announcements = filtered.length > 0 ? filtered : DEFAULT_ANNOUNCEMENTS;
+    this.announcements = filtered;
     try {
       localStorage.setItem(STORAGE_KEYS.ANNOUNCEMENTS, JSON.stringify(this.announcements));
       if (typeof window !== 'undefined') {

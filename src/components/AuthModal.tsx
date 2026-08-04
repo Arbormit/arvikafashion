@@ -89,9 +89,11 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, setUser }
         </button>
 
         <div className="text-center space-y-2">
-          <div className="w-12 h-12 rounded-full bg-[#214C3A] text-[#D8C6A5] font-serif font-bold text-xl flex items-center justify-center mx-auto shadow-md border border-[#C5A059]/40">
-            AR
-          </div>
+          <img
+            src="/logo.png"
+            alt="Arvika Fashion Logo"
+            className="h-16 w-auto max-w-[220px] object-contain mx-auto"
+          />
           <h2 className="font-serif text-2xl sm:text-3xl font-bold text-[#214C3A]">
             {mode === 'login' ? 'Client Sign In' : 'Create Arvika Account'}
           </h2>

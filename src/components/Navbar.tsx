@@ -120,12 +120,14 @@ export const Navbar: React.FC<NavbarProps> = ({
           </span>
         </div>
 
-        <div className="flex items-center space-x-3">
-          <span className="font-medium text-[#2D2A26] flex items-center gap-1.5 text-xs">
-            <Tag className="w-3.5 h-3.5 text-[#7B9B88]" />
-            <strong className="text-[#4E6E5D] font-bold">{announcements[0] || 'Use Code EUROPE15 for 15% OFF'}</strong>
-          </span>
-        </div>
+        {announcements.length > 0 && (
+          <div className="flex items-center space-x-3">
+            <span className="font-medium text-[#2D2A26] flex items-center gap-1.5 text-xs">
+              <Tag className="w-3.5 h-3.5 text-[#7B9B88]" />
+              <strong className="text-[#4E6E5D] font-bold">{announcements[0]}</strong>
+            </span>
+          </div>
+        )}
 
         <div className="flex items-center space-x-3">
           {/* European Language Translator Dropdown */}
@@ -175,33 +177,35 @@ export const Navbar: React.FC<NavbarProps> = ({
       </div>
 
       {/* Top Announcement Bar - Mobile & Tablet Slow Marquee Loop */}
-      <div className="bg-[#E8F0EC] text-[#2D2A26] py-1.5 text-[11px] font-sans overflow-hidden block md:hidden border-b border-[#D5E4DC]">
-        <div className="animate-marquee-slow flex items-center space-x-8 tracking-wide">
-          
-          {/* Loop Set 1 */}
-          {announcements.map((item, idx) => (
-            <React.Fragment key={`anc1-${idx}`}>
-              <span className="flex items-center gap-1.5">
-                <Tag className="w-3.5 h-3.5 text-[#7B9B88]" />
-                <span className="font-semibold text-[#4E6E5D]">{item}</span>
-              </span>
-              <span className="text-[#6B8E7B]/40">•</span>
-            </React.Fragment>
-          ))}
+      {announcements.length > 0 && (
+        <div className="bg-[#E8F0EC] text-[#2D2A26] py-1.5 text-[11px] font-sans overflow-hidden block md:hidden border-b border-[#D5E4DC]">
+          <div className="animate-marquee-slow flex items-center space-x-8 tracking-wide">
+            
+            {/* Loop Set 1 */}
+            {announcements.map((item, idx) => (
+              <React.Fragment key={`anc1-${idx}`}>
+                <span className="flex items-center gap-1.5">
+                  <Tag className="w-3.5 h-3.5 text-[#7B9B88]" />
+                  <span className="font-semibold text-[#4E6E5D]">{item}</span>
+                </span>
+                <span className="text-[#6B8E7B]/40">•</span>
+              </React.Fragment>
+            ))}
 
-          {/* Loop Set 2 (Seamless Infinite Scroll Duplicate) */}
-          {announcements.map((item, idx) => (
-            <React.Fragment key={`anc2-${idx}`}>
-              <span className="flex items-center gap-1.5">
-                <Tag className="w-3.5 h-3.5 text-[#7B9B88]" />
-                <span className="font-semibold text-[#4E6E5D]">{item}</span>
-              </span>
-              <span className="text-[#6B8E7B]/40">•</span>
-            </React.Fragment>
-          ))}
+            {/* Loop Set 2 (Seamless Infinite Scroll Duplicate) */}
+            {announcements.map((item, idx) => (
+              <React.Fragment key={`anc2-${idx}`}>
+                <span className="flex items-center gap-1.5">
+                  <Tag className="w-3.5 h-3.5 text-[#7B9B88]" />
+                  <span className="font-semibold text-[#4E6E5D]">{item}</span>
+                </span>
+                <span className="text-[#6B8E7B]/40">•</span>
+              </React.Fragment>
+            ))}
 
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Primary Navigation Bar */}
       <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">

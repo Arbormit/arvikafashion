@@ -297,19 +297,30 @@ async function initNeonSchema() {
       );
     `;
 
-    // Seed default coupons if table is empty
-    const existingOffers = await sql`SELECT COUNT(*)::int as count FROM offers_coupons`;
-    if (existingOffers && existingOffers[0] && existingOffers[0].count === 0) {
-      await sql`
-        INSERT INTO offers_coupons (code, description, discount_percentage, min_order_inr, min_order_eur, expires_at, badge)
-        VALUES ('EUROPE15', '15% OFF on your order over ₹5,000 or €60 for European & Indian Clients', 15, 5000, 60, '2026-12-31', 'WELCOME PROMO'),
-               ('LINEN20', '20% OFF on all Pure Linen Couture & Scandinavian Dresses', 20, 6000, 75, '2026-12-31', 'SEASONAL FAVOURITE')
-      `;
-      await sql`
-        INSERT INTO offers_coupons (code, description, discount_fixed_inr, discount_fixed_eur, min_order_inr, min_order_eur, expires_at, badge)
-        VALUES ('EXPORTELEGANCE', 'Flat ₹1,500 (€18) OFF on orders above ₹12,000 or €150', 1500, 18, 12000, 150, '2026-12-31', 'VIP EXECUTIVE'),
-               ('FREESHIP', 'Free Express Global DHL & BlueDart Doorstep Delivery', 500, 12, 8000, 100, '2026-12-31', 'FREE EXPRESS SHIPPING')
-      `;
+    await sql`
+      CREATE TABLE IF NOT EXISTS schema_metadata (
+        key VARCHAR(64) PRIMARY KEY,
+        value VARCHAR(64) NOT NULL
+      );
+    `;
+
+    // Seed default coupons ONLY ONCE when database is first created
+    const offersSeeded = await sql`SELECT value FROM schema_metadata WHERE key = 'offers_seeded'`;
+    if (!offersSeeded || offersSeeded.length === 0) {
+      const existingOffers = await sql`SELECT COUNT(*)::int as count FROM offers_coupons`;
+      if (existingOffers && existingOffers[0] && existingOffers[0].count === 0) {
+        await sql`
+          INSERT INTO offers_coupons (code, description, discount_percentage, min_order_inr, min_order_eur, expires_at, badge)
+          VALUES ('EUROPE15', '15% OFF on your order over ₹5,000 or €60 for European & Indian Clients', 15, 5000, 60, '2026-12-31', 'WELCOME PROMO'),
+                 ('LINEN20', '20% OFF on all Pure Linen Couture & Scandinavian Dresses', 20, 6000, 75, '2026-12-31', 'SEASONAL FAVOURITE')
+        `;
+        await sql`
+          INSERT INTO offers_coupons (code, description, discount_fixed_inr, discount_fixed_eur, min_order_inr, min_order_eur, expires_at, badge)
+          VALUES ('EXPORTELEGANCE', 'Flat ₹1,500 (€18) OFF on orders above ₹12,000 or €150', 1500, 18, 12000, 150, '2026-12-31', 'VIP EXECUTIVE'),
+                 ('FREESHIP', 'Free Express Global DHL & BlueDart Doorstep Delivery', 500, 12, 8000, 100, '2026-12-31', 'FREE EXPRESS SHIPPING')
+        `;
+      }
+      await sql`INSERT INTO schema_metadata (key, value) VALUES ('offers_seeded', 'true') ON CONFLICT DO NOTHING`;
     }
 
     await sql`
@@ -336,16 +347,21 @@ async function initNeonSchema() {
       );
     `;
 
-    const existingAnn = await sql`SELECT COUNT(*)::int as count FROM announcements_live`;
-    if (existingAnn && existingAnn[0] && existingAnn[0].count === 0) {
-      await sql`
-        INSERT INTO announcements_live (announcement_text, display_order)
-        VALUES 
-          ('Use Code EUROPE15 for 15% OFF First Order', 1),
-          ('European & Global Export Headquarters', 2),
-          ('GST Registered & OEKO-TEX® Certified Manufacturer', 3),
-          ('Top 5 European Languages Supported (EN, FR, DE, ES, IT)', 4)
-      `;
+    // Seed default announcements ONLY ONCE when database is first created
+    const annSeeded = await sql`SELECT value FROM schema_metadata WHERE key = 'announcements_seeded'`;
+    if (!annSeeded || annSeeded.length === 0) {
+      const existingAnn = await sql`SELECT COUNT(*)::int as count FROM announcements_live`;
+      if (existingAnn && existingAnn[0] && existingAnn[0].count === 0) {
+        await sql`
+          INSERT INTO announcements_live (announcement_text, display_order)
+          VALUES 
+            ('Use Code EUROPE15 for 15% OFF First Order', 1),
+            ('European & Global Export Headquarters', 2),
+            ('GST Registered & OEKO-TEX® Certified Manufacturer', 3),
+            ('Top 5 European Languages Supported (EN, FR, DE, ES, IT)', 4)
+        `;
+      }
+      await sql`INSERT INTO schema_metadata (key, value) VALUES ('announcements_seeded', 'true') ON CONFLICT DO NOTHING`;
     }
 
     // Automatic Column Migration for Pre-existing Neon DB Tables

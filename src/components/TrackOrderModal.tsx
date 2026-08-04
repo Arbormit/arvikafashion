@@ -70,9 +70,11 @@ export const TrackOrderModal: React.FC<TrackOrderModalProps> = ({
         {/* Header */}
         <div className="flex items-center justify-between pb-4 border-b border-[#EFE6D8]">
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 rounded-full bg-[#214C3A] text-[#D8C6A5] flex items-center justify-center font-serif font-bold text-lg">
-              AR
-            </div>
+            <img
+              src="/logo.png"
+              alt="Arvika Fashion Logo"
+              className="h-12 w-auto max-w-[180px] object-contain object-left"
+            />
             <div>
               <h2 className="font-serif text-2xl font-bold text-[#214C3A]">Real-Time Order Tracking</h2>
               <p className="text-xs text-[#8C7A6B]">Enter your unique Order Tracking ID (e.g. ARV-20260727-8X4K9P)</p>

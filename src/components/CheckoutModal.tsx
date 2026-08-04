@@ -146,9 +146,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
       totalINR: grandTotalINR,
       totalEUR: grandTotalEUR,
       currency,
-      paymentMethod,
-      upiId: customerUpiId || SHOP_UPI_ID,
-      utrNumber: utrNumber.trim() || undefined,
+      paymentMethod: 'COD',
       shippingAddress,
       billingAddress: shippingAddress
     });
@@ -156,6 +154,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
     setPlacedOrder(newOrder);
     setStep('confirmation');
     onOrderComplete(newOrder);
+    sendWhatsAppOrderNotification(newOrder);
   };
 
   const copyTracking = (id: string) => {
@@ -166,12 +165,19 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
 
   // WhatsApp Alert Link
   const sendWhatsAppOrderNotification = (order: Order) => {
-    let msg = `Hello ${SHOP_NAME}! 👋 I have completed payment for my order:\n`;
-    msg += `📦 *Order Tracking ID:* ${order.orderTrackingId}\n`;
-    msg += `💳 *UTR Reference:* ${order.paymentDetails.utrNumber || 'Card/SWIFT'}\n`;
-    msg += `💰 *Amount Paid:* ${currency === 'INR' ? `₹${order.totalINR.toLocaleString('en-IN')}` : `€${order.totalEUR.toFixed(2)}`}\n`;
+    let msg = `Hello ${SHOP_NAME}! 👋 I am contacting you to place my order:\n\n`;
+    msg += `📦 *ORDER TRACKING ID:* ${order.orderTrackingId}\n`;
     msg += `👤 *Customer Name:* ${order.customerName}\n`;
-    msg += `Please verify and confirm dispatch!`;
+    msg += `📞 *Phone:* ${order.customerPhone}\n`;
+    msg += `📧 *Email:* ${order.customerEmail}\n`;
+    msg += `📍 *Delivery Address:* ${order.shippingAddress.street}, ${order.shippingAddress.city}, ${order.shippingAddress.state} ${order.shippingAddress.zipCode}, ${order.shippingAddress.country}\n\n`;
+    msg += `🛍️ *ORDER ITEMS:*\n`;
+    order.items.forEach((item, idx) => {
+      const itemPrice = currency === 'INR' ? `₹${(item.product.priceINR * item.quantity).toLocaleString('en-IN')}` : `€${(item.product.priceEUR * item.quantity).toFixed(2)}`;
+      msg += `${idx + 1}. *${item.product.name}* (Shade: ${item.color}, Size: ${item.size}) x${item.quantity} - ${itemPrice}\n`;
+    });
+    msg += `\n💰 *Total Payable:* ${currency === 'INR' ? `₹${order.totalINR.toLocaleString('en-IN')}` : `€${order.totalEUR.toFixed(2)}`}\n\n`;
+    msg += `Please guide me with the payment options to finalize my order!`;
 
     const phoneClean = SHOP_PHONE.replace(/[^0-9]/g, '');
     window.open(`https://wa.me/${phoneClean}?text=${encodeURIComponent(msg)}`, '_blank');
@@ -184,15 +190,17 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
         {/* Header */}
         <div className="flex items-center justify-between pb-4 border-b border-[#EFE6D8]">
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 rounded-full bg-[#214C3A] text-[#D8C6A5] flex items-center justify-center font-serif font-bold text-lg border border-[#C5A059]">
-              AR
-            </div>
+            <img
+              src="/logo.png"
+              alt="Arvika Fashion Logo"
+              className="h-12 w-auto max-w-[180px] object-contain object-left"
+            />
             <div>
               <h2 className="font-serif text-2xl font-bold text-[#214C3A]">
-                Secure European & Global Checkout
+                Direct WhatsApp Checkout & Consultation
               </h2>
               <p className="text-xs text-[#8C7A6B]">
-                256-Bit SSL Encrypted • Direct DHL Express & BlueDart Air Freight
+                Direct Atelier Order Placement & Dedicated Customer Care
               </p>
             </div>
           </div>
@@ -223,7 +231,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
               className={`flex items-center space-x-1.5 ${step === 'payment' ? 'text-[#214C3A] underline' : 'text-[#8C7A6B]'}`}
             >
               <span className="w-5 h-5 rounded-full bg-[#214C3A] text-white flex items-center justify-center text-[10px]">2</span>
-              <span>UPI Scan & Pay</span>
+              <span>WhatsApp Consultation & Order</span>
             </button>
           </div>
         )}
@@ -425,9 +433,9 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
 
                 <button
                   type="submit"
-                  className="w-full bg-[#214C3A] hover:bg-[#4A5D4E] text-[#FAF8F4] py-4 rounded-2xl font-montserrat text-xs font-bold uppercase tracking-wider transition-all shadow-md flex items-center justify-center space-x-2"
+                  className="w-full bg-[#214C3A] hover:bg-[#4A5D4E] text-[#FAF8F4] py-4 rounded-2xl font-montserrat text-xs font-bold uppercase tracking-wider transition-all shadow-md flex items-center justify-center space-x-2 cursor-pointer"
                 >
-                  <span>Proceed to Payment Verification</span>
+                  <span>Proceed to WhatsApp Order Summary</span>
                   <ArrowRight className="w-4 h-4" />
                 </button>
               </div>
@@ -436,176 +444,46 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
           </form>
         )}
 
-        {/* STEP 2: PAYMENT & UPI QR SCAN */}
+        {/* STEP 2: WHATSAPP DIRECT ORDER & CONSULTATION */}
         {step === 'payment' && (
           <form onSubmit={handlePlaceOrder} className="space-y-6 text-xs font-sans">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               
-              {/* Payment Option Selection */}
+              {/* WhatsApp Direct Notice */}
               <div className="space-y-4">
-                <h3 className="font-serif text-lg font-bold text-[#214C3A]">
-                  Select Verified Payment Option
+                <h3 className="font-serif text-xl font-bold text-[#214C3A]">
+                  Direct WhatsApp Order & Consultation
                 </h3>
 
-                <div className="space-y-2.5">
-                  
-                  {/* UPI Option */}
-                  <div
-                    onClick={() => setPaymentMethod('UPI')}
-                    className={`p-4 rounded-2xl border cursor-pointer transition-all flex items-center justify-between ${
-                      paymentMethod === 'UPI' ? 'bg-[#214C3A] text-[#FAF8F4] border-[#214C3A] shadow-md' : 'bg-white border-[#D8C6A5]'
-                    }`}
-                  >
-                    <div className="flex items-center space-x-3">
-                      <QrCode className="w-6 h-6 text-[#D8C6A5]" />
-                      <div>
-                        <div className="font-serif font-bold text-sm">Instant UPI QR & VPA Payment</div>
-                        <div className="text-[11px] opacity-80 font-sans">Google Pay, PhonePe, Paytm, BHIM, Scan & Pay</div>
-                      </div>
+                <div className="bg-white border-2 border-[#214C3A] p-6 rounded-3xl space-y-4 shadow-sm">
+                  <div className="flex items-center space-x-3 text-[#214C3A]">
+                    <div className="w-12 h-12 rounded-2xl bg-[#25D366]/15 text-[#25D366] flex items-center justify-center shrink-0">
+                      <MessageSquare className="w-6 h-6 fill-current" />
                     </div>
-                    <Check className={`w-5 h-5 ${paymentMethod === 'UPI' ? 'text-[#D8C6A5]' : 'opacity-0'}`} />
+                    <div>
+                      <h4 className="font-serif text-lg font-bold text-[#214C3A]">
+                        Personalized Atelier Order Handling
+                      </h4>
+                      <p className="text-xs text-[#8C7A6B]">
+                        Payment & fulfillment are handled directly with our team on WhatsApp.
+                      </p>
+                    </div>
                   </div>
 
-                  {/* Card Option */}
-                  <div
-                    onClick={() => setPaymentMethod('CARD')}
-                    className={`p-4 rounded-2xl border cursor-pointer transition-all flex items-center justify-between ${
-                      paymentMethod === 'CARD' ? 'bg-[#214C3A] text-[#FAF8F4] border-[#214C3A] shadow-md' : 'bg-white border-[#D8C6A5]'
-                    }`}
-                  >
-                    <div className="flex items-center space-x-3">
-                      <CreditCard className="w-6 h-6 text-[#D8C6A5]" />
-                      <div>
-                        <div className="font-serif font-bold text-sm">International Card / Klarna</div>
-                        <div className="text-[11px] opacity-80 font-sans">Visa, Mastercard, American Express</div>
-                      </div>
+                  <div className="space-y-3 text-xs text-[#214C3A] bg-[#FAF8F4] p-4 rounded-2xl border border-[#EFE6D8]">
+                    <div className="flex items-start space-x-2.5">
+                      <Check className="w-4 h-4 text-[#25D366] shrink-0 mt-0.5" />
+                      <span><strong>Instant Order Record:</strong> Your unique tracking ID and tax invoice will be generated automatically.</span>
                     </div>
-                    <Check className={`w-5 h-5 ${paymentMethod === 'CARD' ? 'text-[#D8C6A5]' : 'opacity-0'}`} />
+                    <div className="flex items-start space-x-2.5">
+                      <Check className="w-4 h-4 text-[#25D366] shrink-0 mt-0.5" />
+                      <span><strong>Personal Size Consultation:</strong> Our team will confirm measurements, custom colors, and fabric options with you directly.</span>
+                    </div>
+                    <div className="flex items-start space-x-2.5">
+                      <Check className="w-4 h-4 text-[#25D366] shrink-0 mt-0.5" />
+                      <span><strong>Convenient Self Payment:</strong> Payment details (Bank Transfer, UPI, or International Wire) will be provided directly during chat.</span>
+                    </div>
                   </div>
-
-                  {/* SWIFT / Wire */}
-                  <div
-                    onClick={() => setPaymentMethod('WIRE')}
-                    className={`p-4 rounded-2xl border cursor-pointer transition-all flex items-center justify-between ${
-                      paymentMethod === 'WIRE' ? 'bg-[#214C3A] text-[#FAF8F4] border-[#214C3A] shadow-md' : 'bg-white border-[#D8C6A5]'
-                    }`}
-                  >
-                    <div className="flex items-center space-x-3">
-                      <Building className="w-6 h-6 text-[#D8C6A5]" />
-                      <div>
-                        <div className="font-serif font-bold text-sm">European Bank SWIFT Wire</div>
-                        <div className="text-[11px] opacity-80 font-sans">ICICI Export Remittance Account</div>
-                      </div>
-                    </div>
-                    <Check className={`w-5 h-5 ${paymentMethod === 'WIRE' ? 'text-[#D8C6A5]' : 'opacity-0'}`} />
-                  </div>
-                </div>
-
-                {/* Dynamic Payment Method Box */}
-                <div className="bg-white border border-[#D8C6A5] p-5 rounded-2xl space-y-4">
-                  {paymentMethod === 'UPI' && (
-                    <div className="space-y-4 text-center">
-                      <span className="text-[11px] font-montserrat font-bold text-[#214C3A] uppercase tracking-wider block">
-                        Scan QR Code with any UPI App to Pay
-                      </span>
-
-                      {/* Official Shop UPI QR Display Box */}
-                      <div className="w-48 h-48 bg-white mx-auto p-3 rounded-2xl border-2 border-[#214C3A] flex flex-col items-center justify-center shadow-inner relative group">
-                        <QrCode className="w-36 h-36 text-[#214C3A]" />
-                        <span className="text-[10px] font-mono font-bold text-[#214C3A] mt-1 bg-[#FAF8F4] px-2 py-0.5 rounded border border-[#D8C6A5]">
-                          {SHOP_UPI_ID}
-                        </span>
-                      </div>
-
-                      <div className="text-xs text-[#214C3A] font-semibold bg-[#EFE6D8]/50 p-2.5 rounded-xl border border-[#D8C6A5]">
-                        Shop Owner VPA: <strong className="font-mono underline">{SHOP_UPI_ID}</strong>
-                      </div>
-
-                      <div className="text-left space-y-2">
-                        <div>
-                          <label className="block text-[11px] font-montserrat font-bold text-[#214C3A] mb-1">
-                            Your UPI VPA (Optional):
-                          </label>
-                          <input
-                            type="text"
-                            value={customerUpiId}
-                            onChange={(e) => setCustomerUpiId(e.target.value)}
-                            placeholder="e.g. yourname@upi / 9891179374@paytm"
-                            className="w-full bg-[#FAF8F4] p-2.5 rounded-xl border border-[#D8C6A5] text-xs font-mono focus:outline-none"
-                          />
-                        </div>
-
-                        <div>
-                          <label className="block text-[11px] font-montserrat font-bold text-[#214C3A] mb-1">
-                            Enter 12-Digit UPI Transaction Reference / UTR Code *
-                          </label>
-                          <input
-                            type="text"
-                            required
-                            maxLength={12}
-                            value={utrNumber}
-                            onChange={(e) => setUtrNumber(e.target.value)}
-                            placeholder="e.g. 928374651029"
-                            className="w-full bg-[#FAF8F4] p-3 rounded-xl border-2 border-[#214C3A] text-sm font-mono font-bold text-[#214C3A] focus:outline-none"
-                          />
-                          <p className="text-[10px] text-[#8C7A6B] mt-1">
-                            Found in Google Pay, PhonePe, Paytm receipt after scanning QR.
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  {paymentMethod === 'CARD' && (
-                    <div className="space-y-3">
-                      <div>
-                        <label className="block text-[11px] font-montserrat font-bold text-[#214C3A] mb-1">Card Number</label>
-                        <input
-                          type="text"
-                          required
-                          value={cardNumber}
-                          onChange={(e) => setCardNumber(e.target.value)}
-                          placeholder="4532 •••• •••• 8910"
-                          className="w-full bg-[#FAF8F4] p-2.5 rounded-xl border border-[#D8C6A5] font-mono text-xs focus:outline-none"
-                        />
-                      </div>
-                      <div className="grid grid-cols-2 gap-3">
-                        <div>
-                          <label className="block text-[11px] font-montserrat font-bold text-[#214C3A] mb-1">Expiry (MM/YY)</label>
-                          <input
-                            type="text"
-                            required
-                            value={cardExpiry}
-                            onChange={(e) => setCardExpiry(e.target.value)}
-                            placeholder="12/28"
-                            className="w-full bg-[#FAF8F4] p-2.5 rounded-xl border border-[#D8C6A5] font-mono text-xs focus:outline-none"
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-[11px] font-montserrat font-bold text-[#214C3A] mb-1">CVV / CVC</label>
-                          <input
-                            type="password"
-                            maxLength={4}
-                            required
-                            value={cardCvv}
-                            onChange={(e) => setCardCvv(e.target.value)}
-                            placeholder="•••"
-                            className="w-full bg-[#FAF8F4] p-2.5 rounded-xl border border-[#D8C6A5] font-mono text-xs focus:outline-none"
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  {paymentMethod === 'WIRE' && (
-                    <div className="space-y-2 text-xs font-sans text-[#214C3A]">
-                      <p className="font-bold">ICICI Bank International Export Account:</p>
-                      <p><strong>Beneficiary Name:</strong> {SHOP_NAME}</p>
-                      <p><strong>Account Number:</strong> 012305098412</p>
-                      <p><strong>IFSC Code:</strong> ICIC0000123 | <strong>SWIFT:</strong> ICICINBBXXX</p>
-                      <p className="text-[10px] text-[#8C7A6B]">Air Waybill generated upon bank SWIFT wire receipt.</p>
-                    </div>
-                  )}
                 </div>
 
               </div>
@@ -614,8 +492,8 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
               <div className="bg-[#214C3A] text-[#FAF8F4] p-6 rounded-2xl space-y-6 flex flex-col justify-between border border-[#4A5D4E] shadow-xl">
                 <div className="space-y-4">
                   <div className="flex items-center space-x-2 text-[#D8C6A5]">
-                    <Lock className="w-4 h-4" />
-                    <span className="text-xs font-montserrat uppercase tracking-wider font-bold">Encrypted Ledger Verification</span>
+                    <ShieldCheck className="w-4 h-4" />
+                    <span className="text-xs font-montserrat uppercase tracking-wider font-bold">Direct Client Concierge</span>
                   </div>
 
                   <h3 className="font-serif text-3xl font-bold text-[#FAF8F4]">
@@ -625,16 +503,17 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                   <div className="text-xs font-sans text-[#EFE6D8]/80 space-y-2">
                     <p className="flex items-center gap-1">✓ Automated Order Tracking ID Generation</p>
                     <p className="flex items-center gap-1">✓ Instant Digital Tax Invoice & GST Receipt</p>
-                    <p className="flex items-center gap-1">✓ DHL Express Air Dispatch to {country}</p>
+                    <p className="flex items-center gap-1">✓ Direct WhatsApp Order Confirmation to {country}</p>
                   </div>
                 </div>
 
                 <div className="space-y-3">
                   <button
                     type="submit"
-                    className="w-full bg-[#D8C6A5] hover:bg-[#FAF8F4] text-[#214C3A] py-4 rounded-2xl font-montserrat text-xs font-bold uppercase tracking-wider transition-all shadow-lg flex items-center justify-center space-x-2"
+                    className="w-full bg-[#25D366] hover:bg-[#20ba5a] text-white py-4 rounded-2xl font-montserrat text-xs font-bold uppercase tracking-wider transition-all shadow-lg flex items-center justify-center space-x-2 cursor-pointer active:scale-98"
                   >
-                    <span>Verify Payment & Place Order</span>
+                    <MessageSquare className="w-4 h-4 fill-current" />
+                    <span>Confirm & Connect on WhatsApp</span>
                   </button>
 
                   <button

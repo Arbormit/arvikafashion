@@ -408,18 +408,20 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
         
         {/* Header */}
         <div className="flex items-center justify-between pb-4 border-b border-[#EFE6D8]">
-          <div className="flex items-center space-x-3">
-            <div className="w-12 h-12 rounded-full bg-[#214C3A] text-[#D8C6A5] flex items-center justify-center font-serif font-bold text-xl border-2 border-[#C5A059] shadow-md">
-              <ShieldCheck className="w-6 h-6" />
-            </div>
+          <div className="flex items-center space-x-4">
+            <img
+              src="/logo.png"
+              alt="Arvika Fashion Logo"
+              className="h-12 w-auto max-w-[180px] object-contain object-left"
+            />
             <div>
               <div className="flex items-center gap-2">
-                <h2 className="font-serif text-2xl font-bold text-[#214C3A]">Arvika Atelier Admin Console</h2>
+                <h2 className="font-serif text-2xl font-bold text-[#214C3A]">Arvika Fashion Admin Console</h2>
                 <span className="bg-[#C5A059] text-white text-[10px] font-montserrat uppercase font-bold px-2 py-0.5 rounded-full">
                   HQ Admin Access
                 </span>
               </div>
-              <p className="text-xs text-[#8C7A6B]">Manage UPI Payment Verification, Order Fulfillment, & Export Freight</p>
+              <p className="text-xs text-[#8C7A6B]">Manage Atelier Catalog, Order Fulfillment, & Customer Direct Inquiries</p>
             </div>
           </div>
 
