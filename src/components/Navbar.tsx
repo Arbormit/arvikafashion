@@ -112,65 +112,67 @@ export const Navbar: React.FC<NavbarProps> = ({
   return (
     <header className="sticky top-0 z-40 bg-[#FAF8F4]/95 backdrop-blur-md border-b border-[#EAE2D7] shadow-xs">
       {/* Top Announcement Bar - Desktop Layout */}
-      <div className="bg-[#E8F0EC] text-[#2D2A26] px-4 py-1.5 text-xs font-sans hidden md:flex justify-between items-center tracking-wide border-b border-[#D5E4DC]">
-        <div className="flex items-center space-x-4">
-          <span className="flex items-center space-x-1.5 text-[#6B8E7B] font-medium">
-            <Globe className="w-3.5 h-3.5 text-[#7B9B88]" />
-            <span>Head Office H23, G4 Krishna Nagar, Faridabad, near Krishna Public School - 121003</span>
-          </span>
-        </div>
-
-        {announcements.length > 0 && (
-          <div className="flex items-center space-x-3">
-            <span className="font-medium text-[#2D2A26] flex items-center gap-1.5 text-xs">
-              <Tag className="w-3.5 h-3.5 text-[#7B9B88]" />
-              <strong className="text-[#4E6E5D] font-bold">{announcements[0]}</strong>
+      <div className="bg-[#E8F0EC] text-[#2D2A26] border-b border-[#D5E4DC]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-1.5 text-xs font-sans hidden md:flex justify-between items-center tracking-wide">
+          <div className="flex items-center space-x-4">
+            <span className="flex items-center space-x-1.5 text-[#6B8E7B] font-medium">
+              <Globe className="w-3.5 h-3.5 text-[#7B9B88]" />
+              <span>Head Office H23, G4 Krishna Nagar, Faridabad, near Krishna Public School - 121003</span>
             </span>
           </div>
-        )}
 
-        <div className="flex items-center space-x-3">
-          {/* European Language Translator Dropdown */}
-          <div className="relative group">
-            <div className="flex items-center bg-[#FAF8F4] text-[#2D2A26] rounded-full px-3 py-1 border border-[#D5E4DC] cursor-pointer hover:border-[#7B9B88] transition-all text-[11px] font-montserrat font-bold space-x-1.5 shadow-xs">
-              <Languages className="w-3.5 h-3.5 text-[#7B9B88]" />
-              <span className="text-[#6B8E7B]">
-                {TOP_EUROPEAN_LANGUAGES.find((l) => l.code === language)?.flag}
+          {announcements.length > 0 && (
+            <div className="flex items-center space-x-3">
+              <span className="font-medium text-[#2D2A26] flex items-center gap-1.5 text-xs">
+                <Tag className="w-3.5 h-3.5 text-[#7B9B88]" />
+                <strong className="text-[#4E6E5D] font-bold">{announcements[0]}</strong>
               </span>
-              <span className="uppercase tracking-wider text-[#2D2A26]">
-                {TOP_EUROPEAN_LANGUAGES.find((l) => l.code === language)?.code}
-              </span>
-              <span className="text-[10px] text-[#2D2A26]/70 font-normal">
-                ({TOP_EUROPEAN_LANGUAGES.find((l) => l.code === language)?.nativeName})
-              </span>
-              <ChevronDown className="w-3 h-3 text-[#7B9B88] transition-transform group-hover:rotate-180" />
             </div>
+          )}
 
-            {/* Dropdown Options for Top 5 European Languages */}
-            <div className="absolute right-0 top-full mt-1 w-44 bg-[#FAF8F4] border border-[#D5E4DC] rounded-xl shadow-xl p-1.5 hidden group-hover:block z-50 animate-fade-in space-y-0.5">
-              <div className="text-[9px] font-montserrat uppercase tracking-wider text-[#6B8E7B] px-2.5 py-1 font-bold border-b border-[#E8F0EC] mb-1">
-                Top 5 European Languages
+          <div className="flex items-center space-x-3">
+            {/* European Language Translator Dropdown */}
+            <div className="relative group">
+              <div className="flex items-center bg-[#FAF8F4] text-[#2D2A26] rounded-full px-3 py-1 border border-[#D5E4DC] cursor-pointer hover:border-[#7B9B88] transition-all text-[11px] font-montserrat font-bold space-x-1.5 shadow-xs">
+                <Languages className="w-3.5 h-3.5 text-[#7B9B88]" />
+                <span className="text-[#6B8E7B]">
+                  {TOP_EUROPEAN_LANGUAGES.find((l) => l.code === language)?.flag}
+                </span>
+                <span className="uppercase tracking-wider text-[#2D2A26]">
+                  {TOP_EUROPEAN_LANGUAGES.find((l) => l.code === language)?.code}
+                </span>
+                <span className="text-[10px] text-[#2D2A26]/70 font-normal">
+                  ({TOP_EUROPEAN_LANGUAGES.find((l) => l.code === language)?.nativeName})
+                </span>
+                <ChevronDown className="w-3 h-3 text-[#7B9B88] transition-transform group-hover:rotate-180" />
               </div>
-              {TOP_EUROPEAN_LANGUAGES.map((lang) => (
-                <button
-                  key={lang.code}
-                  onClick={() => {
-                    setLanguage(lang.code);
-                    applyLanguageTranslation(lang.code);
-                  }}
-                  className={`w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-montserrat flex items-center justify-between transition-colors ${
-                    language === lang.code
-                      ? 'bg-[#7B9B88] text-white font-bold'
-                      : 'text-[#2D2A26] hover:bg-[#E8F0EC]'
-                  }`}
-                >
-                  <span className="flex items-center space-x-2">
-                    <span>{lang.flag}</span>
-                    <span>{lang.nativeName}</span>
-                  </span>
-                  <span className="text-[9px] font-mono opacity-80 uppercase">{lang.code}</span>
-                </button>
-              ))}
+
+              {/* Dropdown Options for Top 5 European Languages */}
+              <div className="absolute right-0 top-full mt-1 w-44 bg-[#FAF8F4] border border-[#D5E4DC] rounded-xl shadow-xl p-1.5 hidden group-hover:block z-50 animate-fade-in space-y-0.5">
+                <div className="text-[9px] font-montserrat uppercase tracking-wider text-[#6B8E7B] px-2.5 py-1 font-bold border-b border-[#E8F0EC] mb-1">
+                  Top 5 European Languages
+                </div>
+                {TOP_EUROPEAN_LANGUAGES.map((lang) => (
+                  <button
+                    key={lang.code}
+                    onClick={() => {
+                      setLanguage(lang.code);
+                      applyLanguageTranslation(lang.code);
+                    }}
+                    className={`w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-montserrat flex items-center justify-between transition-colors ${
+                      language === lang.code
+                        ? 'bg-[#7B9B88] text-white font-bold'
+                        : 'text-[#2D2A26] hover:bg-[#E8F0EC]'
+                    }`}
+                  >
+                    <span className="flex items-center space-x-2">
+                      <span>{lang.flag}</span>
+                      <span>{lang.nativeName}</span>
+                    </span>
+                    <span className="text-[9px] font-mono opacity-80 uppercase">{lang.code}</span>
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
         </div>
@@ -208,15 +210,15 @@ export const Navbar: React.FC<NavbarProps> = ({
       )}
 
       {/* Primary Navigation Bar */}
-      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-20 sm:h-24 gap-2">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-16 sm:h-20 gap-2">
           
-          {/* 1. Brand Logo (Mobile: Takes 50% navbar space & prominent height) */}
-          <div className="flex items-center cursor-pointer group w-1/2 sm:w-auto shrink-0 py-1" onClick={() => handleNavClick('home')}>
+          {/* 1. Brand Logo */}
+          <div className="flex items-center cursor-pointer group shrink-0 py-1" onClick={() => handleNavClick('home')}>
             <img
               src="/logo.png"
               alt="Arvika Fashion Logo"
-              className="w-full max-w-[220px] xs:max-w-[300px] sm:max-w-[360px] h-18 sm:h-22 object-contain object-left transition-transform hover:scale-[1.02]"
+              className="h-10 sm:h-12 w-auto max-w-[160px] sm:max-w-[200px] object-contain object-left transition-transform hover:scale-[1.02]"
             />
           </div>
 

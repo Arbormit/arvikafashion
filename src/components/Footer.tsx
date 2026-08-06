@@ -27,11 +27,11 @@ export const Footer: React.FC<FooterProps> = ({ setActiveTab, setSelectedCategor
           
           {/* Brand Info */}
           <div className="lg:col-span-2 space-y-4">
-            <div className="flex items-center cursor-pointer w-full pb-1" onClick={() => setActiveTab('home')}>
+            <div className="flex items-center cursor-pointer pb-1" onClick={() => setActiveTab('home')}>
               <img
                 src="/logo.png"
                 alt="Arvika Fashion Logo"
-                className="w-full max-w-[220px] xs:max-w-[300px] sm:max-w-[360px] h-18 sm:h-22 object-contain object-left transition-transform hover:scale-[1.02]"
+                className="h-10 sm:h-12 w-auto max-w-[160px] sm:max-w-[200px] object-contain object-left transition-transform hover:scale-[1.02]"
               />
             </div>
 
