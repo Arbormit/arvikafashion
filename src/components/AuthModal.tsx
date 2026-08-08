@@ -8,12 +8,20 @@ interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
   setUser: React.Dispatch<React.SetStateAction<User>>;
+  initialMode?: 'login' | 'signup';
+  onAuthSuccess?: (user: User) => void;
 }
 
-export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, setUser }) => {
+export const AuthModal: React.FC<AuthModalProps> = ({ 
+  isOpen, 
+  onClose, 
+  setUser, 
+  initialMode = 'login',
+  onAuthSuccess 
+}) => {
   if (!isOpen) return null;
 
-  const [mode, setMode] = useState<'login' | 'signup'>('login');
+  const [mode, setMode] = useState<'login' | 'signup'>(initialMode);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -56,6 +64,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, setUser }
       try {
         const newUser = db.signup(cleanName, cleanEmail, cleanPassword);
         setUser(newUser);
+        if (onAuthSuccess) onAuthSuccess(newUser);
         onClose();
       } catch (err: any) {
         setErrorMessage(err.message || 'Error creating account. Please try again.');
@@ -67,6 +76,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, setUser }
       try {
         const loggedUser = db.login(cleanEmail);
         setUser(loggedUser);
+        if (onAuthSuccess) onAuthSuccess(loggedUser);
         onClose();
       } catch (err: any) {
         setErrorMessage(err.message || 'Authentication failed. Please check credentials.');

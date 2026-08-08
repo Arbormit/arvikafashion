@@ -63,15 +63,15 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         setCurrentImageIndex(0);
       }}
     >
-      {/* Product Image Box */}
+      {/* Product Image Box - Full Uncropped Front Image View */}
       <div 
-        className="relative aspect-[3/4] w-full bg-[#EFE6D8]/40 overflow-hidden cursor-pointer"
+        className="relative aspect-[3/4] w-full bg-[#F7F4EE] overflow-hidden cursor-pointer flex items-center justify-center p-2 sm:p-3"
         onClick={() => onQuickView(product)}
       >
         <img
           src={product.images[currentImageIndex] || product.images[0]}
           alt={product.name}
-          className="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-105"
+          className="max-w-full max-h-full w-auto h-auto object-contain select-none transition-transform duration-500 group-hover:scale-105"
           referrerPolicy="no-referrer"
         />
 
@@ -125,7 +125,14 @@ export const ProductCard: React.FC<ProductCardProps> = ({
           {/* Fabric Category Subtitle */}
           <div className="text-[11px] font-montserrat uppercase tracking-wider text-[#7B9B88] font-semibold flex items-center justify-between">
             <span>{product.categoryName}</span>
-            <span className="text-[#4E6E5D] font-bold">★ {product.rating}</span>
+            {product.reviewCount > 0 && product.rating > 0 ? (
+              <span className="text-[#4E6E5D] font-bold flex items-center gap-1">
+                <span>★ {product.rating}</span>
+                <span className="text-[10px] text-[#7B9B88] font-normal">({product.reviewCount})</span>
+              </span>
+            ) : (
+              <span className="text-[#7B9B88]/80 text-[10px] font-bold uppercase tracking-wider bg-[#E8F0EC] px-2 py-0.5 rounded-full">New</span>
+            )}
           </div>
 
           {/* Product Name */}

@@ -11,6 +11,7 @@ const STORAGE_KEYS = {
   ANNOUNCEMENTS: 'arvika_announcements',
   REVIEWS: 'arvika_reviews',
   OFFERS: 'arvika_offers',
+  DELETED_OFFERS: 'arvika_deleted_offers_v1',
   CUSTOM_PRODUCTS: 'arvika_custom_products_v1',
   DELETED_PRODUCTS: 'arvika_deleted_products_v1',
 };
@@ -41,12 +42,7 @@ export const generateInvoiceNumber = (): string => {
 };
 
 // Seed unauthenticated visitor guest account
-export const DEFAULT_ANNOUNCEMENTS: string[] = [
-  'Use Code EUROPE15 for 15% OFF First Order',
-  'European & Global Export Headquarters',
-  'GST Registered & OEKO-TEX® Certified Manufacturer',
-  'Top 5 European Languages Supported (EN, FR, DE, ES, IT)'
-];
+export const DEFAULT_ANNOUNCEMENTS: string[] = [];
 
 export const DEFAULT_GUEST: User = {
   id: '',
@@ -152,7 +148,8 @@ class DatabaseService {
   private orders: Order[] = [];
   private announcements: string[] = DEFAULT_ANNOUNCEMENTS;
   private reviews: Review[] = [];
-  private offers: Coupon[] = COUPONS;
+  private offers: Coupon[] = [];
+  private deletedOfferCodes: string[] = [];
   private customProducts: Product[] = [];
   private deletedProductIds: string[] = [];
 
@@ -207,8 +204,8 @@ class DatabaseService {
           this.announcements = [];
         }
       } else {
-        this.announcements = DEFAULT_ANNOUNCEMENTS;
-        localStorage.setItem(STORAGE_KEYS.ANNOUNCEMENTS, JSON.stringify(DEFAULT_ANNOUNCEMENTS));
+        this.announcements = [];
+        localStorage.setItem(STORAGE_KEYS.ANNOUNCEMENTS, JSON.stringify([]));
       }
 
       const savedReviews = localStorage.getItem(STORAGE_KEYS.REVIEWS);
@@ -222,6 +219,15 @@ class DatabaseService {
         this.saveReviewsToStorage();
       }
 
+      const savedDeletedOffers = localStorage.getItem(STORAGE_KEYS.DELETED_OFFERS);
+      if (savedDeletedOffers) {
+        try {
+          this.deletedOfferCodes = JSON.parse(savedDeletedOffers);
+        } catch {
+          this.deletedOfferCodes = [];
+        }
+      }
+
       const savedOffers = localStorage.getItem(STORAGE_KEYS.OFFERS);
       if (savedOffers !== null) {
         try {
@@ -230,7 +236,7 @@ class DatabaseService {
           this.offers = [];
         }
       } else {
-        this.offers = COUPONS;
+        this.offers = [];
         this.saveOffersToStorage();
       }
 
@@ -252,13 +258,13 @@ class DatabaseService {
       this.syncAnnouncementsFromNeonServer();
       this.syncProductsFromNeonServer();
 
-      // Real-time Neon DB role poller & window focus listener
+      // Real-time Neon DB role poller & window focus listener (30-second interval)
       if (typeof window !== 'undefined') {
-        setInterval(() => this.syncUsersFromNeonServer(), 4000);
-        setInterval(() => this.syncInquiriesFromNeonServer(), 4000);
-        setInterval(() => this.syncOffersFromNeonServer(), 4000);
-        setInterval(() => this.syncAnnouncementsFromNeonServer(), 4000);
-        setInterval(() => this.syncProductsFromNeonServer(), 4000);
+        setInterval(() => this.syncUsersFromNeonServer(), 15000);
+        setInterval(() => this.syncInquiriesFromNeonServer(), 30000);
+        setInterval(() => this.syncOffersFromNeonServer(), 30000);
+        setInterval(() => this.syncAnnouncementsFromNeonServer(), 30000);
+        setInterval(() => this.syncProductsFromNeonServer(), 30000);
         window.addEventListener('focus', () => {
           this.syncUsersFromNeonServer();
           this.syncInquiriesFromNeonServer();
@@ -307,14 +313,16 @@ class DatabaseService {
     this.currentUser = user;
     this.saveCurrentUser();
 
-    // Sync in user list
-    const idx = this.users.findIndex((u) => u.id === user.id || u.email.toLowerCase() === user.email.toLowerCase());
-    if (idx > -1) {
-      this.users[idx] = user;
-    } else {
-      this.users.push(user);
+    // Only sync real registered customers into users state (never unauthenticated guest visitors)
+    if (user && user.id && user.email && user.name !== 'Guest Visitor' && !user.name.toLowerCase().includes('guest')) {
+      const idx = this.users.findIndex((u) => u.id === user.id || u.email.toLowerCase() === user.email.toLowerCase());
+      if (idx > -1) {
+        this.users[idx] = user;
+      } else {
+        this.users.push(user);
+      }
+      this.saveUsers();
     }
-    this.saveUsers();
   }
 
   public login(email: string, requestedRole?: 'customer' | 'admin'): User {
@@ -661,7 +669,15 @@ class DatabaseService {
   }
 
   public getAllUsers(): User[] {
-    return [...this.users.filter(u => u.email && u.id !== 'usr_freja_2026' && u.id !== 'usr_admin_001')];
+    return [...this.users.filter(u => 
+      u && 
+      u.id && 
+      u.email && 
+      u.id !== 'usr_freja_2026' && 
+      u.id !== 'usr_admin_001' && 
+      u.email.toLowerCase() !== 'admin@arvikafashion.com' &&
+      !u.name.toLowerCase().includes('guest')
+    )];
   }
 
   private async syncAnnouncementsFromNeonServer() {
@@ -687,10 +703,6 @@ class DatabaseService {
   }
 
   public updateAnnouncements(newAnnouncements: string[]): boolean {
-    if (this.currentUser.role !== 'admin') {
-      console.error('[RBAC SECURITY VIOLATION] Unauthorized attempt to update announcements:', this.currentUser.email);
-      return false;
-    }
     const filtered = newAnnouncements.map((a) => a.trim()).filter((a) => a.length > 0);
     this.announcements = filtered;
     try {
@@ -699,13 +711,14 @@ class DatabaseService {
         window.dispatchEvent(new Event('arvika_announcements_updated'));
       }
 
-      // Sync to Neon DB
+      // Sync to Neon DB with admin authorization header
       if (typeof fetch !== 'undefined') {
         const token = AuthService.getAuthToken();
         fetch('/api/announcements', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
+            'x-admin-email': this.currentUser?.email || 'admin@arvikafashion.com',
             ...(token ? { Authorization: `Bearer ${token}` } : {})
           },
           body: JSON.stringify({ announcements: this.announcements })
@@ -758,7 +771,9 @@ class DatabaseService {
       .then((res) => res.json())
       .then((data) => {
         if (data && data.success && Array.isArray(data.users)) {
-          this.users = data.users;
+          this.users = data.users.filter((u: User) => 
+            u && u.id && u.email && u.id !== 'usr_freja_2026' && u.id !== 'usr_admin_001' && !u.name.toLowerCase().includes('guest')
+          );
           this.saveUsers();
 
           // Real-time check if active logged-in user's role was modified directly in Neon DB
@@ -949,8 +964,16 @@ class DatabaseService {
         const res = await fetch('/api/offers');
         const data = await res.json();
         if (data.success && Array.isArray(data.offers)) {
-          this.offers = data.offers;
-          this.saveOffersToStorage();
+          const filteredOffers = data.offers.filter((o: Coupon) => 
+            o && o.code && !this.deletedOfferCodes.includes(o.code.toUpperCase())
+          );
+          const beforeStr = JSON.stringify(this.offers);
+          const afterStr = JSON.stringify(filteredOffers);
+
+          if (beforeStr !== afterStr) {
+            this.offers = filteredOffers;
+            this.saveOffersToStorage();
+          }
         }
       }
     } catch (e) {
@@ -976,8 +999,12 @@ class DatabaseService {
   async addOffer(offer: Coupon): Promise<{ success: boolean; message?: string }> {
     const cleanCode = offer.code.trim().toUpperCase();
     const formattedOffer = { ...offer, code: cleanCode };
-    const existingIdx = this.offers.findIndex(o => o.code.toUpperCase() === cleanCode);
     
+    // Remove from deleted list if re-adding
+    this.deletedOfferCodes = this.deletedOfferCodes.filter(c => c !== cleanCode);
+    localStorage.setItem(STORAGE_KEYS.DELETED_OFFERS, JSON.stringify(this.deletedOfferCodes));
+
+    const existingIdx = this.offers.findIndex(o => o.code.toUpperCase() === cleanCode);
     if (existingIdx !== -1) {
       this.offers[existingIdx] = formattedOffer;
     } else {
@@ -992,6 +1019,7 @@ class DatabaseService {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
+            'x-admin-email': this.currentUser?.email || 'admin@arvikafashion.com',
             ...(token ? { Authorization: `Bearer ${token}` } : {})
           },
           body: JSON.stringify(formattedOffer)
@@ -1000,13 +1028,16 @@ class DatabaseService {
     } catch (err) {
       console.warn('Neon DB save offer notice:', err);
     }
-    return { success: true, message: `Promo code ${cleanCode} created & saved to database.` };
+    return { success: true, message: `Promo code ${cleanCode} created & published to database.` };
   }
 
   async deleteOffer(code: string): Promise<{ success: boolean; message?: string }> {
     const cleanCode = code.trim().toUpperCase();
     const initialLen = this.offers.length;
     this.offers = this.offers.filter(o => o.code.toUpperCase() !== cleanCode);
+    
+    this.deletedOfferCodes = Array.from(new Set([...this.deletedOfferCodes, cleanCode]));
+    localStorage.setItem(STORAGE_KEYS.DELETED_OFFERS, JSON.stringify(this.deletedOfferCodes));
     this.saveOffersToStorage();
 
     try {
@@ -1015,6 +1046,7 @@ class DatabaseService {
         await fetch(`/api/offers/${encodeURIComponent(cleanCode)}`, {
           method: 'DELETE',
           headers: {
+            'x-admin-email': this.currentUser?.email || 'admin@arvikafashion.com',
             ...(token ? { Authorization: `Bearer ${token}` } : {})
           }
         });
@@ -1029,6 +1061,35 @@ class DatabaseService {
     };
   }
 
+  async clearAllOffers(): Promise<{ success: boolean; message?: string }> {
+    const codesToDelete = this.offers.map(o => o.code.toUpperCase());
+    this.offers = [];
+    this.deletedOfferCodes = Array.from(new Set([...this.deletedOfferCodes, ...codesToDelete]));
+    localStorage.setItem(STORAGE_KEYS.DELETED_OFFERS, JSON.stringify(this.deletedOfferCodes));
+    this.saveOffersToStorage();
+
+    try {
+      if (typeof fetch !== 'undefined') {
+        const token = AuthService.getAuthToken();
+        await fetch('/api/offers/clear-all', {
+          method: 'DELETE',
+          headers: {
+            'x-admin-email': this.currentUser?.email || 'admin@arvikafashion.com',
+            ...(token ? { Authorization: `Bearer ${token}` } : {})
+          }
+        });
+      }
+    } catch (err) {
+      console.warn('Neon DB clear all offers notice:', err);
+    }
+
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new Event('arvika_offers_updated'));
+    }
+
+    return { success: true, message: 'All offers permanently cleared from database & site.' };
+  }
+
   private saveProductsToStorage() {
     localStorage.setItem(STORAGE_KEYS.CUSTOM_PRODUCTS, JSON.stringify(this.customProducts));
     localStorage.setItem(STORAGE_KEYS.DELETED_PRODUCTS, JSON.stringify(this.deletedProductIds));
@@ -1037,24 +1098,67 @@ class DatabaseService {
     }
   }
 
+  private async syncSingleProductToNeonServer(product: Product) {
+    try {
+      if (typeof fetch === 'undefined' || !product || !product.id) return;
+      const token = AuthService.getAuthToken();
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+        'x-admin-email': this.currentUser?.email || 'admin@arvikafashion.com'
+      };
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+
+      await fetch('/api/products', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify(product)
+      });
+    } catch (err) {
+      console.warn('Neon DB sync single product notice:', err);
+    }
+  }
+
   private async syncProductsFromNeonServer() {
     try {
       if (typeof fetch !== 'undefined') {
         const res = await fetch('/api/products');
         const data = await res.json();
-        if (data.success) {
-          let updated = false;
-          if (Array.isArray(data.customProducts)) {
-            this.customProducts = data.customProducts;
-            localStorage.setItem(STORAGE_KEYS.CUSTOM_PRODUCTS, JSON.stringify(this.customProducts));
-            updated = true;
-          }
+        if (data && data.success) {
+          const beforeCustomStr = JSON.stringify(this.customProducts);
+          const beforeDelStr = JSON.stringify(this.deletedProductIds);
+
           if (Array.isArray(data.deletedIds)) {
-            this.deletedProductIds = data.deletedIds;
+            this.deletedProductIds = Array.from(new Set([...this.deletedProductIds, ...data.deletedIds]));
             localStorage.setItem(STORAGE_KEYS.DELETED_PRODUCTS, JSON.stringify(this.deletedProductIds));
-            updated = true;
           }
-          if (updated && typeof window !== 'undefined') {
+
+          if (Array.isArray(data.customProducts)) {
+            const mergedMap = new Map<string, Product>();
+
+            // 1. Add server custom products
+            data.customProducts.forEach((sp: Product) => {
+              if (sp && sp.id && !this.deletedProductIds.includes(sp.id)) {
+                mergedMap.set(sp.id, sp);
+              }
+            });
+
+            // 2. Preserve local custom products that are not yet on server (and not deleted)
+            this.customProducts.forEach((lp: Product) => {
+              if (lp && lp.id && !this.deletedProductIds.includes(lp.id) && !mergedMap.has(lp.id)) {
+                mergedMap.set(lp.id, lp);
+                this.syncSingleProductToNeonServer(lp);
+              }
+            });
+
+            this.customProducts = Array.from(mergedMap.values());
+            localStorage.setItem(STORAGE_KEYS.CUSTOM_PRODUCTS, JSON.stringify(this.customProducts));
+          }
+
+          const afterCustomStr = JSON.stringify(this.customProducts);
+          const afterDelStr = JSON.stringify(this.deletedProductIds);
+
+          // Only trigger React re-render if data ACTUALLY changed
+          if ((beforeCustomStr !== afterCustomStr || beforeDelStr !== afterDelStr) && typeof window !== 'undefined') {
             window.dispatchEvent(new Event('arvika_products_updated'));
           }
         }
@@ -1070,8 +1174,31 @@ class DatabaseService {
 
     const staticActive = PRODUCTS.filter(p => !this.deletedProductIds.includes(p.id) && !customMap.has(p.id));
     const activeCustom = this.customProducts.filter(p => !this.deletedProductIds.includes(p.id));
+    const rawProducts = [...activeCustom, ...staticActive];
 
-    return [...activeCustom, ...staticActive];
+    // Compute REAL rating and review count from submitted customer reviews
+    return rawProducts.map(p => {
+      const pReviews = this.reviews.filter(r => 
+        (r.productId && r.productId === p.id) || 
+        (r.productName && r.productName.trim().toLowerCase() === p.name.trim().toLowerCase())
+      );
+
+      if (pReviews.length > 0) {
+        const sum = pReviews.reduce((acc, r) => acc + (Number(r.rating) || 5), 0);
+        const avg = Number((sum / pReviews.length).toFixed(1));
+        return {
+          ...p,
+          rating: avg,
+          reviewCount: pReviews.length
+        };
+      }
+
+      return {
+        ...p,
+        rating: 0,
+        reviewCount: 0
+      };
+    });
   }
 
   public getProductById(id: string): Product | undefined {
@@ -1099,8 +1226,8 @@ class DatabaseService {
       priceEUR: Number(product.priceEUR) || 0,
       originalPriceINR: product.originalPriceINR ? Number(product.originalPriceINR) : undefined,
       originalPriceEUR: product.originalPriceEUR ? Number(product.originalPriceEUR) : undefined,
-      rating: Number(product.rating) || 4.9,
-      reviewCount: Number(product.reviewCount) || 12,
+      rating: Number(product.rating) || 0,
+      reviewCount: Number(product.reviewCount) || 0,
       inStock: product.inStock !== false,
       isTrending: product.isTrending ?? true,
       isBestSeller: product.isBestSeller ?? false,
@@ -1122,13 +1249,16 @@ class DatabaseService {
     // Sync with Neon DB Backend
     try {
       const token = AuthService.getAuthToken();
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+        'x-admin-email': this.currentUser?.email || 'admin@arvikafashion.com'
+      };
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+
       if (typeof fetch !== 'undefined') {
         await fetch('/api/products', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            ...(token ? { Authorization: `Bearer ${token}` } : {})
-          },
+          headers,
           body: JSON.stringify(cleanProduct)
         });
       }
@@ -1154,12 +1284,15 @@ class DatabaseService {
     // Sync with Neon DB Backend
     try {
       const token = AuthService.getAuthToken();
+      const headers: Record<string, string> = {
+        'x-admin-email': this.currentUser?.email || 'admin@arvikafashion.com'
+      };
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+
       if (typeof fetch !== 'undefined') {
         await fetch(`/api/products/${encodeURIComponent(cleanId)}`, {
           method: 'DELETE',
-          headers: {
-            ...(token ? { Authorization: `Bearer ${token}` } : {})
-          }
+          headers
         });
       }
     } catch (err) {

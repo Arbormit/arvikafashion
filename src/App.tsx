@@ -81,6 +81,8 @@ export default function App() {
   const [isWishlistOpen, setIsWishlistOpen] = useState(false);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
+  const [authInitialMode, setAuthInitialMode] = useState<'login' | 'signup'>('login');
+  const [pendingCheckoutIntent, setPendingCheckoutIntent] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
 
@@ -199,6 +201,15 @@ export default function App() {
   const handleBuyNow = (product: Product, color: string, size: string, quantity: number = 1) => {
     handleAddToCart(product, color, size, quantity);
     setIsCartOpen(false);
+
+    if (!user.isLoggedIn) {
+      setPendingCheckoutIntent(true);
+      setAuthInitialMode('signup');
+      setIsAuthOpen(true);
+      triggerGlobalToast(`Please register an account to complete your purchase of "${product.name}"`, 'cart');
+      return;
+    }
+
     setIsCheckoutOpen(true);
   };
 
@@ -495,10 +506,20 @@ export default function App() {
         setAppliedCoupon={setAppliedCoupon}
         onProceedToCheckout={() => {
           setIsCartOpen(false);
+          if (!user.isLoggedIn) {
+            setPendingCheckoutIntent(true);
+            setAuthInitialMode('signup');
+            setIsAuthOpen(true);
+            triggerGlobalToast(`Please register an account to complete your checkout`, 'cart');
+            return;
+          }
           setIsCheckoutOpen(true);
         }}
         user={user}
-        onOpenAuth={() => setIsAuthOpen(true)}
+        onOpenAuth={() => {
+          setAuthInitialMode('login');
+          setIsAuthOpen(true);
+        }}
       />
 
       <WishlistDrawer
@@ -524,8 +545,20 @@ export default function App() {
 
       <AuthModal
         isOpen={isAuthOpen}
-        onClose={() => setIsAuthOpen(false)}
+        onClose={() => {
+          setIsAuthOpen(false);
+          setPendingCheckoutIntent(false);
+        }}
         setUser={setUser}
+        initialMode={authInitialMode}
+        onAuthSuccess={(loggedOrSignedUser) => {
+          setUser(loggedOrSignedUser);
+          if (pendingCheckoutIntent) {
+            setPendingCheckoutIntent(false);
+            setIsCheckoutOpen(true);
+            triggerGlobalToast(`Welcome, ${loggedOrSignedUser.name}! Proceeding to your checkout.`, 'cart');
+          }
+        }}
       />
 
       <ProfileModal

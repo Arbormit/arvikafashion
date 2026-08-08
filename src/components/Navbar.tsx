@@ -70,6 +70,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   const [isMobileCollectionsOpen, setIsMobileCollectionsOpen] = useState(false);
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
   const [announcements, setAnnouncements] = useState<string[]>(() => db.getAnnouncements());
+  const [offersCount, setOffersCount] = useState<number>(() => db.getOffers().length);
 
   const profileDropdownRef = useRef<HTMLDivElement>(null);
 
@@ -77,8 +78,15 @@ export const Navbar: React.FC<NavbarProps> = ({
     const handleAnnouncementsUpdate = () => {
       setAnnouncements(db.getAnnouncements());
     };
+    const handleOffersUpdate = () => {
+      setOffersCount(db.getOffers().length);
+    };
     window.addEventListener('arvika_announcements_updated', handleAnnouncementsUpdate);
-    return () => window.removeEventListener('arvika_announcements_updated', handleAnnouncementsUpdate);
+    window.addEventListener('arvika_offers_updated', handleOffersUpdate);
+    return () => {
+      window.removeEventListener('arvika_announcements_updated', handleAnnouncementsUpdate);
+      window.removeEventListener('arvika_offers_updated', handleOffersUpdate);
+    };
   }, []);
 
   useEffect(() => {
@@ -121,14 +129,16 @@ export const Navbar: React.FC<NavbarProps> = ({
             </span>
           </div>
 
-          {announcements.length > 0 && (
-            <div className="flex items-center space-x-3">
-              <span className="font-medium text-[#2D2A26] flex items-center gap-1.5 text-xs">
-                <Tag className="w-3.5 h-3.5 text-[#7B9B88]" />
+          <div className="flex items-center space-x-3">
+            <span className="font-medium text-[#2D2A26] flex items-center gap-1.5 text-xs">
+              <Tag className="w-3.5 h-3.5 text-[#7B9B88]" />
+              {announcements.length > 0 ? (
                 <strong className="text-[#4E6E5D] font-bold">{announcements[0]}</strong>
-              </span>
-            </div>
-          )}
+              ) : (
+                <span className="text-[#6B8E7B]">No announcement yet</span>
+              )}
+            </span>
+          </div>
 
           <div className="flex items-center space-x-3">
             {/* European Language Translator Dropdown */}
@@ -350,9 +360,11 @@ export const Navbar: React.FC<NavbarProps> = ({
             >
               <Tag className="w-3.5 h-3.5 text-[#7B9B88]" />
               <span>{t.offers}</span>
-              <span className="bg-[#7B9B88] text-white text-[10px] font-montserrat px-1.5 py-0.5 rounded-full font-bold ml-0.5">
-                4 Active
-              </span>
+              {offersCount > 0 && (
+                <span className="bg-[#7B9B88] text-white text-[10px] font-montserrat px-1.5 py-0.5 rounded-full font-bold ml-0.5">
+                  {offersCount} Active
+                </span>
+              )}
               {activeTab === 'offers' && (
                 <span className="absolute bottom-0 left-0 w-full h-0.5 bg-[#7B9B88] rounded-full animate-fade-in" />
               )}

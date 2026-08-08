@@ -11,26 +11,17 @@ const SLIDES = [
   {
     id: 'slide-1',
     title: 'Arvika Fashion - Premium Normandy Organic Linen European Collection',
-    image: 'https://res.cloudinary.com/nwpiveo3/image/upload/v1785491637/WhatsApp_Image_2026-07-31_at_12.44.53_PM_2_lhvagv.jpg?q=80&w=2000&auto=format&fit=crop',
-    aspectRatio: 1448 / 1086,
+    image: 'https://res.cloudinary.com/nwpiveo3/image/upload/v1786020181/use_main_page_teq4iv.png?q=80&w=2000&auto=format&fit=crop',
   },
   {
     id: 'slide-2',
     title: 'Arvika Fashion - Scandinavian Minimalist Linen Apparel & Couture',
-    image: 'https://res.cloudinary.com/nwpiveo3/image/upload/v1785491636/WhatsApp_Image_2026-07-31_at_12.25.11_PM_wya4me.jpg?q=80&w=2000&auto=format&fit=crop',
-    aspectRatio: 1536 / 1024,
+    image: 'https://res.cloudinary.com/nwpiveo3/image/upload/v1786024983/a_stmrya.png?q=80&w=2000&auto=format&fit=crop',
   },
   {
     id: 'slide-3',
     title: 'Arvika Fashion - Artisanal Handloom Cotton & Quiet Luxury Wear',
-    image: 'https://res.cloudinary.com/nwpiveo3/image/upload/v1785491636/WhatsApp_Image_2026-07-31_at_12.44.51_PM_1_z02wka.jpg?q=80&w=2000&auto=format&fit=crop',
-    aspectRatio: 1254 / 1254,
-  },
-  {
-    id: 'slide-4',
-    title: 'Arvika Fashion - Tailored Outerwear, Linen Dresses & Trench Coats',
-    image: 'https://res.cloudinary.com/nwpiveo3/image/upload/v1785491635/WhatsApp_Image_2026-07-29_at_3.54.17_PM_ymvjo7.jpg?q=80&w=2000&auto=format&fit=crop',
-    aspectRatio: 1402 / 1122,
+    image: 'https://res.cloudinary.com/nwpiveo3/image/upload/v1786024984/b_es2tib.png?q=80&w=2000&auto=format&fit=crop',
   }
 ];
 
@@ -51,23 +42,19 @@ export const Hero: React.FC<HeroProps> = () => {
         Arvika Fashion | Premium Indian Craftsmanship & Organic Linen European Couture
       </h1>
 
-      {/* Dynamic Aspect Ratio Hero Container - Full Width & Natural Uncropped Height */}
-      <div 
-        className="w-full relative transition-all duration-700 ease-in-out"
-        style={{ aspectRatio: `${SLIDES[currentSlide].aspectRatio}` }}
-      >
+      {/* Fixed Height Hero Container - Completely Stable & Does Not Resize On Slide Change */}
+      <div className="w-full relative h-[380px] sm:h-[500px] md:h-[620px] lg:h-[720px] bg-[#FAF8F4] flex items-center justify-center overflow-hidden">
         {SLIDES.map((s, idx) => (
           <div
             key={s.id}
-            className={`absolute inset-0 w-full h-full transition-opacity duration-1000 ease-in-out ${
-              idx === currentSlide ? 'opacity-100 z-10' : 'opacity-0 pointer-events-none z-0'
+            className={`absolute inset-0 w-full h-full flex items-center justify-center p-2 sm:p-4 transition-opacity duration-700 ease-in-out ${
+              idx === currentSlide ? 'opacity-100 z-10 pointer-events-auto' : 'opacity-0 z-0 pointer-events-none'
             }`}
-            style={{ transitionProperty: 'opacity', transitionDuration: '1000ms' }}
           >
             <img
               src={s.image}
               alt={s.title}
-              className="w-full h-full object-contain object-center select-none"
+              className="max-w-full max-h-full w-auto h-auto object-contain select-none shadow-sm rounded-lg"
               referrerPolicy="no-referrer"
             />
           </div>
@@ -108,6 +95,7 @@ export const Hero: React.FC<HeroProps> = () => {
     </section>
   );
 };
+
 
 
 

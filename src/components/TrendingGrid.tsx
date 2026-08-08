@@ -30,15 +30,54 @@ export const TrendingGrid: React.FC<TrendingGridProps> = ({
 
   const CATEGORY_FILTERS = [
     { id: 'all', label: 'All Curated' },
-    { id: 'pure-linen', label: 'Pure Linen Couture' },
-    { id: 'organic-cotton', label: 'Organic Cotton' },
-    { id: 'coats-jackets', label: 'Trench & Blazers' },
-    { id: 'scandi-dresses', label: 'Scandinavian Dresses' },
+    { id: 'scarf', label: 'Scarves' },
+    { id: 'beachwear-kaftan', label: 'Beach Wear & Kaftans' },
+    { id: 'bags', label: 'Bags & Totes' },
+    { id: 'linen', label: 'Linen' },
+    { id: 'cotton', label: 'Cotton' },
+    { id: 'dresses', label: 'Dresses' },
+    { id: 'outerwear', label: 'Outerwear & Knits' },
+    { id: 'trousers-pants', label: 'Trousers' },
   ];
 
-  const filteredProducts = filter === 'all'
-    ? products.filter(p => p.isTrending || p.isBestSeller).slice(0, 8)
-    : products.filter(p => p.categoryId === filter).slice(0, 8);
+  const matchesCategory = (p: Product, filterId: string) => {
+    if (filterId === 'all') return p.isTrending || p.isBestSeller;
+
+    const fId = filterId.toLowerCase();
+    const catIdLower = (p.categoryId || '').toLowerCase();
+    const catNameLower = (p.categoryName || '').toLowerCase();
+    const fabricLower = (p.fabric || '').toLowerCase();
+    const nameLower = (p.name || '').toLowerCase();
+    const subLower = (p.subtitle || '').toLowerCase();
+
+    if (fId === 'scarf' || fId === 'scarves') {
+      return catIdLower.includes('scarf') || catIdLower.includes('stole') || catNameLower.includes('scarf') || catNameLower.includes('stole') || nameLower.includes('scarf') || nameLower.includes('scarfe') || nameLower.includes('stole') || nameLower.includes('wrap') || subLower.includes('scarf') || subLower.includes('scarfe');
+    }
+    if (fId === 'beachwear-kaftan' || fId === 'kaftan' || fId === 'resort' || fId === 'eco-resort') {
+      return catIdLower.includes('kaftan') || catIdLower.includes('resort') || catIdLower.includes('beach') || catNameLower.includes('kaftan') || catNameLower.includes('resort') || catNameLower.includes('beach') || nameLower.includes('kaftan') || nameLower.includes('beach') || nameLower.includes('resort') || nameLower.includes('coverup') || subLower.includes('kaftan');
+    }
+    if (fId === 'bags' || fId === 'bags-accessories' || fId === 'totes') {
+      return catIdLower.includes('bag') || catIdLower.includes('tote') || catNameLower.includes('bag') || catNameLower.includes('tote') || nameLower.includes('bag') || nameLower.includes('tote') || nameLower.includes('carryall');
+    }
+    if (fId === 'linen') {
+      return catIdLower.includes('linen') || catNameLower.includes('linen') || fabricLower.includes('linen') || nameLower.includes('linen') || subLower.includes('linen');
+    }
+    if (fId === 'cotton') {
+      return catIdLower.includes('cotton') || catNameLower.includes('cotton') || fabricLower.includes('cotton') || nameLower.includes('cotton') || subLower.includes('cotton');
+    }
+    if (fId === 'dresses') {
+      return catIdLower.includes('dress') || catNameLower.includes('dress') || nameLower.includes('dress') || subLower.includes('dress');
+    }
+    if (fId === 'outerwear') {
+      return catIdLower.includes('coat') || catIdLower.includes('jacket') || catIdLower.includes('knit') || catNameLower.includes('coat') || catNameLower.includes('jacket') || catNameLower.includes('knit') || nameLower.includes('coat') || nameLower.includes('jacket') || nameLower.includes('blazer') || nameLower.includes('trench') || nameLower.includes('sweater');
+    }
+    if (fId === 'trousers-pants' || fId === 'trousers' || fId === 'pants') {
+      return catIdLower.includes('trouser') || catIdLower.includes('pant') || catIdLower.includes('culotte') || catNameLower.includes('trouser') || catNameLower.includes('pant') || nameLower.includes('trouser') || nameLower.includes('pant');
+    }
+    return p.categoryId === filterId || p.categoryName === filterId;
+  };
+
+  const filteredProducts = products.filter(p => matchesCategory(p, filter)).slice(0, 8);
 
   return (
     <section className="py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
@@ -59,9 +98,9 @@ export const TrendingGrid: React.FC<TrendingGridProps> = ({
             <button
               key={f.id}
               onClick={() => setFilter(f.id)}
-              className={`px-4 py-2 rounded-full text-xs font-montserrat font-bold whitespace-nowrap transition-all ${
+              className={`px-4 py-2 rounded-full text-xs font-montserrat font-bold whitespace-nowrap transition-colors duration-200 cursor-pointer ${
                 filter === f.id
-                  ? 'bg-[#7B9B88] text-white shadow-xs'
+                  ? 'bg-[#7B9B88] text-white shadow-xs border border-[#7B9B88]'
                   : 'bg-[#E8F0EC]/60 text-[#2D2A26] hover:bg-[#E8F0EC] border border-[#D5E4DC]'
               }`}
             >

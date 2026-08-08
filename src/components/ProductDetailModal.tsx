@@ -10,9 +10,11 @@ import {
   Check, 
   Share2, 
   ChevronRight,
+  ChevronLeft,
   Star,
   Leaf,
-  ArrowLeft
+  ArrowLeft,
+  ZoomIn
 } from 'lucide-react';
 import { Product, Currency } from '../types';
 import { SizeGuideModal } from './SizeGuideModal';
@@ -48,6 +50,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
   const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState<'details' | 'fabric' | 'origin' | 'shipping'>('details');
   const [isSizeGuideOpen, setIsSizeGuideOpen] = useState(false);
+  const [isZoomOpen, setIsZoomOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   const price = currency === 'INR' 
@@ -73,6 +76,53 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
 
   return (
     <>
+      {/* Fullscreen High-Res Image Lightbox (Amazon Style Zoom View) */}
+      {isZoomOpen && (
+        <div className="fixed inset-0 z-50 bg-black/95 backdrop-blur-md flex items-center justify-center p-4 animate-fade-in">
+          <button
+            onClick={() => setIsZoomOpen(false)}
+            className="absolute top-4 right-4 z-50 p-3 bg-white/20 hover:bg-white/40 text-white rounded-full transition-colors cursor-pointer"
+            title="Close Zoom View"
+          >
+            <X className="w-6 h-6" />
+          </button>
+
+          <div className="relative max-w-5xl max-h-[90vh] w-full h-full flex items-center justify-center">
+            <img
+              src={selectedImage || product.images[0]}
+              alt={product.name}
+              className="max-w-full max-h-full w-auto h-auto object-contain select-none shadow-2xl rounded-lg"
+              referrerPolicy="no-referrer"
+            />
+          </div>
+
+          {product.images.length > 1 && (
+            <>
+              <button
+                onClick={() => {
+                  const currentIdx = product.images.indexOf(selectedImage || product.images[0]);
+                  const prevIdx = (currentIdx - 1 + product.images.length) % product.images.length;
+                  setSelectedImage(product.images[prevIdx]);
+                }}
+                className="absolute left-4 top-1/2 -translate-y-1/2 p-3 rounded-full bg-white/20 hover:bg-white/40 text-white transition-colors cursor-pointer z-50"
+              >
+                <ChevronLeft className="w-6 h-6" />
+              </button>
+              <button
+                onClick={() => {
+                  const currentIdx = product.images.indexOf(selectedImage || product.images[0]);
+                  const nextIdx = (currentIdx + 1) % product.images.length;
+                  setSelectedImage(product.images[nextIdx]);
+                }}
+                className="absolute right-4 top-1/2 -translate-y-1/2 p-3 rounded-full bg-white/20 hover:bg-white/40 text-white transition-colors cursor-pointer z-50"
+              >
+                <ChevronRight className="w-6 h-6" />
+              </button>
+            </>
+          )}
+        </div>
+      )}
+
       {/* Universal Full Page Product Detail Showcase Container */}
       <div className="fixed inset-0 z-50 bg-[#FAF8F4] overflow-y-auto w-full h-full min-h-screen animate-fade-in font-sans">
         
@@ -132,15 +182,28 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10 pb-28 lg:pb-12">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-start">
             
-            {/* Gallery Section */}
+            {/* Gallery Section - Full Amazon-Style Uncropped Image View */}
             <div className="space-y-4">
-              <div className="relative w-full h-[320px] sm:h-[460px] lg:h-[600px] bg-[#E8F0EC]/40 rounded-3xl overflow-hidden border border-[#D5E4DC] shadow-xs">
+              <div 
+                onClick={() => setIsZoomOpen(true)}
+                className="relative w-full h-[360px] sm:h-[480px] lg:h-[620px] bg-[#F7F4EE] rounded-3xl overflow-hidden border border-[#D5E4DC] shadow-xs flex items-center justify-center p-3 sm:p-5 group cursor-zoom-in"
+              >
                 <img
                   src={selectedImage || product.images[0]}
                   alt={product.name}
-                  className="w-full h-full object-cover object-top"
+                  className="max-w-full max-h-full w-auto h-auto object-contain select-none transition-transform duration-300 group-hover:scale-105"
                   referrerPolicy="no-referrer"
                 />
+
+                {/* Amazon-Style Zoom Button */}
+                <button 
+                  onClick={(e) => { e.stopPropagation(); setIsZoomOpen(true); }}
+                  className="absolute bottom-4 right-4 bg-[#FAF8F4]/90 hover:bg-[#7B9B88] text-[#2D2A26] hover:text-white backdrop-blur-md border border-[#D5E4DC] p-2.5 rounded-full shadow-md transition-all flex items-center gap-1.5 text-xs font-montserrat font-bold cursor-pointer"
+                  title="View Full High-Res Image"
+                >
+                  <ZoomIn className="w-4 h-4" />
+                  <span className="hidden sm:inline">Full Image View</span>
+                </button>
               </div>
 
               {/* Thumbnails */}
@@ -149,13 +212,13 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
                   <button
                     key={idx}
                     onClick={() => setSelectedImage(img)}
-                    className={`w-18 h-22 sm:w-24 sm:h-28 rounded-2xl overflow-hidden border-2 flex-shrink-0 transition-all cursor-pointer ${
+                    className={`w-18 h-22 sm:w-24 sm:h-28 rounded-2xl overflow-hidden border-2 flex-shrink-0 transition-all cursor-pointer bg-[#F7F4EE] p-1 flex items-center justify-center ${
                       (selectedImage === img || (!selectedImage && idx === 0))
                         ? 'border-[#7B9B88] ring-2 ring-[#7B9B88]/20 scale-105 shadow-md'
                         : 'border-[#D5E4DC] opacity-70 hover:opacity-100'
                     }`}
                   >
-                    <img src={img} alt="Thumbnail" className="w-full h-full object-cover object-top" referrerPolicy="no-referrer" />
+                    <img src={img} alt="Thumbnail" className="max-w-full max-h-full w-auto h-auto object-contain" referrerPolicy="no-referrer" />
                   </button>
                 ))}
               </div>
@@ -169,8 +232,12 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
                     {product.categoryName}
                   </span>
                   <div className="flex items-center space-x-1 text-[#4E6E5D] font-bold">
-                    <Star className="w-4 h-4 fill-[#E8DCB8] text-[#7B9B88]" />
-                    <span>{product.rating} ({product.reviewCount} Reviews)</span>
+                    <Star className={`w-4 h-4 ${product.reviewCount > 0 && product.rating > 0 ? 'fill-[#E8DCB8] text-[#7B9B88]' : 'text-[#8C7A6B]/40'}`} />
+                    {product.reviewCount > 0 && product.rating > 0 ? (
+                      <span>{product.rating} ({product.reviewCount} {product.reviewCount === 1 ? 'Review' : 'Reviews'})</span>
+                    ) : (
+                      <span className="text-xs text-[#8C7A6B] font-normal">No reviews yet</span>
+                    )}
                   </div>
                 </div>
 
@@ -193,10 +260,6 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
                   </span>
                 </div>
 
-                {/* Offer Notification Banner */}
-                <div className="mt-4 bg-[#E8F0EC] border border-[#D5E4DC] p-3 rounded-xl flex items-center gap-2 text-xs font-sans text-[#2D2A26]">
-                  <span>Eligible for <strong>15% OFF</strong> with promo code <strong className="underline cursor-pointer text-[#7B9B88]">EUROPE15</strong> at checkout.</span>
-                </div>
 
                 {/* Color Selector */}
                 <div className="mt-6">

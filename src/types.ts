@@ -134,7 +134,7 @@ export interface Category {
   name: string;
   tagline: string;
   image: string;
-  itemCount: number;
+  itemCount?: number;
   featuredFabric: string;
   description: string;
 }

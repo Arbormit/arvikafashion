@@ -58,7 +58,34 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
   const filteredProducts = useMemo(() => {
     return products.filter((p) => {
       // Category match
-      if (selectedCategory && p.categoryId !== selectedCategory) return false;
+      if (selectedCategory) {
+        const catLower = selectedCategory.toLowerCase();
+        const pCatId = (p.categoryId || '').toLowerCase();
+        const pCatName = (p.categoryName || '').toLowerCase();
+        const pFabric = (p.fabric || '').toLowerCase();
+        const pName = (p.name || '').toLowerCase();
+        const pSub = (p.subtitle || '').toLowerCase();
+
+        if (catLower === 'scarf' || catLower === 'scarves') {
+          if (!pCatId.includes('scarf') && !pCatId.includes('stole') && !pCatName.includes('scarf') && !pCatName.includes('stole') && !pName.includes('scarf') && !pName.includes('scarfe') && !pName.includes('stole') && !pName.includes('wrap') && !pSub.includes('scarf') && !pSub.includes('scarfe')) return false;
+        } else if (catLower === 'beachwear-kaftan' || catLower === 'kaftan' || catLower === 'resort' || catLower === 'eco-resort') {
+          if (!pCatId.includes('kaftan') && !pCatId.includes('resort') && !pCatId.includes('beach') && !pCatName.includes('kaftan') && !pCatName.includes('resort') && !pCatName.includes('beach') && !pName.includes('kaftan') && !pName.includes('beach') && !pName.includes('resort') && !pName.includes('coverup') && !pSub.includes('kaftan')) return false;
+        } else if (catLower === 'bags' || catLower === 'bags-accessories' || catLower === 'totes') {
+          if (!pCatId.includes('bag') && !pCatId.includes('tote') && !pCatName.includes('bag') && !pCatName.includes('tote') && !pName.includes('bag') && !pName.includes('tote') && !pName.includes('carryall')) return false;
+        } else if (catLower === 'linen') {
+          if (!pCatId.includes('linen') && !pCatName.includes('linen') && !pFabric.includes('linen') && !pName.includes('linen') && !pSub.includes('linen')) return false;
+        } else if (catLower === 'cotton') {
+          if (!pCatId.includes('cotton') && !pCatName.includes('cotton') && !pFabric.includes('cotton') && !pName.includes('cotton') && !pSub.includes('cotton')) return false;
+        } else if (catLower === 'dresses') {
+          if (!pCatId.includes('dress') && !pCatName.includes('dress') && !pName.includes('dress') && !pSub.includes('dress')) return false;
+        } else if (catLower === 'outerwear') {
+          if (!pCatId.includes('coat') && !pCatId.includes('jacket') && !pCatId.includes('knit') && !pCatName.includes('coat') && !pCatName.includes('jacket') && !pCatName.includes('knit') && !pName.includes('coat') && !pName.includes('jacket') && !pName.includes('blazer') && !pName.includes('trench') && !pName.includes('sweater')) return false;
+        } else if (catLower === 'trousers-pants' || catLower === 'trousers' || catLower === 'pants') {
+          if (!pCatId.includes('trouser') && !pCatId.includes('pant') && !pCatId.includes('culotte') && !pCatName.includes('trouser') && !pCatName.includes('pant') && !pName.includes('trouser') && !pName.includes('pant')) return false;
+        } else {
+          if (p.categoryId !== selectedCategory && p.categoryName !== selectedCategory) return false;
+        }
+      }
 
       // Search match
       if (searchQuery) {
@@ -112,7 +139,7 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
         <div className="flex justify-between items-end">
           <div>
             <span className="text-xs font-montserrat uppercase tracking-[0.2em] text-[#7B9B88] font-bold flex items-center gap-1.5">
-              EXPLORE OUR 8 GARMENT ATELIERS
+              EXPLORE OUR GARMENT ATELIERS
             </span>
             <h2 className="font-serif text-3xl sm:text-4xl font-bold text-[#2D2A26] mt-1">
               Curated European Collections
@@ -128,13 +155,13 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
           )}
         </div>
 
-        {/* 8 Category Cards Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3">
+        {/* Category Cards Grid */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3">
           {CATEGORIES.map((cat) => (
             <div
               key={cat.id}
               onClick={() => setSelectedCategory(selectedCategory === cat.id ? null : cat.id)}
-              className={`p-3 rounded-2xl border transition-all cursor-pointer flex flex-col items-center text-center group ${
+              className={`p-3 rounded-2xl border transition-all cursor-pointer flex flex-col items-center justify-center text-center group min-h-[90px] ${
                 selectedCategory === cat.id
                   ? 'bg-[#7B9B88] text-white border-[#7B9B88] shadow-md scale-105'
                   : 'bg-[#FAF8F4] hover:bg-[#E8F0EC]/60 border-[#EAE2D7] text-[#2D2A26]'
@@ -148,11 +175,6 @@ export const CollectionsView: React.FC<CollectionsViewProps> = ({
               />
               <span className="font-serif text-xs font-bold leading-tight line-clamp-2">
                 {cat.name}
-              </span>
-              <span className={`text-[10px] mt-1 font-sans font-semibold ${
-                selectedCategory === cat.id ? 'text-[#E8DCB8]' : 'text-[#7B9B88]'
-              }`}>
-                {cat.itemCount} Items
               </span>
             </div>
           ))}

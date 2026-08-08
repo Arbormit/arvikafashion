@@ -26,7 +26,8 @@ import {
   Image as ImageIcon
 } from 'lucide-react';
 import { Order, OrderStatus, Currency, PaymentStatus, User, Review, Inquiry, Coupon, Product } from '../types';
-import { db, DEFAULT_ANNOUNCEMENTS } from '../services/db';
+import { db } from '../services/db';
+import { CATEGORIES } from '../data/categories';
 
 interface AdminDashboardModalProps {
   isOpen: boolean;
@@ -131,8 +132,8 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
     setProdSku(newSku);
     setProdName('');
     setProdSubtitle('');
-    setProdCategoryId('Cotton');
-    setProdCategoryName('Pure Cotton Couture');
+    setProdCategoryId('linen');
+    setProdCategoryName('Linen');
     setProdPriceINR('650');
     setProdPriceEUR('12');
     setProdOrigPriceINR('');
@@ -148,8 +149,8 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
     setProdInStock(true);
     setProdIsTrending(true);
     setProdIsBestSeller(false);
-    setProdRating('4.9');
-    setProdReviewCount('15');
+    setProdRating('0');
+    setProdReviewCount('0');
     setIsProductEditorOpen(true);
   };
 
@@ -176,8 +177,8 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
     setProdInStock(prod.inStock !== false);
     setProdIsTrending(prod.isTrending ?? true);
     setProdIsBestSeller(prod.isBestSeller ?? false);
-    setProdRating(String(prod.rating || 4.9));
-    setProdReviewCount(String(prod.reviewCount || 12));
+    setProdRating(String(prod.rating || 0));
+    setProdReviewCount(String(prod.reviewCount || 0));
     setIsProductEditorOpen(true);
   };
 
@@ -206,8 +207,13 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
   };
 
   const handleAddColor = () => {
-    if (!newColorName.trim()) return;
-    setProdColors((prev) => [...prev, { name: newColorName.trim(), hex: newColorHex }]);
+    let cleanHex = newColorHex.trim();
+    if (!cleanHex) cleanHex = '#7B9B88';
+    if (!cleanHex.startsWith('#')) {
+      cleanHex = `#${cleanHex}`;
+    }
+    const colorName = newColorName.trim() || cleanHex;
+    setProdColors((prev) => [...prev, { name: colorName, hex: cleanHex }]);
     setNewColorName('');
   };
 
@@ -701,7 +707,20 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                             <td className="p-3">
                               <div className="font-serif font-bold text-[#214C3A]">{ord.customerName}</div>
                               <div className="text-[10px] text-[#8C7A6B]">{ord.customerEmail}</div>
-                              <div className="text-[10px] text-[#8C7A6B]">{ord.customerPhone}</div>
+                              <div className="text-[10px] text-[#8C7A6B] flex items-center gap-1 mt-0.5">
+                                <span>{ord.customerPhone}</span>
+                                {ord.customerPhone && (
+                                  <a
+                                    href={`https://wa.me/${ord.customerPhone.replace(/[^0-9]/g, '')}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-[#25D366] hover:text-[#1da851] p-0.5 inline-flex items-center"
+                                    title="Connect with Customer on WhatsApp to match payment & delivery"
+                                  >
+                                    <MessageSquare className="w-3.5 h-3.5 fill-current" />
+                                  </a>
+                                )}
+                              </div>
                             </td>
 
                             {/* Payment Method / UTR */}
@@ -841,13 +860,11 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                     className="bg-[#FAF8F4] border border-[#EFE6D8] text-[#2D2A26] text-xs font-sans rounded-xl px-3 py-2.5 focus:outline-none focus:border-[#7B9B88]"
                   >
                     <option value="ALL">All Categories</option>
-                    <option value="Cotton">Cotton / Pure Cotton Couture</option>
-                    <option value="pure-linen">Pure Linen Couture</option>
-                    <option value="scandi-dresses">Scandinavian Minimal Dresses</option>
-                    <option value="coats-jackets">Artisanal Trench Coats & Jackets</option>
-                    <option value="organic-cotton">Organic Cotton Essentials</option>
-                    <option value="trousers-pants">Tailored Trousers & Culottes</option>
-                    <option value="silk-wool-knits">Silk-Wool Knitwear</option>
+                    {CATEGORIES.map((cat) => (
+                      <option key={cat.id} value={cat.id}>
+                        {cat.name}
+                      </option>
+                    ))}
                   </select>
                 </div>
               </div>
@@ -1043,7 +1060,24 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
 
             {/* Active Offers Grid with Delete Button */}
             <div className="space-y-3">
-              <h4 className="font-serif font-bold text-base text-[#214C3A]">Active Database Offers ({offersList.length})</h4>
+              <div className="flex justify-between items-center pb-1">
+                <h4 className="font-serif font-bold text-base text-[#214C3A]">Active Database Offers ({offersList.length})</h4>
+                {offersList.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      const res = await db.clearAllOffers();
+                      if (res.success) {
+                        setOffersList(db.getOffers());
+                        showToast(res.message || 'All offers cleared from database.');
+                      }
+                    }}
+                    className="text-[11px] font-montserrat font-semibold text-red-600 hover:text-red-800 underline cursor-pointer"
+                  >
+                    Clear All Offers
+                  </button>
+                )}
+              </div>
               {offersList.length === 0 ? (
                 <div className="text-center py-12 bg-white rounded-3xl border border-dashed border-[#D8C6A5] p-8 space-y-2">
                   <Tag className="w-10 h-10 text-[#C5A059] mx-auto opacity-50" />
@@ -1242,19 +1276,21 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                 <span className="font-serif font-bold text-sm text-[#214C3A]">
                   Active Live Announcements ({announcementsList.length})
                 </span>
-                <button
-                  type="button"
-                  onClick={() => {
-                    const success = db.updateAnnouncements(DEFAULT_ANNOUNCEMENTS);
-                    if (success) {
-                      setAnnouncementsList(db.getAnnouncements());
-                      showToast('Announcements reset to default highlights.');
-                    }
-                  }}
-                  className="text-[11px] font-montserrat font-semibold text-[#8C7A6B] hover:text-[#214C3A] underline cursor-pointer"
-                >
-                  Reset to Defaults
-                </button>
+                {announcementsList.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const success = db.updateAnnouncements([]);
+                      if (success) {
+                        setAnnouncementsList(db.getAnnouncements());
+                        showToast('All announcements cleared.');
+                      }
+                    }}
+                    className="text-[11px] font-montserrat font-semibold text-red-600 hover:text-red-800 underline cursor-pointer"
+                  >
+                    Clear All
+                  </button>
+                )}
               </div>
 
               <div className="space-y-2">
@@ -1854,26 +1890,18 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                         onChange={(e) => {
                           const catId = e.target.value;
                           setProdCategoryId(catId);
-                          const names: Record<string, string> = {
-                            'Cotton': 'Pure Cotton Couture',
-                            'pure-linen': 'Pure Linen Couture',
-                            'scandi-dresses': 'Scandinavian Minimal Dresses',
-                            'coats-jackets': 'Artisanal Trench Coats & Jackets',
-                            'organic-cotton': 'Organic Cotton Essentials',
-                            'trousers-pants': 'Tailored Trousers & Culottes',
-                            'silk-wool-knits': 'Silk-Wool Knitwear'
-                          };
-                          if (names[catId]) setProdCategoryName(names[catId]);
+                          const selectedCatObj = CATEGORIES.find(c => c.id === catId);
+                          if (selectedCatObj) {
+                            setProdCategoryName(selectedCatObj.name);
+                          }
                         }}
                         className="w-full bg-[#FAF8F4] border border-[#D8C6A5] p-2.5 rounded-xl text-xs font-sans text-[#2D2A26] focus:outline-none focus:border-[#7B9B88]"
                       >
-                        <option value="Cotton">Cotton / Pure Cotton Couture</option>
-                        <option value="pure-linen">Pure Linen Couture</option>
-                        <option value="scandi-dresses">Scandinavian Minimal Dresses</option>
-                        <option value="coats-jackets">Artisanal Trench Coats & Jackets</option>
-                        <option value="organic-cotton">Organic Cotton Essentials</option>
-                        <option value="trousers-pants">Tailored Trousers & Culottes</option>
-                        <option value="silk-wool-knits">Silk-Wool Knitwear</option>
+                        {CATEGORIES.map((cat) => (
+                          <option key={cat.id} value={cat.id}>
+                            {cat.name}
+                          </option>
+                        ))}
                       </select>
                     </div>
 
@@ -2068,24 +2096,52 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                     </div>
 
                     {/* Add Color Form */}
-                    <div className="flex items-center gap-2 pt-1">
-                      <input
-                        type="color"
-                        value={newColorHex}
-                        onChange={(e) => setNewColorHex(e.target.value)}
-                        className="w-9 h-9 p-0.5 rounded-xl border border-[#D8C6A5] cursor-pointer"
-                      />
+                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 pt-1 bg-[#FAF8F4] p-3 rounded-2xl border border-[#D8C6A5]">
+                      <div className="flex items-center gap-2">
+                        {/* Visual Swatch Picker */}
+                        <div className="relative flex items-center justify-center">
+                          <input
+                            type="color"
+                            value={newColorHex.startsWith('#') && newColorHex.length === 7 ? newColorHex : '#7B9B88'}
+                            onChange={(e) => setNewColorHex(e.target.value)}
+                            className="w-9 h-9 p-0.5 rounded-xl border border-[#D8C6A5] cursor-pointer"
+                            title="Choose color visually"
+                          />
+                        </div>
+
+                        {/* Hex Code Input (Type or Paste # Code) */}
+                        <div className="w-28">
+                          <input
+                            type="text"
+                            placeholder="#7B9B88"
+                            value={newColorHex}
+                            onChange={(e) => setNewColorHex(e.target.value)}
+                            className="w-full bg-white border border-[#D8C6A5] px-2.5 py-2 rounded-xl text-xs font-mono text-[#2D2A26] focus:outline-none focus:border-[#7B9B88]"
+                            title="Type or paste Hex Color Code (e.g. #7B9B88)"
+                          />
+                        </div>
+                      </div>
+
+                      {/* Color Name Input */}
                       <input
                         type="text"
-                        placeholder="Color Name (e.g. Cream Printed, Sky Blue)"
+                        placeholder="Color Name (e.g. Sage Green, Cream Printed)"
                         value={newColorName}
                         onChange={(e) => setNewColorName(e.target.value)}
-                        className="flex-1 bg-[#FAF8F4] border border-[#D8C6A5] p-2 rounded-xl text-xs font-sans focus:outline-none focus:border-[#7B9B88]"
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault();
+                            handleAddColor();
+                          }
+                        }}
+                        className="flex-1 bg-white border border-[#D8C6A5] px-3 py-2 rounded-xl text-xs font-sans text-[#2D2A26] focus:outline-none focus:border-[#7B9B88]"
                       />
+
+                      {/* Add Color Button */}
                       <button
                         type="button"
                         onClick={handleAddColor}
-                        className="bg-[#7B9B88] text-white px-3 py-2 rounded-xl text-xs font-montserrat font-bold cursor-pointer"
+                        className="bg-[#7B9B88] hover:bg-[#214C3A] text-white px-4 py-2 rounded-xl text-xs font-montserrat font-bold transition-all cursor-pointer whitespace-nowrap"
                       >
                         + Add Color
                       </button>
