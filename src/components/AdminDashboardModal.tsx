@@ -59,6 +59,7 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('ALL');
   const [categoryFilter, setCategoryFilter] = useState<string>('ALL');
+  const [prodSortOrder, setProdSortOrder] = useState<'sku-asc' | 'asc' | 'desc' | 'price-asc' | 'price-desc'>('sku-asc');
   const [selectedOrderDetails, setSelectedOrderDetails] = useState<Order | null>(null);
   const [utrInputMap, setUtrInputMap] = useState<Record<string, string>>({});
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -852,19 +853,33 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                   />
                 </div>
 
-                <div className="flex items-center space-x-2 w-full sm:w-auto">
-                  <Filter className="w-4 h-4 text-[#7B9B88]" />
+                <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+                  <div className="flex items-center space-x-1.5">
+                    <Filter className="w-4 h-4 text-[#7B9B88]" />
+                    <select
+                      value={categoryFilter}
+                      onChange={(e) => setCategoryFilter(e.target.value)}
+                      className="bg-[#FAF8F4] border border-[#EFE6D8] text-[#2D2A26] text-xs font-sans rounded-xl px-3 py-2.5 focus:outline-none focus:border-[#7B9B88]"
+                    >
+                      <option value="ALL">All Categories</option>
+                      {CATEGORIES.map((cat) => (
+                        <option key={cat.id} value={cat.id}>
+                          {cat.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
                   <select
-                    value={categoryFilter}
-                    onChange={(e) => setCategoryFilter(e.target.value)}
+                    value={prodSortOrder}
+                    onChange={(e) => setProdSortOrder(e.target.value as any)}
                     className="bg-[#FAF8F4] border border-[#EFE6D8] text-[#2D2A26] text-xs font-sans rounded-xl px-3 py-2.5 focus:outline-none focus:border-[#7B9B88]"
                   >
-                    <option value="ALL">All Categories</option>
-                    {CATEGORIES.map((cat) => (
-                      <option key={cat.id} value={cat.id}>
-                        {cat.name}
-                      </option>
-                    ))}
+                    <option value="sku-asc">Sort: SKU (ARV-SKU-0001 ➔ ARV-SKU-0023 Ascending)</option>
+                    <option value="asc">Sort: Name (A to Z - Ascending)</option>
+                    <option value="desc">Sort: Name (Z to A - Descending)</option>
+                    <option value="price-asc">Sort: Price (Low to High)</option>
+                    <option value="price-desc">Sort: Price (High to Low)</option>
                   </select>
                 </div>
               </div>
@@ -881,6 +896,21 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                     p.categoryName.toLowerCase().includes(searchQuery.toLowerCase());
                   const matchesCat = categoryFilter === 'ALL' || p.categoryId === categoryFilter;
                   return matchesSearch && matchesCat;
+                })
+                .sort((a, b) => {
+                  if (prodSortOrder === 'sku-asc') {
+                    return (a.sku || a.id || '').localeCompare(b.sku || b.id || '', undefined, { numeric: true, sensitivity: 'base' });
+                  }
+                  if (prodSortOrder === 'desc') {
+                    return (b.name || '').localeCompare(a.name || '', undefined, { numeric: true, sensitivity: 'base' });
+                  }
+                  if (prodSortOrder === 'price-asc') {
+                    return a.priceINR - b.priceINR;
+                  }
+                  if (prodSortOrder === 'price-desc') {
+                    return b.priceINR - a.priceINR;
+                  }
+                  return (a.name || '').localeCompare(b.name || '', undefined, { numeric: true, sensitivity: 'base' });
                 })
                 .map((prod) => (
                   <div 

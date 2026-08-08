@@ -1198,7 +1198,7 @@ class DatabaseService {
         rating: 0,
         reviewCount: 0
       };
-    });
+    }).sort((a, b) => (a.sku || a.id || '').localeCompare(b.sku || b.id || '', undefined, { numeric: true, sensitivity: 'base' }));
   }
 
   public getProductById(id: string): Product | undefined {
@@ -1206,10 +1206,12 @@ class DatabaseService {
   }
 
   public async addProduct(product: Product): Promise<{ success: boolean; message: string }> {
+    const nextSeqNum = this.getProducts().length + 1;
+    const defaultSku = `ARV-SKU-${String(nextSeqNum).padStart(4, '0')}`;
     const cleanProduct: Product = {
       ...product,
       id: product.id ? product.id.trim() : `arv-custom-${Date.now()}`,
-      sku: product.sku ? product.sku.trim().toUpperCase() : `ARV-SKU-${Date.now()}`,
+      sku: product.sku ? product.sku.trim().toUpperCase() : defaultSku,
       name: product.name.trim(),
       subtitle: product.subtitle ? product.subtitle.trim() : '',
       categoryId: product.categoryId || 'Cotton',
